@@ -9,6 +9,10 @@ import { SettingsStack } from '../pages/settings';
 import { ProfileStack } from '../pages/profile';
 import { Icon } from  '../components/icon';
 
+//temp
+// import {SortSidebar} from '../pages/library';
+// import {Parent} from '../pages/library';
+
 
 const App = createBottomTabNavigator({
   Create: { screen: Create },
@@ -24,7 +28,6 @@ const App = createBottomTabNavigator({
       return <Icon icon={routeName} isAccent={focused} />
     }, 
   }),
-  // tabBarComponent: TabBarBottom,
   tabBarPosition: 'bottom',
   tabBarOptions: {
     activeTintColor: '#8C64FF',

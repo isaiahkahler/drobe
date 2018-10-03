@@ -4,19 +4,35 @@ export interface Library {
 
 export interface Item {
   class: "top" | "bottom" | "full" | "shoes" | "accessory";
-  type: Type;
+  type: Top | Bottom | Full | Shoes | Accessory;
   color: string;
-  date: Date;
+  date: number;
   uses: number;
   laundry: number;
 }
 
-export interface Type {
-  top?: "t-shirt" | "coat" | "";
-  bottom?: "jeans";
-  shoes?: "sneakers" | "running shoes" | "boots" | "sandals" | "";
-  full?: "dress"
-  accessory?: "hat" | "tie" | "belt" | "glove" | "bracelet" | "socks" ;
+// export interface Type {
+//   top?: "t-shirt" | "coat" | "";
+//   bottom?: "jeans";
+//   shoes?: "sneakers" | "running shoes" | "boots" | "sandals" | "";
+//   full?: "dress"
+//   accessory?: "hat" | "tie" | "belt" | "glove" | "bracelet" | "socks" ;
+// }
+
+export interface Top {
+  type: "t-shirt" | "coat";
+}
+export interface Bottom {
+  type: "jeans";
+}
+export interface Full {
+  type: "dress";
+}
+export interface Shoes {
+  type: "sneakers" | "running shoes" | "boots" | "sandals" | "";
+}
+export interface Accessory {
+  type: "hat" | "tie" | "belt" | "glove" | "bracelet" | "socks" ;
 }
 
 export const Formality_1 = [];
@@ -25,7 +41,7 @@ export const Formality_3 = [];
 export const Formality_4 = [];
 
 export function getFormality(item: Item) {
-  let type = item.type[item.class];
+  let type = item.type.type;
   for(let check of Formality_1){
     if(check === type){
       return 1;
