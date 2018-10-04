@@ -20,13 +20,13 @@ export class Create extends React.Component<CreateProps, CreateState> {
     return (
       <Page>
         <View style={commonStyles.container}>
-        <Text style={[commonStyles.h1, commonStyles.bold]}>Create Outfit</Text>
+        <Text style={[commonStyles.h1, commonStyles.bold]}>create outfit</Text>
           <View style={styles.tile}>
             <Icon icon="Lightbulb" isAccent={false} multiplier={1.5} />
-            <Text style={[commonStyles.pb, commonStyles.bold]}>Automatically</Text>
+            <Text style={[commonStyles.pb, commonStyles.bold]}>automatically</Text>
           </View>
           <View style={styles.tile}>
-            <Text style={[commonStyles.pb, commonStyles.bold]}>Manually</Text>
+            <Text style={[commonStyles.pb, commonStyles.bold]}>manually</Text>
           </View>
         </View>
       </Page>

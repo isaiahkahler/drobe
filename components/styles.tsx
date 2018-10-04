@@ -3,7 +3,8 @@ import { StyleSheet } from 'react-native';
 
 export const commonStyles = StyleSheet.create({
   body: {
-    flex: 1
+    flex: 1,
+    backgroundColor: "#fff"
   },
   container: {
     flex: 1,
