@@ -26,9 +26,7 @@ class Library extends React.Component<LibraryProps, LibraryState> {
     super(props);
     this.state = { section: ['tile 1', 'tile 2', 'tile 3'] };
   }
-  static navigationOptions = {
-    title: 'Library'
-  };
+
 
   _retrieveData = async (item: string) => {
     //get from storage
@@ -100,6 +98,9 @@ class LibrarySidebar extends React.Component<{}> {
   constructor(props: any) {
     super(props);
   }
+  static navigationOptions = {
+    title: 'Library'
+  };
 
   private _drawer = React.createRef<any>();
 
@@ -163,7 +164,6 @@ const styles = StyleSheet.create({
     justifyContent: 'space-evenly',
     alignItems: 'center',
     flexWrap: 'wrap'
-    // backgroundColor: "#ff0000"
   },
   tile: {
     width: '40%',
@@ -189,13 +189,6 @@ const styles = StyleSheet.create({
     // justifyContent: "space-evenly",
     // alignItems: "center",
     zIndex: 5,
-    // margin: "5%",
-    // padding: "5%",
-    // paddingTop: "5%",
-    // paddingLeft: "5%",
-    // paddingRight: "5%",
-    // height: 100,
-    // backgroundColor: "rgba(0, 255, 255, 0.5)"
   },
   searchContainer: {
     flex: 1,
@@ -205,18 +198,12 @@ const styles = StyleSheet.create({
     borderRadius: 10, 
     paddingLeft: 5,
     paddingRight: 5,
-    // marginBottom: 10,
     margin: 10,
     backgroundColor: "#fff"
   },
   search: {
     flex: 1,
-    // fontSize: 24,
-    // margin: '5%',
-    // marginLeft: 5,
-    // marginRight: 5,
     height: 20,
-    // backgroundColor: '#ff0000',
   },
   sortButton: {
     // width: "10%",
@@ -227,14 +214,11 @@ const styles = StyleSheet.create({
     padding: 5,
     marginLeft: 0,
     margin: 10,
-    // height: 20
   }, 
   topContainerSpacer: {
-    // position: "absolute" , 
     height: 20,
     width: "100%",
     margin: 15,
-    // backgroundColor: "#ff0000"
   },
   sidebar: {
     padding: 10

@@ -39,11 +39,12 @@ class Profile extends React.Component<ProfileProps, ProfileState> {
     return (
       <Page>
         <View style={commonStyles.body}>
-          <Text>Profile!</Text>
-          <Button
-            onPress={() => this.props.navigation.navigate('Settings')}
-            title="Go to settings"
-          />
+          <View style={styles.topContainer}>
+            <View style={styles.profilePictureContainer}></View>
+            <View style={styles.profileInfoContainer}>
+              <Text style={commonStyles.h2}>Isaiah Kahler</Text>
+            </View>
+          </View>
         </View>
       </Page>
     );
@@ -61,5 +62,15 @@ export const ProfileStack = createStackNavigator(
 const styles = StyleSheet.create({
   settingsButton: {
     // marginRight: '5%'
-  }
+  },
+  topContainer: {
+    flex: 1,
+    flexDirection: "row",
+  },
+  profilePictureContainer: {
+    width: "30%"
+  },
+  profileInfoContainer: {
+
+  },
 });
