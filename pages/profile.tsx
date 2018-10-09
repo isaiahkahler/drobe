@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { StyleSheet, Text, View, Button, AsyncStorage, TouchableHighlight } from 'react-native';
+import { StyleSheet, Text, View, Button, AsyncStorage, TouchableHighlight, Image } from 'react-native';
 import { Page } from '../components/page';
 import { commonStyles } from '../components/styles';
 import { createStackNavigator } from 'react-navigation';
@@ -40,7 +40,9 @@ class Profile extends React.Component<ProfileProps, ProfileState> {
       <Page>
         <View style={commonStyles.body}>
           <View style={styles.topContainer}>
-            <View style={styles.profilePictureContainer}></View>
+            <View style={styles.profilePictureContainer}>
+              <Image source={require('../media/noProfile2.png')} style={styles.profilePicture}></Image>
+            </View>
             <View style={styles.profileInfoContainer}>
               <Text style={commonStyles.h2}>Isaiah Kahler</Text>
             </View>
@@ -68,7 +70,16 @@ const styles = StyleSheet.create({
     flexDirection: "row",
   },
   profilePictureContainer: {
-    width: "30%"
+    width: "30%",
+    // padding: 5,
+    aspectRatio: 1,
+    backgroundColor: "#ff0000"
+  },
+  profilePicture: {
+    width: "100%",
+    height: "100%",
+    padding: "5%",
+    borderRadius: 25
   },
   profileInfoContainer: {
 

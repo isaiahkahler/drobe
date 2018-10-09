@@ -26,6 +26,7 @@ export class Create extends React.Component<CreateProps, CreateState> {
             <Text style={[commonStyles.pb]}>automatically</Text>
           </View>
           <View style={styles.tile}>
+            <Icon icon="ManualHand" isAccent={false} multiplier={0.7} />
             <Text style={[commonStyles.pb]}>manually</Text>
           </View>
         </View>

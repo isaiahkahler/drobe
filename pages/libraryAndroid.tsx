@@ -108,7 +108,7 @@ class LibrarySidebar extends React.Component<{}> {
     this._drawer.current.closeDrawer();
   };
   openSidebar = () => {
-    this._drawer.current.openDrawer();
+    this._drawer.current.openDrawer(); //problem!!! doesn't work!
   };
 
   render() {
@@ -152,7 +152,7 @@ class SortSidebar extends React.Component<{}> {
   }
 }
 
-export const LibraryStack = createStackNavigator(
+export const LibraryStackAndroid = createStackNavigator(
   { Library: LibrarySidebar },
   { initialRouteName: 'Library' }
 );
