@@ -108,7 +108,7 @@ class Library extends React.Component<LibraryProps, LibraryState> {
             </ScrollView>
             <View style={styles.fixedTopContainer}>
               <View style={styles.searchContainer}>
-                <TextInput style={[styles.search, commonStyles.h2]} value="search" />
+                <TextInput style={[styles.search, commonStyles.h2]} placeholder="search" />
               </View>
 
               {Platform.OS === 'ios' ? (

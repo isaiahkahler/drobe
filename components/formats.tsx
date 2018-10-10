@@ -9,6 +9,7 @@ export interface Item {
   date: number;
   uses: number;
   laundry: number;
+  cover: boolean;
 }
 
 // export interface Type {

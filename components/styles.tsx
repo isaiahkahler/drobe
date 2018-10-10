@@ -1,17 +1,17 @@
-import { StyleSheet } from 'react-native';
+import { StyleSheet, Dimensions } from 'react-native';
 
 
 export const commonStyles = StyleSheet.create({
   body: {
     flex: 1,
-    backgroundColor: "#fff"
+    backgroundColor: "#fff",
+    width: Dimensions.get("screen").width
   },
   container: {
     flex: 1,
     flexDirection: 'column',
     justifyContent: 'space-around', 
     alignItems: 'center'
-    // backgroundColor: '#ff0000'
   },
   h1: {
     fontSize: 28
