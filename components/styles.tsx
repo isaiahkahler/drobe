@@ -1,5 +1,5 @@
 import { StyleSheet, Dimensions } from 'react-native';
-
+import Expo from 'expo';
 
 export const commonStyles = StyleSheet.create({
   body: {
@@ -11,7 +11,8 @@ export const commonStyles = StyleSheet.create({
     flex: 1,
     flexDirection: 'column',
     justifyContent: 'space-around', 
-    alignItems: 'center'
+    alignItems: 'center',
+    paddingTop: Expo.Constants.statusBarHeight,
   },
   h1: {
     fontSize: 28

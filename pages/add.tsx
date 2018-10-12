@@ -14,13 +14,14 @@ import {
   TouchableWithoutFeedback,
   Picker,
   Platform,
-  SegmentedControlIOS
+  SegmentedControlIOS,
+  ImageStore
 } from 'react-native';
 import { Page } from '../components/page';
 import { commonStyles } from '../components/styles';
 import { createStackNavigator } from 'react-navigation';
 import { Camera, Permissions } from 'expo';
-import { Item,  ItemDefinitions } from '../components/formats';
+import { Item, ItemDefinitions, Storage } from '../components/formats';
 
 const width = Dimensions.get('screen').width;
 const isIos = Platform.OS === 'ios';
@@ -60,14 +61,38 @@ class Add extends React.Component<AddProps, AddState> {
       // Error saving data
     }
   };
+  _retrieveData = async (item: string) => {
+    try {
+      const value: any = await AsyncStorage.getItem(item);
+      if (value !== null) {
+        // We have data!!
+        return value;
+      }
+      return null;
+    } catch (error) {
+      // Error retrieving data
+      return null;
+    }
+  };
 
   takePicture = async () => {
     if (!this._camera) {
       return;
     }
-    let photo = await this._camera.takePictureAsync().then(data => {
-      this._storeData('add-photo-uri', data.uri);
-      this.props.navigation.navigate('Define');
+    let photo = await this._camera.takePictureAsync({ base64: true }).then(data => {
+      ImageStore.addImageFromBase64(
+        data.base64,
+        uri => {
+          //success
+          this._storeData('add-photo-uri', uri);
+          this.props.navigation.navigate('Define');
+          console.log(uri);
+        },
+        () => {
+          //failure
+          alert('there was a problem storing that image.');
+        }
+      );
     });
   };
 
@@ -139,7 +164,8 @@ class Define extends React.Component<DefineProps, DefineState> {
         date: Date.now(),
         laundry: 0,
         name: null,
-        uses: 0
+        uses: 0,
+        photoURI: null
       }
     };
   }
@@ -147,10 +173,13 @@ class Define extends React.Component<DefineProps, DefineState> {
     title: 'Define Attributes'
   };
 
-
   componentDidMount() {
     this._retrieveData('add-photo-uri').then(data =>
-      this.setState({ uri: data, renderImage: true })
+      this.setState(previousState => ({
+        uri: data,
+        renderImage: true,
+        options: { ...previousState.options, photoURI: data }
+      }))
     );
   }
 
@@ -255,6 +284,88 @@ class Define extends React.Component<DefineProps, DefineState> {
           </View>
         )}
       </React.Fragment>
+    );
+  }
+}
+
+interface TempState {
+  options: Item;
+}
+
+class Temp extends React.Component<{}, TempState> {
+  constructor(props: any) {
+    super(props);
+    this.state = {
+      options: {
+        class: 'top',
+        type: null,
+        color: null,
+        cover: null,
+        date: Date.now(),
+        laundry: 0,
+        name: null,
+        uses: 0,
+        photoURI: null
+      }
+    };
+  }
+
+  updateData = (
+    key: 'class' | 'type' | 'color' | 'cover' | 'name',
+    value: boolean | string | number
+  ) => {
+    this.setState(previousState => ({
+      ...previousState,
+      options: { ...previousState.options, [key]: value }
+    }));
+  };
+
+  render() {
+    return (
+      <View>
+
+      <TextInput
+        onChangeText={(value) => this.updateData("name", value) }
+        placeholder="name"
+        />
+      <TextInput
+        onChangeText={(value) => this.updateData("type", value) }
+        placeholder="type"
+        />
+      <TextInput
+        onChangeText={(value) => this.updateData("color", value) }
+        placeholder="color"
+        />
+      <TextInput
+        onChangeText={(value) => this.updateData("cover", JSON.parse(value)) }
+        placeholder="cover"
+        />
+      <TextInput
+        onChangeText={(value) => this.updateData("cover", JSON.parse(value)) }
+        placeholder="cover"
+        />
+        <Button onPress={() => {
+          Storage.storeItem(this.state.options)
+        }}
+         title="store"
+        />
+        <Button onPress={() => {
+            Storage._retrieveData('pages').then((value) => {
+              console.log(value)
+            })
+            Storage._retrieveData('page1').then((value) => {
+              console.log(value)
+            })
+            Storage._retrieveData('page2').then((value) => {
+              console.log(value)
+            })
+            Storage._retrieveData('page3').then((value) => {
+              console.log(value)
+            })
+            
+        }}
+        title="print"/>
+        </View>
     );
   }
 }
