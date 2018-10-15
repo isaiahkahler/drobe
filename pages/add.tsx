@@ -337,11 +337,11 @@ class Temp extends React.Component<{}, TempState> {
         placeholder="color"
         />
       <TextInput
-        onChangeText={(value) => this.updateData("cover", JSON.parse(value)) }
+        onChangeText={(value) => this.updateData("cover", value) }
         placeholder="cover"
         />
       <TextInput
-        onChangeText={(value) => this.updateData("cover", JSON.parse(value)) }
+        onChangeText={(value) => this.updateData("cover", value) }
         placeholder="cover"
         />
         <Button onPress={() => {
@@ -353,18 +353,71 @@ class Temp extends React.Component<{}, TempState> {
             Storage._retrieveData('pages').then((value) => {
               console.log(value)
             })
+            // Storage._retrieveData('page' + 1).then(value => console.log(value)) 
+            // Storage._retrieveData('page' + 2).then(value => console.log(value)) 
+            // Storage._retrieveData('page' + 3).then(value => console.log(value)) 
             Storage._retrieveData('page1').then((value) => {
-              console.log(value)
+              console.log("page1")
+              if(!!value){
+                console.log(value.items[0].name)
+              }
+              if(!!value){
+                console.log(value.items[1].name)
+              }
+              if(!!value){
+                console.log(value.items[2].name)
+              }
+              if(!!value){
+                console.log(value.items[3].name)
+              }
+              if(!!value){
+                console.log(value.items[4].name)
+              }
             })
             Storage._retrieveData('page2').then((value) => {
-              console.log(value)
+              console.log("page2")
+              if(!!value){
+                console.log(value.items[0].name)
+              }
+              if(!!value){
+                console.log(value.items[1].name)
+              }
+              if(!!value){
+                console.log(value.items[2].name)
+              }
+              if(!!value){
+                console.log(value.items[3].name)
+              }
+              if(!!value){
+                console.log(value.items[4].name)
+              }
             })
             Storage._retrieveData('page3').then((value) => {
-              console.log(value)
+              console.log("page3")
+              if(!!value){
+                console.log(value.items[0].name)
+              }
+              if(!!value){
+                console.log(value.items[1].name)
+              }
+              if(!!value){
+                console.log(value.items[2].name)
+              }
+              if(!!value){
+                console.log(value.items[3].name)
+              }
+              if(!!value){
+                console.log(value.items[4].name)
+              }
             })
-            
         }}
         title="print"/>
+        <Button title="delete second" 
+         onPress={() => Storage.DeleteItem(1, 2)}
+        />
+        <Button title="delete all" 
+         onPress={() => AsyncStorage.clear()}
+        />
         </View>
     );
   }

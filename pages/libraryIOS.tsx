@@ -228,7 +228,8 @@ const styles = StyleSheet.create({
   },
   sidebar: {
     width: Dimensions.get('screen').width * 0.8,
-    padding: 10
+    padding: 10,
+    backgroundColor: "#ccc"
   },
   listItem: {},
   listSectionHeader: {}
