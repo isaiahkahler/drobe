@@ -15,6 +15,7 @@ import {
   Picker,
   Platform,
   SegmentedControlIOS,
+  Modal,
   ActivityIndicator,
   ImageStore,
   FlatList
@@ -22,14 +23,17 @@ import {
 import { Page } from '../../components/page';
 import { commonStyles } from '../../components/styles';
 import { Item, ItemDefinitions, Storage } from '../../components/formats';
-import { AnyCnameRecord } from 'dns';
+import { TriangleColorPicker, fromHsv } from 'react-native-color-picker';
+import { isAbsolute } from 'path';
 
 const width = Dimensions.get('screen').width;
+const height = Dimensions.get('screen').height;
 const isIos = Platform.OS === 'ios';
 
 interface DefineProps {}
 interface DefineState {
   showTypeList: boolean;
+  showModal: boolean;
   renderImage: boolean;
   uri: string;
   options: Item;
@@ -41,6 +45,7 @@ export class Define extends React.Component<DefineProps, DefineState> {
     super(props);
     this.state = {
       showTypeList: false,
+      showModal: false,
       renderImage: false,
       uri: '',
       options: {
@@ -73,10 +78,10 @@ export class Define extends React.Component<DefineProps, DefineState> {
     key: 'class' | 'type' | 'color' | 'cover' | 'name',
     value: boolean | string | number
   ) => {
-    if(key === "class"){
+    if (key === 'class') {
       this.setState(previousState => ({
         ...previousState,
-        options: {...previousState.options, class: value as any, type: null}
+        options: { ...previousState.options, class: value as any, type: null }
       }));
     } else {
       this.setState(previousState => ({
@@ -101,9 +106,7 @@ export class Define extends React.Component<DefineProps, DefineState> {
     }
   };
 
-  selectItemType = (index: number, ) => {
-
-  }
+  selectItemType = (index: number) => {};
 
   render() {
     return (
@@ -159,29 +162,53 @@ export class Define extends React.Component<DefineProps, DefineState> {
               <View style={styles.defineContainer}>
                 <Label>Clothing Item</Label>
                 <View style={styles.fullWidthButton}>
-
-                <TouchableHighlight
-                  style={[styles.touchableHighlight]}
-                  onPress={() => {this.setState({showTypeList: true})}}
-                >
-                  <Text style={commonStyles.pb}>
-                    {this.state.options.type ? this.state.options.type : 'choose item...'}
-                  </Text>
-                </TouchableHighlight>
-                {this.state.showTypeList && (
-                  <View style={styles.typeList}>
-                   {ItemDefinitions.types[this.state.options.class].map((item: any, index: number) => {
-                     return <TouchableHighlight key={index} onPress={() => {
-                       this.updateData("type", item);
-                       this.setState({showTypeList: false});
-                     }}><Text style={commonStyles.pb}>{item}</Text></TouchableHighlight>
-                   })}
-                   <Text></Text>
-                  </View>
-                )}
+                  <TouchableHighlight
+                    style={styles.touchableHighlight}
+                    onPress={() => {
+                      this.setState({ showTypeList: true });
+                    }}
+                  >
+                    <Text style={commonStyles.pb}>
+                      {this.state.options.type ? this.state.options.type : 'choose item...'}
+                    </Text>
+                  </TouchableHighlight>
+                  {this.state.showTypeList && (
+                    <View style={styles.typeList}>
+                      {ItemDefinitions.types[this.state.options.class].map(
+                        (item: any, index: number) => {
+                          return (
+                            <TouchableHighlight
+                              key={index}
+                              onPress={() => {
+                                this.updateData('type', item);
+                                this.setState({ showTypeList: false });
+                              }}
+                            >
+                              <Text style={commonStyles.pb}>{item}</Text>
+                            </TouchableHighlight>
+                          );
+                        }
+                      )}
+                      <Text />
+                    </View>
+                  )}
                 </View>
-
               </View>
+
+              <View style={styles.defineContainer}>
+                <Label>Clothing Item</Label>
+                <View style={styles.fullWidthButton}>
+                  <TouchableHighlight
+                    style={[styles.touchableHighlight]}
+                    onPress={() => {
+                      this.setState({ showModal: true });
+                    }}
+                  >
+                    <Text style={commonStyles.pb}>choose color</Text>
+                  </TouchableHighlight>
+                </View>
+              </View>
+
               <View style={styles.defineContainer}>
                 <View style={styles.fullWidthButton}>
                   <Button title="print data" onPress={this.printData} />
@@ -195,7 +222,24 @@ export class Define extends React.Component<DefineProps, DefineState> {
             </View>
           </TouchableWithoutFeedback>
         </Page>
-        {/* {this.state.showModal && <View style={styles.bottomContainer}>still used?</View>} */}
+        {this.state.showModal && (
+          <View style={styles.modalContainer}>
+
+          <View style={styles.modal}>
+          <View style={{marginTop: 20}}>
+          <Button title="close" onPress={() => {this.setState({showModal:false})}} color="#000"></Button>
+
+          </View>
+
+            <TriangleColorPicker
+              onColorChange={color => {
+                console.log(fromHsv(color));
+              }}
+              style={{ flex: 1 }}
+            />
+          </View>
+          </View>
+        )}
       </React.Fragment>
     );
   }
@@ -225,12 +269,6 @@ const styles = StyleSheet.create({
   label: {
     marginBottom: 5
   },
-  bottomContainer: {
-    width: '100%',
-    flex: 1,
-    flexDirection: 'column-reverse',
-    zIndex: 5
-  },
   fullWidthButton: {
     borderWidth: 2,
     borderColor: '#000',
@@ -244,5 +282,23 @@ const styles = StyleSheet.create({
   },
   typeList: {
     paddingHorizontal: 5
+  },
+  modalContainer: {
+    position: "absolute",
+    width: width,
+    height: height,
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    zIndex: 5,
+    padding: '10%',
+  },
+  modal: {
+    aspectRatio: 1,
+    width: "100%",
+    borderWidth: 2,
+    borderRadius: 10,
+    backgroundColor: "rgba(255,255,255,0.75)",
+    padding: 5
   }
 });

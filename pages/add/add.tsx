@@ -10,14 +10,14 @@ import {
   TextInput,
   Dimensions,
   Platform,
-  ActivityIndicator,
+  ActivityIndicator
 } from 'react-native';
 import { Page } from '../../components/page';
 import { commonStyles } from '../../components/styles';
 import { createStackNavigator } from 'react-navigation';
 import { Camera, Permissions, FileSystem } from 'expo';
 import { Item, ItemDefinitions, Storage } from '../../components/formats';
-import {Define} from './define';
+import { Define } from './define';
 
 const width = Dimensions.get('screen').width;
 const isIos = Platform.OS === 'ios';
@@ -28,6 +28,7 @@ interface AddProps {
 interface AddState {
   hasCameraPermission: any;
   showCamera: boolean;
+  flash: 'on' | 'off' | 'torch';
 }
 
 class Add extends React.Component<AddProps, AddState> {
@@ -35,7 +36,8 @@ class Add extends React.Component<AddProps, AddState> {
     super(props);
     this.state = {
       hasCameraPermission: null,
-      showCamera: true
+      showCamera: true,
+      flash: 'off'
     };
   }
   static navigationOptions = {
@@ -51,45 +53,46 @@ class Add extends React.Component<AddProps, AddState> {
   }
 
   private _camera: any;
-//use from Storage class
-  // _storeData = async (key: string, value: any) => {
-  //   try {
-  //     await AsyncStorage.setItem(key, value);
-  //   } catch (error) {
-  //     // Error saving data
-  //   }
-  // };
-  // _retrieveData = async (item: string) => {
-  //   try {
-  //     const value: any = await AsyncStorage.getItem(item);
-  //     if (value !== null) {
-  //       // We have data!!
-  //       return value;
-  //     }
-  //     return null;
-  //   } catch (error) {
-  //     // Error retrieving data
-  //     return null;
-  //   }
-  // };
 
   takePicture = async () => {
-    // FileSystem.
-    this.setState({showCamera: false})
+    //TODO : set show camera true when navigating back from define
+    this.setState({ showCamera: false });
     if (!this._camera) {
       return;
     }
     // let photo = await this._camera.takePictureAsync();
     //   await Storage._storeData('addData', { uri: photo.uri, width: photo.width, height: photo.height });
     //   this.props.navigation.navigate('Define');
-    try{
-      let photo = await this._camera.takePictureAsync().then((photo) => {
-         Storage._storeData('addData', { uri: photo.uri, width: photo.width, height: photo.height });
+    try {
+      let photo = await this._camera.takePictureAsync().then(photo => {
+        Storage._storeData('addData', { uri: photo.uri, width: photo.width, height: photo.height });
         this.props.navigation.navigate('Define');
       });
     } catch (e) {
-      alert("oops! picture could not be taken. error: " + e);
-      this.setState({showCamera: true})
+      alert('oops! picture could not be taken. error: ' + e);
+      this.setState({ showCamera: true });
+    }
+  };
+
+  getFlashMode = () => {
+    if (this.state.flash === 'on') {
+      return Camera.Constants.FlashMode.on;
+    } else if (this.state.flash === 'off') {
+      return Camera.Constants.FlashMode.off;
+    } else {
+      return Camera.Constants.FlashMode.torch;
+    }
+  };
+
+  switchFlashMode = () => {
+    if (this.state.flash === 'off') {
+      this.setState({ flash: 'on' });
+    }
+    if (this.state.flash === 'on') {
+      this.setState({ flash: 'torch' });
+    }
+    if (this.state.flash === 'torch') {
+      this.setState({ flash: 'off' });
     }
   };
 
@@ -107,17 +110,22 @@ class Add extends React.Component<AddProps, AddState> {
               <Camera
                 style={{ flex: 1 }}
                 type={Camera.Constants.Type.back}
+                flashMode={this.getFlashMode()}
                 ref={ref => {
                   this._camera = ref;
                 }}
               >
-                <View
-                  style={styles.pictureButtonContainer}
-                >
-                  <TouchableHighlight onPress={this.takePicture}>
-                    <View
-                      style={styles.pictureButton}
-                    />
+                <View style={styles.flashButtonContainer}>
+                  <TouchableHighlight
+                    style={styles.flashButton}
+                    onPress={() => this.switchFlashMode()}
+                  >
+                    <Text>{this.state.flash}</Text>
+                  </TouchableHighlight>
+                </View>
+                <View style={styles.pictureButtonContainer}>
+                  <TouchableHighlight onPress={this.takePicture} style={styles.pictureButton}>
+                    <View />
                   </TouchableHighlight>
                 </View>
               </Camera>
@@ -132,7 +140,6 @@ class Add extends React.Component<AddProps, AddState> {
     }
   }
 }
-
 
 //delete!
 interface TempState {
@@ -288,6 +295,18 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     borderColor: '#000',
     borderWidth: 5,
-    borderRadius: 100
+    borderRadius: 100,
+    marginBottom: 20
+  },
+  flashButton: {
+    width: 40,
+    height: 40,
+    backgroundColor: '#fff',
+    marginTop: 20
+  },
+  flashButtonContainer: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "flex-start"
   }
 });
