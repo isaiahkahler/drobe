@@ -111,33 +111,6 @@ export class Storage {
     AsyncStorage.removeItem(item);
   }
 
-  // static storeItem(item: Item) {
-
-  //   console.log('got here!')
-  //   this._retrieveData('pages').then((numberOfPages: number) => {
-  //     console.log("number of pages" , numberOfPages,  "page" + numberOfPages)
-  //     if (numberOfPages === null){ //no pages stored
-  //       this._storeData('pages', 1).then(() => { //number of pages is now 1
-  //         let newPage: Page = {full: false, items: [item]}
-  //         this._storeData('page1', newPage); //store item in a new page object saved to page1
-  //       });
-  //     } else { //there are pages in storage
-  //       this._retrieveData('page' + numberOfPages).then((lastPage: Page) => { //get the last page
-  //         if(lastPage.full){ //page is full
-  //           this._storeData('pages', (numberOfPages + 1)).then(() => { //number of pages is one higher
-  //             let newPage: Page = {full: false, items: [item]}
-  //             this._storeData('page' + (numberOfPages + 1), newPage); //store item in a new page object saved to one higher than last
-  //           })
-  //         } else { //page has space for more
-  //           let updatedPage: Page = {...lastPage, items: [...lastPage.items, item]}
-  //           this._storeData('page' + numberOfPages, updatedPage); //sets the last page object to the one we grabbed but with new item
-  //         }
-  //       })
-
-  //     }
-  //   })
-
-  // }
 
 //review: does storing data need await?
 
@@ -202,46 +175,29 @@ export class Storage {
       await this._storeData('page' + (i - 1), currentPage);
     }
 
-
-
-
-    // this._retrieveData('pages').then((numberOfPages: number) => { //get number of pages
-    //   if(numberOfPages === null) {
-    //     throw "no pages exist";
-    //     return;
-    //   }
-      
-    //   this._retrieveData('page' + page).then((returnedPage: Page) => { //get page with item to delete
-    
-    //     if(returnedPage === null) {
-    //       throw "page does not exist";
-    //       return;
-    //     }
-
-    //     let newPage:Page = {...returnedPage}
-
-    //     if(!newPage.items[itemIndex]) {
-    //       throw "item does not exist";
-    //       return;
-    //     }
-
-    //     newPage.items.splice(itemIndex, 1);
-
-    //     this._retrieveData('page' + numberOfPages).then((lastPage: Page) => { //get last page
-
-
-    //       let lastItem = lastPage.items[lastPage.items.length - 1];
-    //       let newLastPage = {...lastPage};
-    //       newLastPage.items.splice(newLastPage.items.length - 1, 1);
-    //       if(newLastPage.full){
-    //         newLastPage.full = false;
-    //       }
-    //       this._storeData('page' + numberOfPages, newLastPage) //stores last page with removed item
-    //       newPage.items.push(lastItem);
-    //       this._storeData('page' + page, newPage) //stores page with the last item
-    //     })
-    //   })
-    // })
   }
 
+}
+
+export function roundColor(colorRGB: {r: number, g: number, b: number}): string{
+  const colors:Array<{r: number, b: number, g: number}> = [{r: 255, g: 0, b: 0}, {r: 0, g: 255, b: 0}, {r: 0, g:0, b:255}]
+  const names:Array<string> = ["red", "green", "blue"]
+  let smallestIndex = 0;
+  let smallest = 10000;
+  let index = 0;
+  for(let color of colors){
+    let distance = Math.sqrt(
+      Math.pow((colorRGB.r - color.r), 2)
+      +
+      Math.pow((colorRGB.g - color.g), 2)
+      +
+      Math.pow((colorRGB.b - color.b), 2)
+    );
+    if(distance < smallest){
+      smallest = distance;
+      smallestIndex = index;
+    }
+    index++;
+  }
+  return names[smallestIndex];
 }

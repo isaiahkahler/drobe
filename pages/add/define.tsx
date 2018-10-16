@@ -22,7 +22,7 @@ import {
 } from 'react-native';
 import { Page } from '../../components/page';
 import { commonStyles } from '../../components/styles';
-import { Item, ItemDefinitions, Storage } from '../../components/formats';
+import { Item, ItemDefinitions, Storage, roundColor } from '../../components/formats';
 import { TriangleColorPicker, fromHsv } from 'react-native-color-picker';
 import Color from 'color';
 
@@ -104,6 +104,10 @@ export class Define extends React.Component<DefineProps, DefineState> {
       //if color and type are filled
       if (!this.state.options.name) {
         //if name is null fill name
+        this.setState(previousState => ({
+          ...previousState,
+          options: {...previousState.options}
+        }))
       }
     }
   };
@@ -214,7 +218,7 @@ export class Define extends React.Component<DefineProps, DefineState> {
                     }}
                   >
                     <Text style={[commonStyles.pb, { color: this.state.colorButton }]}>
-                      choose color
+                      {this.state.options.color ? roundColor(Color(this.state.options.color).object() as any) : "choose color" }
                     </Text>
                   </TouchableHighlight>
                 </View>
@@ -233,8 +237,8 @@ export class Define extends React.Component<DefineProps, DefineState> {
             </View>
           </TouchableWithoutFeedback>
         </Page>
+        {/* color picker modal */}
         {this.state.showModal && (
-          // color picker modal
           <View style={styles.modalContainer}>
             <View style={styles.modal}>
               <TriangleColorPicker
