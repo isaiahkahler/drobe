@@ -34,21 +34,6 @@ class Library extends React.Component<LibraryProps, LibraryState> {
     title: 'Library'
   };
 
-  _retrieveData = async (item: string) => {
-    //get from storage
-    try {
-      const value = await AsyncStorage.getItem(item);
-      if (value !== null) {
-        return value;
-      } else {
-        return null;
-      }
-    } catch (error) {
-      // Error retrieving data
-      return null;
-    }
-  };
-
   componentDidMount = () => {
     this.getClothes();
   };

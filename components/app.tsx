@@ -4,7 +4,7 @@ import { createBottomTabNavigator } from 'react-navigation';
 import { Create } from '../pages/create';
 // import { LibraryStack } from '../pages/library';
 import { StatsStack } from '../pages/stats';
-import { AddStack } from '../pages/add';
+import { AddStack } from '../pages/add/add';
 import { SettingsStack } from '../pages/settings';
 import { ProfileStack } from '../pages/profile';
 import { Icon } from  '../components/icon';

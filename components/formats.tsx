@@ -24,9 +24,9 @@ export const ItemDefinitions = {
   types: {
     top: ["blazer", "blouse", "cardigan", "coat", "dress shirt", "hoodie", "jacket", "polo", "shirt", "sweatshirt", "t-shirt", "vest"],
     bottom: ["capri's", "dress pants", "jeans", "joggers", "leggings", "shorts", "skirt", "sweatpants", "trousers", "yoga pants"],
-    fullBodies: ["dress", "jumpsuit", "overalls", "poncho", "robe", "romper", "tall coat"],
+    full: ["dress", "jumpsuit", "overalls", "poncho", "robe", "romper", "tall coat"],
     shoes: ["boots", "clogs", "dress shoes", "heels", "moccasin", "running shoes", "sandals", "slides", "slip-ons", "sneakers"],
-    accessories: ["bag", "belt", "bow tie", "bracelet", "glasses", "gloves", "hat", "scarf", "shawl", "socks", "tie"]
+    accessory: ["bag", "belt", "bow tie", "bracelet", "glasses", "gloves", "hat", "scarf", "shawl", "socks", "tie"]
   }
 };
 
