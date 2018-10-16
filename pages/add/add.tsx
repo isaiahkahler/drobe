@@ -69,7 +69,7 @@ class Add extends React.Component<AddProps, AddState> {
         this.props.navigation.navigate('Define');
       });
     } catch (e) {
-      alert('oops! picture could not be taken. error: ' + e);
+      alert('oops! picture could not be taken. \n' + e);
       this.setState({ showCamera: true });
     }
   };

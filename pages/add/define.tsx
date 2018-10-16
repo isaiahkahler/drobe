@@ -24,7 +24,7 @@ import { Page } from '../../components/page';
 import { commonStyles } from '../../components/styles';
 import { Item, ItemDefinitions, Storage } from '../../components/formats';
 import { TriangleColorPicker, fromHsv } from 'react-native-color-picker';
-import { isAbsolute } from 'path';
+import Color from 'color';
 
 const width = Dimensions.get('screen').width;
 const height = Dimensions.get('screen').height;
@@ -38,6 +38,7 @@ interface DefineState {
   uri: string;
   options: Item;
   showRequired: boolean;
+  colorButton: string;
 }
 
 export class Define extends React.Component<DefineProps, DefineState> {
@@ -59,7 +60,8 @@ export class Define extends React.Component<DefineProps, DefineState> {
         uses: 0,
         photoURI: null
       },
-      showRequired: false
+      showRequired: false,
+      colorButton: '#000'
     };
   }
   static navigationOptions = {
@@ -114,6 +116,7 @@ export class Define extends React.Component<DefineProps, DefineState> {
         <Page scroll>
           <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
             <View>
+              {/* name */}
               <View style={styles.defineContainer}>
                 <TextInput
                   placeholder="clothing item name"
@@ -121,6 +124,7 @@ export class Define extends React.Component<DefineProps, DefineState> {
                   onChangeText={value => this.updateData('name', value)}
                 />
               </View>
+              {/* image preview */}
               <View style={styles.defineContainer}>
                 {this.state.renderImage && (
                   <Image
@@ -129,6 +133,7 @@ export class Define extends React.Component<DefineProps, DefineState> {
                   />
                 )}
               </View>
+              {/* class picker */}
               <View>
                 {isIos ? (
                   <View style={styles.defineContainer}>
@@ -159,6 +164,7 @@ export class Define extends React.Component<DefineProps, DefineState> {
                   </View>
                 )}
               </View>
+              {/* type picker */}
               <View style={styles.defineContainer}>
                 <Label>Clothing Item</Label>
                 <View style={styles.fullWidthButton}>
@@ -194,17 +200,22 @@ export class Define extends React.Component<DefineProps, DefineState> {
                   )}
                 </View>
               </View>
-
+              {/* color picker button*/}
               <View style={styles.defineContainer}>
-                <Label>Clothing Item</Label>
+                <Label>Item Color</Label>
                 <View style={styles.fullWidthButton}>
                   <TouchableHighlight
-                    style={[styles.touchableHighlight]}
-                    onPress={() => {
+                    style={[
+                      styles.touchableHighlight,
+                      { backgroundColor: this.state.options.color }
+                    ]}
+                    onPress={() => { 
                       this.setState({ showModal: true });
                     }}
                   >
-                    <Text style={commonStyles.pb}>choose color</Text>
+                    <Text style={[commonStyles.pb, { color: this.state.colorButton }]}>
+                      choose color
+                    </Text>
                   </TouchableHighlight>
                 </View>
               </View>
@@ -223,21 +234,34 @@ export class Define extends React.Component<DefineProps, DefineState> {
           </TouchableWithoutFeedback>
         </Page>
         {this.state.showModal && (
+          // color picker modal
           <View style={styles.modalContainer}>
-
-          <View style={styles.modal}>
-          <View style={{marginTop: 20}}>
-          <Button title="close" onPress={() => {this.setState({showModal:false})}} color="#000"></Button>
-
-          </View>
-
-            <TriangleColorPicker
-              onColorChange={color => {
-                console.log(fromHsv(color));
-              }}
-              style={{ flex: 1 }}
-            />
-          </View>
+            <View style={styles.modal}>
+              <TriangleColorPicker
+                onColorChange={color => {
+                  let colorObj = Color(fromHsv(color));
+                  if (colorObj.luminosity() < 0.5) {
+                    this.setState({ colorButton: '#fff' });
+                  } else {
+                    this.setState({ colorButton: '#000' });
+                  }
+                  this.setState(previousState => ({
+                    ...previousState,
+                    options: { ...previousState.options, color: fromHsv(color) }
+                  }));
+                }}
+                style={{ width: "100%", aspectRatio: 1 }}
+              />
+              <View style={styles.modalButtonClose}>
+                <Button
+                  title="close"
+                  onPress={() => {
+                    this.setState({ showModal: false });
+                  }}
+                  color="#000"
+                />
+              </View>
+            </View>
           </View>
         )}
       </React.Fragment>
@@ -284,21 +308,27 @@ const styles = StyleSheet.create({
     paddingHorizontal: 5
   },
   modalContainer: {
-    position: "absolute",
+    position: 'absolute',
     width: width,
     height: height,
     flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
+    justifyContent: 'center',
+    alignItems: 'center',
     zIndex: 5,
-    padding: '10%',
+    padding: '10%'
   },
   modal: {
-    aspectRatio: 1,
-    width: "100%",
+    // aspectRatio: 0.75,
+    width: '100%',
     borderWidth: 2,
     borderRadius: 10,
-    backgroundColor: "rgba(255,255,255,0.75)",
-    padding: 5
-  }
+    backgroundColor: "#fff", //'rgba(255,255,255,0.75)',
+    padding: '5%'
+  },
+  modalButtonClose: {
+    borderWidth: 2,
+    borderColor: '#000',
+    borderRadius: 10,
+    marginTop: 10
+  },
 });

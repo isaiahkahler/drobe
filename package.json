@@ -46,9 +46,11 @@
     }
   },
   "dependencies": {
+    "@types/color": "^3.0.0",
     "@types/expo": "^27.0.13",
     "@types/react-native": "^0.57.2",
     "@types/react-navigation": "^2.0.23",
+    "color": "^3.1.0",
     "expo": "^27.0.1",
     "expo-cli": "^2.2.0",
     "react": "16.3.1",
