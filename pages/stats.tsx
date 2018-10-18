@@ -13,7 +13,7 @@ import {
   Platform,
   TouchableNativeFeedback
 } from 'react-native';
-import { Page } from '../components/page';
+import { PageLayout } from '../components/page';
 import { commonStyles } from '../components/styles';
 import { createStackNavigator } from 'react-navigation';
 
@@ -70,7 +70,7 @@ class Stats extends React.Component<StatsProps, StatsState> {
           ref={this._swiper}
           showsHorizontalScrollIndicator={false}
         >
-          <Page>
+          <PageLayout>
             <View style={styles.page}>
               <ScrollView
                 horizontal
@@ -87,12 +87,12 @@ class Stats extends React.Component<StatsProps, StatsState> {
                 </View>
               </ScrollView>
             </View>
-          </Page>
-          <Page>
+          </PageLayout>
+          <PageLayout>
             <View style={styles.page}>
               <Text>page 2</Text>
             </View>
-          </Page>
+          </PageLayout>
         </ScrollView>
       </View>
     );

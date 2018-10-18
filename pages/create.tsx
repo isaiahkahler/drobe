@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { StyleSheet, Text, View, Button, AsyncStorage  } from 'react-native';
-import { Page } from '../components/page';
+import { PageLayout } from '../components/page';
 import { commonStyles } from '../components/styles';
 import { createStackNavigator } from 'react-navigation';
 import { Icon } from '../components/icon';
@@ -18,7 +18,7 @@ export class Create extends React.Component<CreateProps, CreateState> {
 
   render() {
     return (
-      <Page>
+      <PageLayout>
         <View style={commonStyles.container}>
         <Text style={[commonStyles.h1]}>create outfit</Text>
           <View style={styles.tile}>
@@ -30,7 +30,7 @@ export class Create extends React.Component<CreateProps, CreateState> {
             <Text style={[commonStyles.pb]}>manually</Text>
           </View>
         </View>
-      </Page>
+      </PageLayout>
     );
   }
 }

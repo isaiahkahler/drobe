@@ -1,6 +1,7 @@
 import React from 'react';
 import { AsyncStorage } from 'react-native';
 import { number } from 'prop-types';
+import { FileSystem } from 'expo'; 
 
 export interface Page {
   // full: boolean;
@@ -15,7 +16,7 @@ export interface Item {
   date: number;
   uses: number;
   laundry: number;
-  cover: boolean;
+  // cover: boolean;
   photoURI: string;
 }
 
@@ -176,7 +177,11 @@ export function getFormality(item: Item) {
   return new Error(`oh that shouldn't have happened.`);
 }
 
-export class Storage {
+export class Storage { 
+
+  //review: using static right?
+  static libraryPhotosDirectory = FileSystem.documentDirectory + "libraryPhotos";
+
   static _storeData = async (key: string, value: any) => {
     try {
       if (typeof value === 'string') {
@@ -202,6 +207,7 @@ export class Storage {
       return null;
     } catch (error) {
       // Error retrieving data
+      alert("oof. error retrieving data. you shouldn't be seeing this." + error);
       return null;
     }
   };
@@ -274,6 +280,60 @@ export class Storage {
       //store current page
       await this._storeData('page' + (i - 1), currentPage);
     }
+  }
+
+  static async getNumberOfPages() {
+    let number:number = await this._retrieveData('pages');
+    if (!number) {
+      return 0;
+    }
+    return number;
+  }
+
+  static async getPage(pageNumber: number) {
+    let page:Page = await this._retrieveData('page' + number);
+    return page;
+  }
+  /**
+   * 
+   * @param pageNumber indexes from 1
+   * @param itemNumber indexes from 1
+   */
+  static async getItem(pageNumber: number, itemNumber: number) {
+    let page = await this.getPage(pageNumber);
+    let item = page.items[itemNumber + 1];
+  }
+
+  static async MovePhotoFromCache(cacheURI: string, callback: Function) {
+    let info = await FileSystem.getInfoAsync(this.libraryPhotosDirectory);
+    let newURI = this.libraryPhotosDirectory + '/' + Date.now();
+    if(!info.exists){
+      //first time, directory does not exist
+      try {
+        await FileSystem.makeDirectoryAsync(this.libraryPhotosDirectory, {intermediates: false});
+      } catch(e) {
+        alert("oh no! there was a problem storing your item." + e);
+        return;
+      }
+      // console.log('success making directory');  //temp
+      try {
+        await FileSystem.moveAsync({from: cacheURI, to: newURI});
+      } catch (e) {
+        alert("oh no! there was a problem storing your item." + e);
+        return;
+      }
+      // console.log('success storing, made dir');
+    } else {
+      //directory already established, store the item there
+      try {
+        await FileSystem.moveAsync({from: cacheURI, to: newURI});
+      } catch (e) {
+        alert("oh no! there was a problem storing your item." + e);
+        return;
+      }
+      // console.log('success storing, didnt make dir');
+    }
+    callback(newURI);
   }
 }
 

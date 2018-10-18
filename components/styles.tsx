@@ -4,7 +4,7 @@ import Expo from 'expo';
 export const commonStyles = StyleSheet.create({
   body: {
     flex: 1,
-    backgroundColor: "#fff",
+    backgroundColor: "#fff", //regular #E9E9EF
     width: Dimensions.get("screen").width
   },
   container: {

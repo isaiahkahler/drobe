@@ -8,7 +8,7 @@ interface PageProps {
 }
 interface PageState {}
 
-export class Page extends React.Component<PageProps, PageState>{
+export class PageLayout extends React.Component<PageProps, PageState>{
   render() {
     if(this.props.scroll){
       return( <ScrollView style={commonStyles.body}>{this.props.children}</ScrollView>);

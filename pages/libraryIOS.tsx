@@ -13,21 +13,22 @@ import {
   Platform,
   TouchableNativeFeedback
 } from 'react-native';
-import { Page } from '../components/page';
+import { PageLayout } from '../components/page';
 import { commonStyles } from '../components/styles';
 import { createStackNavigator } from 'react-navigation';
-import { getFormality, Item } from '../components/formats';
+import { getFormality, Item, Storage, Page } from '../components/formats';
 
 interface LibraryProps {}
 interface LibraryState {
-  section: Array<string>; //change to data type to Item (in formats)
+  // numberOfPages: number;
+  pages: Array<Page>;
   drawerOpen: boolean;
 }
 
 class Library extends React.Component<LibraryProps, LibraryState> {
   constructor(props: LibraryProps) {
     super(props);
-    this.state = { section: ['tile 1', 'tile 2', 'tile 3'], drawerOpen: false };
+    this.state = { pages: [], drawerOpen: false };
   }
 
   static navigationOptions = {
@@ -38,25 +39,37 @@ class Library extends React.Component<LibraryProps, LibraryState> {
     this.getClothes();
   };
 
-  getClothes() {
+  getClothes = async () => {
     //get from storage
-  }
+    let numberOfPages = await Storage.getNumberOfPages();
+    if (numberOfPages !== 0) {
+      let pageOne = await Storage.getPage(1);
+      this.setState({ pages: [pageOne] });
+    }
+  };
 
   loadMore = () => {
     //load more from storage?
-    this.setState(previousState => ({
-      ...previousState,
-      section: [...previousState.section, 'new tile', 'new tile 2']
-    }));
+    // this.setState(previousState => ({
+    //   ...previousState,
+    //   section: [...previousState.pages, 'new tile', 'new tile 2']
+    // }));
   };
 
   getTiles() {
     //map data to tiles
-    return this.state.section.map((element, index) => {
+    if(!this.state.pages){return undefined;}
+    return this.state.pages.map((page, pageIndex) => {
       return (
-        <Tile key={index}>
-          <Text>{element}</Text>
-        </Tile>
+        <View key={pageIndex}>
+          {page.items.map((item, itemIndex) => {
+            return (
+              <Tile>
+                <Text key={itemIndex}>{item.name}</Text>
+              </Tile>
+            );
+          })}
+        </View>
       );
     });
   }
@@ -79,7 +92,7 @@ class Library extends React.Component<LibraryProps, LibraryState> {
 
   render() {
     return (
-      <Page>
+      <PageLayout>
         <ScrollView horizontal pagingEnabled ref={this._drawer}>
           <View style={styles.page}>
             <ScrollView style={styles.scrollContainer}>
@@ -97,7 +110,11 @@ class Library extends React.Component<LibraryProps, LibraryState> {
               </View>
 
               {Platform.OS === 'ios' ? (
-                <TouchableHighlight onPress={() => this.toggleSidebar()} underlayColor='rgba(0,0,0,0.1)' style={styles.sortButton}>
+                <TouchableHighlight
+                  onPress={() => this.toggleSidebar()}
+                  underlayColor="rgba(0,0,0,0.1)"
+                  style={styles.sortButton}
+                >
                   <Text style={commonStyles.h2}>sort</Text>
                 </TouchableHighlight>
               ) : (
@@ -114,7 +131,7 @@ class Library extends React.Component<LibraryProps, LibraryState> {
             <SortSidebar />
           </View>
         </ScrollView>
-      </Page>
+      </PageLayout>
     );
   }
 }
@@ -127,7 +144,7 @@ class SortSidebar extends React.Component<{}> {
   render() {
     return (
       <View style={styles.sidebar}>
-        <SectionList
+        {/* <SectionList
           sections={[
             { title: 'D', data: ['Devin'] },
             { title: 'J', data: ['Jackson', 'James', 'Jillian', 'Jimmy', 'Joel', 'John', 'Julie'] }
@@ -137,7 +154,7 @@ class SortSidebar extends React.Component<{}> {
             <Text style={[styles.listSectionHeader, commonStyles.h2]}>{section.title}</Text>
           )}
           keyExtractor={(item, index) => index}
-        />
+        /> */}
       </View>
     );
   }
@@ -214,7 +231,7 @@ const styles = StyleSheet.create({
   sidebar: {
     width: Dimensions.get('screen').width * 0.8,
     padding: 10,
-    backgroundColor: "#ccc"
+    backgroundColor: '#E9E9EF'
   },
   listItem: {},
   listSectionHeader: {}

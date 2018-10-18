@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { StyleSheet, Text, View, Button, SectionList, TouchableHighlight } from 'react-native';
-import { Page } from '../components/page';
+import { PageLayout } from '../components/page';
 import {commonStyles} from '../components/styles';
 import { createStackNavigator } from 'react-navigation';
 import { Icon } from '../components/icon';
@@ -15,7 +15,7 @@ export class Settings extends React.Component<SettingsProps, SettingsState>{
 
   render() {
     return (
-      <Page><View style={commonStyles.body}>
+      <PageLayout><View style={commonStyles.body}>
         <SectionList
         style={styles.list}
         sections={[
@@ -28,7 +28,7 @@ export class Settings extends React.Component<SettingsProps, SettingsState>{
           renderSectionHeader={({section}) => <Text style={[styles.listSectionHeader, commonStyles.h2, commonStyles.bold]}>{section.title}</Text>}
           keyExtractor={(item, index) => index}
         />
-      </View></Page>
+      </View></PageLayout>
     );
   }
 }

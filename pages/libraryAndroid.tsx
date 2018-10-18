@@ -11,7 +11,7 @@ import {
   TextInput,
   SectionList
 } from 'react-native';
-import { Page } from '../components/page';
+import { PageLayout } from '../components/page';
 import { commonStyles } from '../components/styles';
 import { createStackNavigator } from 'react-navigation';
 import { getFormality, Item } from '../components/formats';
@@ -72,7 +72,7 @@ class Library extends React.Component<LibraryProps, LibraryState> {
 
   render() {
     return (
-      <Page scroll>
+      <PageLayout scroll>
         <View style={styles.container}>
           <View style={styles.topContainerSpacer}/>
           {this.getTiles()}
@@ -81,7 +81,7 @@ class Library extends React.Component<LibraryProps, LibraryState> {
           <Button onPress={this.loadMore} title="load more" />
         </View>
         {/* <SortSidebar></SortSidebar> */}
-      </Page>
+      </PageLayout>
     );
   }
 }

@@ -15,13 +15,17 @@ import {
   Picker,
   Platform,
   SegmentedControlIOS,
-  Animated
+  Animated,
+  Easing
 } from 'react-native';
-import { Page } from '../../components/page';
+import { PageLayout } from '../../components/page';
 import { commonStyles } from '../../components/styles';
 import { Item, ItemDefinitions, Storage, roundColor } from '../../components/formats';
 import { TriangleColorPicker, fromHsv } from 'react-native-color-picker';
 import Color from 'color';
+
+//temp
+import {FileSystem} from 'expo';
 
 const width = Dimensions.get('screen').width;
 const height = Dimensions.get('screen').height;
@@ -36,6 +40,8 @@ interface DefineState {
   options: Item;
   showRequired: boolean;
   colorButton: string;
+  modalFadeInAnimation: Animated.Value;
+  showRequiredShakeAnimation: Animated.ValueXY;
 }
 
 export class Define extends React.Component<DefineProps, DefineState> {
@@ -50,7 +56,7 @@ export class Define extends React.Component<DefineProps, DefineState> {
         class: 'top',
         type: null,
         color: null,
-        cover: null,
+        // cover: null,
         date: Date.now(),
         laundry: 0,
         name: null,
@@ -58,7 +64,9 @@ export class Define extends React.Component<DefineProps, DefineState> {
         photoURI: null
       },
       showRequired: false,
-      colorButton: '#000'
+      colorButton: '#000',
+      modalFadeInAnimation: new Animated.Value(0),
+      showRequiredShakeAnimation: new Animated.ValueXY({ x: 0, y: 0 })
     };
   }
   static navigationOptions = {
@@ -91,23 +99,104 @@ export class Define extends React.Component<DefineProps, DefineState> {
   };
 
   //temp!!! delete later
-  printData = () => {
-    console.log(this.state.options);
+  printData = async () => {
+    let page1 = await Storage._retrieveData('page1');
+    console.log(page1.items);
+    
   };
 
+  componentDidUpdate = () => {
+    if (this.state.showModal) {
+      Animated.spring(this.state.modalFadeInAnimation, {
+        toValue: 1,
+        // duration: 100
+      }).start();
+    }
+
+    if(this.state.showRequired) {
+      
+    }
+  };
+
+  hideModal = () => {
+    Animated.spring(this.state.modalFadeInAnimation, {
+      toValue: 0, 
+      // duration: 100
+    }).start(() => this.setState({ showModal: false }));
+  };
+
+  shakeRequired = () => {
+    Animated.sequence([
+      Animated.timing(
+        this.state.showRequiredShakeAnimation,
+        {
+          toValue: {x: 20, y: 0},
+          duration: 50
+        }
+      ),
+      Animated.timing(
+        this.state.showRequiredShakeAnimation,
+        {
+          toValue: {x: -20, y: 0},
+          duration: 100
+        }
+      ),
+      Animated.timing(
+        this.state.showRequiredShakeAnimation,
+        {
+          toValue: {x: 20, y: 0},
+          duration: 100
+        }
+      ),
+      Animated.timing(
+        this.state.showRequiredShakeAnimation,
+        {
+          toValue: {x: 0, y: 0},
+          duration: 50
+        }
+      ),
+    ]).start();
+  }
+
   addItem = () => {
-    console.log("working?")
     this.setState({ showRequired: true });
+    this.shakeRequired();
     if (!!this.state.options.color && !!this.state.options.type) {
       //if color and type are filled
       if (!this.state.options.name) {
         //if name is null fill name
-        this.setState(previousState => ({
-          ...previousState,
-          options: { ...previousState.options }
-        }));
+        this.setState(
+          previousState => ({
+            ...previousState,
+            options: {
+              ...previousState.options,
+              name: `${roundColor(Color(this.state.options.color).object() as any)} ${
+                this.state.options.type
+              }`
+            }
+          }),
+          () => {
+            //one setState has finished
+            this.storeItem();
+          }
+        );
+      } else {
+        //color, type, and name are filled
+        this.storeItem();
       }
     }
+  };
+
+  storeItem = () => {
+    //async move photo from cache to filesystem storage .then store item
+    Storage.MovePhotoFromCache(this.state.uri, (newURI) => {
+      this.setState(previousState => ({
+        ...previousState,
+        options: {...previousState.options, photoURI: newURI}
+      }), () => {
+        Storage.storeItem(this.state.options);
+      });
+    });
   };
 
   selectItemType = (index: number) => {};
@@ -115,17 +204,9 @@ export class Define extends React.Component<DefineProps, DefineState> {
   render() {
     return (
       <React.Fragment>
-        <Page scroll>
+        <PageLayout scroll>
           <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
             <View>
-              {/* name */}
-              <View style={styles.defineContainer}>
-                <TextInput
-                  placeholder="clothing item name"
-                  style={[styles.inputLine, commonStyles.pb]}
-                  onChangeText={value => this.updateData('name', value)}
-                />
-              </View>
               {/* image preview */}
               <View style={styles.defineContainer}>
                 {this.state.renderImage && (
@@ -135,6 +216,17 @@ export class Define extends React.Component<DefineProps, DefineState> {
                   />
                 )}
               </View>
+              {/* name */}
+              <View style={styles.defineContainer}>
+                <Label>Clothing Item Name</Label>
+                <TextInput
+                  placeholder="enter optional name"
+                  style={[styles.inputLine, commonStyles.pb]}
+                  onChangeText={value => this.updateData('name', value)}
+                  value={this.state.options.name}
+                />
+              </View>
+
               {/* class picker */}
               <View>
                 {isIos ? (
@@ -167,8 +259,10 @@ export class Define extends React.Component<DefineProps, DefineState> {
                 )}
               </View>
               {/* type picker */}
-              <View style={styles.defineContainer}>
-                <Label isFilledIn={this.state.options.type} showRequired={this.state.showRequired}>Clothing Item</Label>
+              <Animated.View style={[styles.defineContainer, (!this.state.options.type && {left: this.state.showRequiredShakeAnimation.x})]}>
+                <Label isFilledIn={this.state.options.type} showRequired={this.state.showRequired}>
+                  Clothing Item
+                </Label>
                 <View style={styles.fullWidthButton}>
                   <TouchableHighlight
                     style={styles.touchableHighlight}
@@ -201,10 +295,13 @@ export class Define extends React.Component<DefineProps, DefineState> {
                     </View>
                   )}
                 </View>
-              </View>
+              </Animated.View>
               {/* color picker button*/}
-              <View style={styles.defineContainer}>
-              <Label isFilledIn={this.state.options.type} showRequired={this.state.showRequired}>Item Color</Label>
+              {/* review: are you supposed to translate Animated.View by setting the style of the left and top? */}
+              <Animated.View style={[styles.defineContainer, (!this.state.options.color && {left: this.state.showRequiredShakeAnimation.x})]}>
+                <Label isFilledIn={this.state.options.color} showRequired={this.state.showRequired}>
+                  Item Color
+                </Label>
                 <View
                   style={[styles.fullWidthButton, { backgroundColor: this.state.options.color }]}
                 >
@@ -221,7 +318,7 @@ export class Define extends React.Component<DefineProps, DefineState> {
                     </Text>
                   </TouchableHighlight>
                 </View>
-              </View>
+              </Animated.View>
 
               <View style={styles.defineContainer}>
                 <View style={styles.fullWidthButton}>
@@ -235,56 +332,68 @@ export class Define extends React.Component<DefineProps, DefineState> {
               </View>
             </View>
           </TouchableWithoutFeedback>
-        </Page>
+        </PageLayout>
         {/* color picker modal */}
         {this.state.showModal && (
-          <TouchableWithoutFeedback style={styles.modalContainer} onPress={() => {this.setState({showModal: false})}}>
-          <View style={styles.modal}>
-            <TriangleColorPicker
-              onColorChange={color => {
-                let colorObj = Color(fromHsv(color));
-                if (colorObj.luminosity() < 0.5) {
-                  this.setState({ colorButton: '#fff' });
-                } else {
-                  this.setState({ colorButton: '#000' });
-                }
-                this.setState(previousState => ({
-                  ...previousState,
-                  options: { ...previousState.options, color: fromHsv(color) }
-                }));
-              }}
-              style={{ width: '100%', aspectRatio: 1 }}
-            />
-            <View style={styles.modalButtonClose}>
-              <Button
-                title="close"
-                onPress={() => {
-                  this.setState({ showModal: false });
-                }}
-                color="#000"
-              />
-            </View>
-          </View>
-        </TouchableWithoutFeedback>
+          <Animated.View
+            style={[styles.modalAnimatedView, { opacity: this.state.modalFadeInAnimation}]} onPress={() => {console.log("hmm?")}}
+          >
+            <TouchableHighlight 
+              underlayColor="rgba(0,0,0,0)"
+              onPress={this.hideModal}
+              style={styles.modalContainer}
+            >
+              <View style={styles.modal}>
+                <TriangleColorPicker
+                  onColorChange={color => {
+                    let colorObj = Color(fromHsv(color));
+                    if (colorObj.luminosity() < 0.5) {
+                      this.setState({ colorButton: '#fff' });
+                    } else {
+                      this.setState({ colorButton: '#000' });
+                    }
+                    this.setState(previousState => ({
+                      ...previousState,
+                      options: { ...previousState.options, color: fromHsv(color) }
+                    }));
+                  }}
+                  style={{ width: '100%', aspectRatio: 1 }}
+                />
+                <View style={styles.modalButtonClose}>
+                  <Button
+                    title="close"
+                    onPress={() => {
+                      this.hideModal();
+                    }}
+                    color="#000"
+                  />
+                </View>
+              </View>
+            </TouchableHighlight>
+          </Animated.View>
         )}
       </React.Fragment>
     );
   }
 }
 
-function Label(props: { children: any, isFilledIn?: any, showRequired?: boolean }) {
+function Label(props: { children: any; isFilledIn?: any; showRequired?: boolean }) {
   //review: code works without if statement - just the first return BUT may set style={[commonStyles.pb, false]} and that may be not good?
-  if(props.hasOwnProperty('isFilledIn')) {
+  if (props.hasOwnProperty('isFilledIn')) {
     return (
       <View style={[styles.label]}>
-        <Text style={[commonStyles.pb, ((!props.isFilledIn && props.showRequired) && {color: "#e6194B"})]}>{props.children}</Text>
+        <Text
+          style={[commonStyles.pb, !props.isFilledIn && props.showRequired && { color: '#e6194B' }]}
+        >
+          {props.children}
+        </Text>
       </View>
     );
   } else {
     return (
       <View style={[styles.label]}>
-      <Text style={commonStyles.pb}>{props.children}</Text>
-    </View>
+        <Text style={commonStyles.pb}>{props.children}</Text>
+      </View>
     );
   }
 }
@@ -313,21 +422,30 @@ const styles = StyleSheet.create({
   touchableHighlight: {
     padding: 5
   },
-  required: { //used?
+  required: {
+    //used?
     color: '#e6194B'
   },
   typeList: {
     paddingHorizontal: 5
   },
-  modalContainer: {
+  modalAnimatedView: {
+    
     position: 'absolute',
     width: width,
     height: height,
     flex: 1,
+    zIndex: 5,
+    // backgroundColor: "#00ff00"
+  },
+  modalContainer: {
+    flex: 1,
+    width: "100%",
+    height: "100%",
     justifyContent: 'center',
     alignItems: 'center',
-    zIndex: 5,
-    padding: '10%'
+    padding: '10%',
+    // backgroundColor: "#ff0000"
   },
   modal: {
     // aspectRatio: 0.75,

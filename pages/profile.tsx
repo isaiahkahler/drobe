@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { StyleSheet, Text, View, Button, AsyncStorage, TouchableHighlight, Image } from 'react-native';
-import { Page } from '../components/page';
+import { PageLayout } from '../components/page';
 import { commonStyles } from '../components/styles';
 import { createStackNavigator } from 'react-navigation';
 import { Settings } from './settings';
@@ -37,7 +37,7 @@ class Profile extends React.Component<ProfileProps, ProfileState> {
 
   render() {
     return (
-      <Page>
+      <PageLayout>
         <View style={commonStyles.body}>
           <View style={styles.topContainer}>
             <View style={styles.profilePictureContainer}>
@@ -48,7 +48,7 @@ class Profile extends React.Component<ProfileProps, ProfileState> {
             </View>
           </View>
         </View>
-      </Page>
+      </PageLayout>
     );
   }
 }
