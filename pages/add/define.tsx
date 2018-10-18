@@ -251,7 +251,7 @@ export class Define extends React.Component<DefineProps, DefineState> {
                   //android
                   <View style={styles.defineContainer}>
                     <Label>Clothing Item Type</Label>
-                    <Picker onValueChange={value => this.updateData('class', value)}>
+                    <Picker onValueChange={value => this.updateData('class', value)} selectedValue={this.state.options.class}>
                       <Picker.Item label="top" value="top" />
                       <Picker.Item label="bottom" value="bottom" />
                       <Picker.Item label="full body" value="full body" />

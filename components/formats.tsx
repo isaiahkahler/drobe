@@ -306,7 +306,7 @@ export class Storage {
 
   static async MovePhotoFromCache(cacheURI: string, callback: Function) {
     let info = await FileSystem.getInfoAsync(this.libraryPhotosDirectory);
-    let newURI = this.libraryPhotosDirectory + '/' + Date.now() + cacheURI.substr(cacheURI.indexOf('.'));
+    let newURI = this.libraryPhotosDirectory + '/' + Date.now() + cacheURI.substr(cacheURI.length - 4);
     if(!info.exists){
       //first time, directory does not exist
       try {

@@ -12,7 +12,8 @@ import {
   Dimensions,
   Platform,
   TouchableNativeFeedback,
-  Image
+  Image,
+  Animated
 } from 'react-native';
 import { PageLayout } from '../components/page';
 import { commonStyles } from '../components/styles';
@@ -20,18 +21,28 @@ import { createStackNavigator } from 'react-navigation';
 import { getFormality, Item, Storage, Page } from '../components/formats';
 
 const width = Dimensions.get('screen').width;
+const height = Dimensions.get('screen').height;
 
 interface LibraryProps {}
 interface LibraryState {
   // numberOfPages: number;
   pages: Array<Page>;
   drawerOpen: boolean;
+  showModal: boolean;
+  currentItem: { page: number; item: number };
+  modalFadeInAnimation: Animated.Value;
 }
 
 class Library extends React.Component<LibraryProps, LibraryState> {
   constructor(props: LibraryProps) {
     super(props);
-    this.state = { pages: [], drawerOpen: false };
+    this.state = {
+      pages: [],
+      drawerOpen: false,
+      showModal: false,
+      modalFadeInAnimation: new Animated.Value(0),
+      currentItem: null
+    };
   }
 
   static navigationOptions = {
@@ -40,6 +51,21 @@ class Library extends React.Component<LibraryProps, LibraryState> {
 
   componentDidMount = () => {
     this.getClothes();
+  };
+
+  showModal = () => {
+    this.setState({ showModal: true });
+    Animated.spring(this.state.modalFadeInAnimation, {
+      toValue: 1
+    }).start();
+  };
+
+  hideModal = () => {
+    Animated.spring(this.state.modalFadeInAnimation, {
+      toValue: 0
+    }).start(() => {
+      this.setState({ showModal: false });
+    });
   };
 
   getClothes = async () => {
@@ -70,7 +96,18 @@ class Library extends React.Component<LibraryProps, LibraryState> {
         <View key={pageIndex} style={styles.container}>
           {page.items.map((item, itemIndex) => {
             return (
-              <Tile key={itemIndex} uri={item.photoURI} name={item.name}>
+              <Tile
+                key={itemIndex}
+                uri={item.photoURI}
+                name={item.name}
+                pageIndex={pageIndex}
+                itemIndex={itemIndex}
+                openModal={(pageIndex, itemIndex) => {
+                  //review: merge these two calls into the show modal function?
+                  this.showModal();
+                  this.setState({ currentItem: { page: pageIndex, item: itemIndex } });
+                }}
+              >
                 {/* <Text>{item.name}</Text> */}
                 {/* <Image source={{uri: item.photoURI}} style={{width: 0.35*width, height: 0.35*width}}/> */}
               </Tile>
@@ -136,31 +173,74 @@ class Library extends React.Component<LibraryProps, LibraryState> {
             <SortSidebar />
           </View>
         </ScrollView>
+        {this.state.showModal && (
+          <Animated.View style={[styles.modalView, { opacity: this.state.modalFadeInAnimation }]}>
+            <TouchableHighlight style={styles.modalTouchable} onPress={this.hideModal} underlayColor="rgba(0,0,0,0)">
+              <View style={styles.modal}>
+                <Text style={commonStyles.h2}>
+                  {
+                    this.state.pages[this.state.currentItem.page].items[this.state.currentItem.item]
+                      .name
+                  }
+                </Text>
+                <Image
+                  source={{
+                    uri: this.state.pages[this.state.currentItem.page].items[
+                      this.state.currentItem.item
+                    ].photoURI
+                  }}
+                  style={{
+                    width: 0.8 * width,
+                    aspectRatio: 1
+                  }}
+                />
+              </View>
+            </TouchableHighlight>
+          </Animated.View>
+        )}
       </PageLayout>
     );
   }
 }
 
-function Tile(props: { children?: any; uri: string; name: string }) {
+function Tile(props: {
+  children?: any;
+  uri: string;
+  name: string;
+  pageIndex: number;
+  itemIndex: number;
+  openModal: Function;
+}) {
   // return <View style={styles.tile}>{props.children}</View>;
   return (
-    <View style={{margin: "5%",
-    flexDirection: 'column',
-    justifyContent: 'space-evenly',
-    alignItems: 'center',}}>
-
-      <Image
-        source={{ uri: props.uri }}
-        style={{
-          width: width * 0.4,
-          height: width * 0.4,
-          borderRadius: 25,
-          borderWidth: 2,
-          borderColor: '#000',
-        }}
-      />
-      <Text style={[commonStyles.pb, {position: "absolute", color: "#ccc", marginTop: 5}]}>{props.name}</Text>
-    </View>
+    <TouchableHighlight
+      underlayColor="rgba(0,0,0,0)"
+      onPress={() => {
+        props.openModal(props.pageIndex, props.itemIndex);
+      }}
+      style={{
+        margin: '5%',
+        flexDirection: 'column',
+        justifyContent: 'space-evenly',
+        alignItems: 'center'
+      }}
+    >
+      <React.Fragment>
+        <Image
+          source={{ uri: props.uri }}
+          style={{
+            width: width * 0.4,
+            height: width * 0.4,
+            borderRadius: 25,
+            borderWidth: 2,
+            borderColor: '#000'
+          }}
+        />
+        <Text style={[commonStyles.pb, { position: 'absolute', color: '#ccc', marginTop: 5 }]}>
+          {props.name}
+        </Text>
+      </React.Fragment>
+    </TouchableHighlight>
   );
 }
 
@@ -263,5 +343,31 @@ const styles = StyleSheet.create({
     backgroundColor: '#E9E9EF'
   },
   listItem: {},
-  listSectionHeader: {}
+  listSectionHeader: {},
+  modalView: {
+    position: 'absolute',
+    width: width,
+    height: height - 150, //review: subtract the height of the navbar! (and then some)
+    flex: 1,
+    zIndex: 5
+  },
+  modalTouchable: {
+    flex: 1,
+    width: '100%',
+    // height: "100%",
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: '5%'
+  },
+  modal: {
+    width: '100%',
+    borderRadius: 25,
+    borderWidth: 2,
+    borderColor: '#000',
+    backgroundColor: '#fff',
+    padding: '5%',
+    flex: 1,
+    // flexDirection: 'row',
+    // justifyContent: 'center'
+  }
 });

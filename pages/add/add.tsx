@@ -57,7 +57,7 @@ class Add extends React.Component<AddProps, AddState> {
 
   takePicture = async () => {
     //TODO : set show camera true when navigating back from define
-    this.setState({ showCamera: false });
+    // this.setState({ showCamera: false });
     if (!this._camera) {
       return;
     }
@@ -65,7 +65,7 @@ class Add extends React.Component<AddProps, AddState> {
     //   await Storage._storeData('addData', { uri: photo.uri, width: photo.width, height: photo.height });
     //   this.props.navigation.navigate('Define');
     try {
-      let photo = await this._camera.takePictureAsync().then(photo => {
+      let photo = await this._camera.takePictureAsync().then((photo) => {
         Storage._storeData('addData', { uri: photo.uri, width: photo.width, height: photo.height });
         this.props.navigation.navigate('Define');
       });
