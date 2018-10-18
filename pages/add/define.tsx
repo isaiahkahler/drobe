@@ -31,7 +31,9 @@ const width = Dimensions.get('screen').width;
 const height = Dimensions.get('screen').height;
 const isIos = Platform.OS === 'ios';
 
-interface DefineProps {}
+interface DefineProps {
+  navigation: any;
+}
 interface DefineState {
   showTypeList: boolean;
   showModal: boolean;
@@ -193,8 +195,9 @@ export class Define extends React.Component<DefineProps, DefineState> {
       this.setState(previousState => ({
         ...previousState,
         options: {...previousState.options, photoURI: newURI}
-      }), () => {
-        Storage.storeItem(this.state.options);
+      }), async () => {
+        await Storage.storeItem(this.state.options);
+        this.props.navigation.navigate('Library');
       });
     });
   };

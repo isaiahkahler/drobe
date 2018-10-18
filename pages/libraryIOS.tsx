@@ -11,12 +11,15 @@ import {
   SectionList,
   Dimensions,
   Platform,
-  TouchableNativeFeedback
+  TouchableNativeFeedback,
+  Image
 } from 'react-native';
 import { PageLayout } from '../components/page';
 import { commonStyles } from '../components/styles';
 import { createStackNavigator } from 'react-navigation';
 import { getFormality, Item, Storage, Page } from '../components/formats';
+
+const width = Dimensions.get('screen').width;
 
 interface LibraryProps {}
 interface LibraryState {
@@ -54,18 +57,22 @@ class Library extends React.Component<LibraryProps, LibraryState> {
     //   ...previousState,
     //   section: [...previousState.pages, 'new tile', 'new tile 2']
     // }));
+    this.getClothes();
   };
 
   getTiles() {
     //map data to tiles
-    if(!this.state.pages){return undefined;}
+    if (!this.state.pages) {
+      return undefined;
+    }
     return this.state.pages.map((page, pageIndex) => {
       return (
-        <View key={pageIndex}>
+        <View key={pageIndex} style={styles.container}>
           {page.items.map((item, itemIndex) => {
             return (
-              <Tile>
-                <Text key={itemIndex}>{item.name}</Text>
+              <Tile key={itemIndex} uri={item.photoURI} name={item.name}>
+                {/* <Text>{item.name}</Text> */}
+                {/* <Image source={{uri: item.photoURI}} style={{width: 0.35*width, height: 0.35*width}}/> */}
               </Tile>
             );
           })}
@@ -96,12 +103,10 @@ class Library extends React.Component<LibraryProps, LibraryState> {
         <ScrollView horizontal pagingEnabled ref={this._drawer}>
           <View style={styles.page}>
             <ScrollView style={styles.scrollContainer}>
-              <View style={styles.container}>
-                <View style={styles.topContainerSpacer} />
-                {this.getTiles()}
-              </View>
+              <View style={styles.topContainerSpacer} />
+              {this.getTiles()}
               <View style={styles.button}>
-                <Button onPress={this.loadMore} title="load more" />
+                <Button onPress={this.loadMore} title="reload" />
               </View>
             </ScrollView>
             <View style={styles.fixedTopContainer}>
@@ -136,8 +141,27 @@ class Library extends React.Component<LibraryProps, LibraryState> {
   }
 }
 
-function Tile(props: { children?: any }) {
-  return <View style={styles.tile}>{props.children}</View>;
+function Tile(props: { children?: any; uri: string; name: string }) {
+  // return <View style={styles.tile}>{props.children}</View>;
+  return (
+    <View style={{margin: "5%",
+    flexDirection: 'column',
+    justifyContent: 'space-evenly',
+    alignItems: 'center',}}>
+
+      <Image
+        source={{ uri: props.uri }}
+        style={{
+          width: width * 0.4,
+          height: width * 0.4,
+          borderRadius: 25,
+          borderWidth: 2,
+          borderColor: '#000',
+        }}
+      />
+      <Text style={[commonStyles.pb, {position: "absolute", color: "#ccc", marginTop: 5}]}>{props.name}</Text>
+    </View>
+  );
 }
 
 class SortSidebar extends React.Component<{}> {
@@ -167,10 +191,10 @@ export const LibraryStack = createStackNavigator(
 
 const styles = StyleSheet.create({
   page: {
-    width: Dimensions.get('screen').width
+    width: width
   },
   container: {
-    flex: 1,
+    width: width,
     flexDirection: 'row',
     justifyContent: 'space-evenly',
     alignItems: 'center',
@@ -187,6 +211,11 @@ const styles = StyleSheet.create({
     justifyContent: 'space-evenly',
     alignItems: 'center',
     margin: '5%'
+  },
+  tileImage: {
+    width: width * 0.35,
+    height: width * 0.35
+    // aspectRatio: 1
   },
   button: {
     width: '50%'
