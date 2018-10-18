@@ -15,10 +15,7 @@ import {
   Picker,
   Platform,
   SegmentedControlIOS,
-  Modal,
-  ActivityIndicator,
-  ImageStore,
-  FlatList
+  Animated
 } from 'react-native';
 import { Page } from '../../components/page';
 import { commonStyles } from '../../components/styles';
@@ -99,6 +96,7 @@ export class Define extends React.Component<DefineProps, DefineState> {
   };
 
   addItem = () => {
+    console.log("working?")
     this.setState({ showRequired: true });
     if (!!this.state.options.color && !!this.state.options.type) {
       //if color and type are filled
@@ -106,8 +104,8 @@ export class Define extends React.Component<DefineProps, DefineState> {
         //if name is null fill name
         this.setState(previousState => ({
           ...previousState,
-          options: {...previousState.options}
-        }))
+          options: { ...previousState.options }
+        }));
       }
     }
   };
@@ -170,7 +168,7 @@ export class Define extends React.Component<DefineProps, DefineState> {
               </View>
               {/* type picker */}
               <View style={styles.defineContainer}>
-                <Label>Clothing Item</Label>
+                <Label isFilledIn={this.state.options.type} showRequired={this.state.showRequired}>Clothing Item</Label>
                 <View style={styles.fullWidthButton}>
                   <TouchableHighlight
                     style={styles.touchableHighlight}
@@ -206,19 +204,20 @@ export class Define extends React.Component<DefineProps, DefineState> {
               </View>
               {/* color picker button*/}
               <View style={styles.defineContainer}>
-                <Label>Item Color</Label>
-                <View style={styles.fullWidthButton}>
+              <Label isFilledIn={this.state.options.type} showRequired={this.state.showRequired}>Item Color</Label>
+                <View
+                  style={[styles.fullWidthButton, { backgroundColor: this.state.options.color }]}
+                >
                   <TouchableHighlight
-                    style={[
-                      styles.touchableHighlight,
-                      { backgroundColor: this.state.options.color }
-                    ]}
-                    onPress={() => { 
+                    style={styles.touchableHighlight}
+                    onPress={() => {
                       this.setState({ showModal: true });
                     }}
                   >
                     <Text style={[commonStyles.pb, { color: this.state.colorButton }]}>
-                      {this.state.options.color ? roundColor(Color(this.state.options.color).object() as any) : "choose color" }
+                      {this.state.options.color
+                        ? roundColor(Color(this.state.options.color).object() as any)
+                        : 'choose color'}
                     </Text>
                   </TouchableHighlight>
                 </View>
@@ -239,46 +238,55 @@ export class Define extends React.Component<DefineProps, DefineState> {
         </Page>
         {/* color picker modal */}
         {this.state.showModal && (
-          <View style={styles.modalContainer}>
-            <View style={styles.modal}>
-              <TriangleColorPicker
-                onColorChange={color => {
-                  let colorObj = Color(fromHsv(color));
-                  if (colorObj.luminosity() < 0.5) {
-                    this.setState({ colorButton: '#fff' });
-                  } else {
-                    this.setState({ colorButton: '#000' });
-                  }
-                  this.setState(previousState => ({
-                    ...previousState,
-                    options: { ...previousState.options, color: fromHsv(color) }
-                  }));
+          <TouchableWithoutFeedback style={styles.modalContainer} onPress={() => {this.setState({showModal: false})}}>
+          <View style={styles.modal}>
+            <TriangleColorPicker
+              onColorChange={color => {
+                let colorObj = Color(fromHsv(color));
+                if (colorObj.luminosity() < 0.5) {
+                  this.setState({ colorButton: '#fff' });
+                } else {
+                  this.setState({ colorButton: '#000' });
+                }
+                this.setState(previousState => ({
+                  ...previousState,
+                  options: { ...previousState.options, color: fromHsv(color) }
+                }));
+              }}
+              style={{ width: '100%', aspectRatio: 1 }}
+            />
+            <View style={styles.modalButtonClose}>
+              <Button
+                title="close"
+                onPress={() => {
+                  this.setState({ showModal: false });
                 }}
-                style={{ width: "100%", aspectRatio: 1 }}
+                color="#000"
               />
-              <View style={styles.modalButtonClose}>
-                <Button
-                  title="close"
-                  onPress={() => {
-                    this.setState({ showModal: false });
-                  }}
-                  color="#000"
-                />
-              </View>
             </View>
           </View>
+        </TouchableWithoutFeedback>
         )}
       </React.Fragment>
     );
   }
 }
 
-function Label(props: { children: any }) {
-  return (
-    <View style={styles.label}>
+function Label(props: { children: any, isFilledIn?: any, showRequired?: boolean }) {
+  //review: code works without if statement - just the first return BUT may set style={[commonStyles.pb, false]} and that may be not good?
+  if(props.hasOwnProperty('isFilledIn')) {
+    return (
+      <View style={[styles.label]}>
+        <Text style={[commonStyles.pb, ((!props.isFilledIn && props.showRequired) && {color: "#e6194B"})]}>{props.children}</Text>
+      </View>
+    );
+  } else {
+    return (
+      <View style={[styles.label]}>
       <Text style={commonStyles.pb}>{props.children}</Text>
     </View>
-  );
+    );
+  }
 }
 
 const styles = StyleSheet.create({
@@ -305,8 +313,8 @@ const styles = StyleSheet.create({
   touchableHighlight: {
     padding: 5
   },
-  required: {
-    color: '#ff5050'
+  required: { //used?
+    color: '#e6194B'
   },
   typeList: {
     paddingHorizontal: 5
@@ -326,7 +334,7 @@ const styles = StyleSheet.create({
     width: '100%',
     borderWidth: 2,
     borderRadius: 10,
-    backgroundColor: "#fff", //'rgba(255,255,255,0.75)',
+    backgroundColor: '#fff', //'rgba(255,255,255,0.75)',
     padding: '5%'
   },
   modalButtonClose: {
@@ -334,5 +342,5 @@ const styles = StyleSheet.create({
     borderColor: '#000',
     borderRadius: 10,
     marginTop: 10
-  },
+  }
 });

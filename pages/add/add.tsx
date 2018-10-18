@@ -18,6 +18,7 @@ import { createStackNavigator } from 'react-navigation';
 import { Camera, Permissions, FileSystem } from 'expo';
 import { Item, ItemDefinitions, Storage } from '../../components/formats';
 import { Define } from './define';
+import { setTimeout } from 'timers';
 
 const width = Dimensions.get('screen').width;
 const isIos = Platform.OS === 'ios';

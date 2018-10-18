@@ -8,7 +8,7 @@ export interface Page {
 }
 
 export interface Item {
-  class: "top" | "bottom" | "full body" | "shoes" | "accessory";
+  class: 'top' | 'bottom' | 'full body' | 'shoes' | 'accessory';
   name: string;
   type: Top | Bottom | Full | Shoes | Accessory;
   color: string;
@@ -22,28 +22,128 @@ export interface Item {
 export const ItemDefinitions = {
   classes: ['top', 'bottom', 'full', 'shoes', 'accessory'],
   types: {
-    top: ["blazer", "blouse", "cardigan", "coat", "dress shirt", "hoodie", "jacket", "polo", "shirt", "sweatshirt", "t-shirt", "vest"],
-    bottom: ["capri's", "dress pants", "jeans", "joggers", "leggings", "shorts", "skirt", "sweatpants", "trousers", "yoga pants"],
-    full: ["dress", "jumpsuit", "overalls", "poncho", "robe", "romper", "tall coat"],
-    shoes: ["boots", "clogs", "dress shoes", "heels", "moccasin", "running shoes", "sandals", "slides", "slip-ons", "sneakers"],
-    accessory: ["bag", "belt", "bow tie", "bracelet", "glasses", "gloves", "hat", "scarf", "shawl", "socks", "tie"]
+    top: [
+      'blazer',
+      'blouse',
+      'cardigan',
+      'coat',
+      'dress shirt',
+      'hoodie',
+      'jacket',
+      'polo',
+      'shirt',
+      'sweatshirt',
+      't-shirt',
+      'tank top',
+      'vest'
+    ],
+    bottom: [
+      "capri's",
+      'dress pants',
+      'jeans',
+      'joggers',
+      'leggings',
+      'shorts',
+      'skirt',
+      'sweatpants',
+      'trousers',
+      'yoga pants'
+    ],
+    full: [
+      'dress', 
+      'jumpsuit', 
+      'overalls', 
+      'poncho', 
+      'robe', 
+      'romper', 
+      'tall coat'
+    ],
+    shoes: [
+      'boots',
+      'clogs',
+      'dress shoes',
+      'heels',
+      'moccasin',
+      'running shoes',
+      'sandals',
+      'slides',
+      'slip-ons',
+      'sneakers'
+    ],
+    accessory: [
+      'bag',
+      'belt',
+      'bow tie',
+      'bracelet',
+      'glasses',
+      'gloves',
+      'hat',
+      'scarf',
+      'shawl',
+      'socks',
+      'tie'
+    ]
   }
 };
 
 export interface Top {
-  type: "blazer" | "blouse" | "cardigan" | "coat" | "dress shirt" | "hoodie" | "jacket" | "polo" | "shirt" | "sweatshirt" | "t-shirt" | "vest";
+  type:
+    | 'blazer'
+    | 'blouse'
+    | 'cardigan'
+    | 'coat'
+    | 'dress shirt'
+    | 'hoodie'
+    | 'jacket'
+    | 'polo'
+    | 'shirt'
+    | 'sweatshirt'
+    | 't-shirt'
+    | 'tank top'
+    | 'vest';
 }
 export interface Bottom {
-  type: "capri's" | "dress pants" | "jeans" | "joggers" | "leggings" | "shorts" | "skirt" | "sweatpants" | "trousers" | "yoga pants";
+  type:
+    | "capri's"
+    | 'dress pants'
+    | 'jeans'
+    | 'joggers'
+    | 'leggings'
+    | 'shorts'
+    | 'skirt'
+    | 'sweatpants'
+    | 'trousers'
+    | 'yoga pants';
 }
 export interface Full {
-  type: "dress" | "jumpsuit" | "overalls" | "poncho" |  "robe" | "romper" | "tall coat";
+  type: 'dress' | 'jumpsuit' | 'overalls' | 'poncho' | 'robe' | 'romper' | 'tall coat';
 }
 export interface Shoes {
-  type: "boots" | "clogs" | "dress shoes" | "heels" | "moccasin" | "running shoes" | "sandals" | "slides" | "slip-ons" | "sneakers";
+  type:
+    | 'boots'
+    | 'clogs'
+    | 'dress shoes'
+    | 'heels'
+    | 'moccasin'
+    | 'running shoes'
+    | 'sandals'
+    | 'slides'
+    | 'slip-ons'
+    | 'sneakers';
 }
 export interface Accessory {
-  type: "bag" | "belt" | "bow tie" | "bracelet" | "glasses" | "gloves" | "hat" | "scarf" | "shawl" | "socks" | "tie";
+  type:
+    | 'bag'
+    | 'belt'
+    | 'bow tie'
+    | 'bracelet'
+    | 'glasses'
+    | 'gloves'
+    | 'hat'
+    | 'scarf'
+    | 'shawl'
+    | 'socks'
+    | 'tie';
 }
 
 export const Formality_1 = [];
@@ -53,23 +153,23 @@ export const Formality_4 = [];
 
 export function getFormality(item: Item) {
   let type = item.type.type;
-  for(let check of Formality_1){
-    if(check === type){
+  for (let check of Formality_1) {
+    if (check === type) {
       return 1;
     }
   }
-  for(let check of Formality_2){
-    if(check === type){
+  for (let check of Formality_2) {
+    if (check === type) {
       return 2;
     }
   }
-  for(let check of Formality_3){
-    if(check === type){
+  for (let check of Formality_3) {
+    if (check === type) {
       return 3;
     }
   }
-  for(let check of Formality_4){
-    if(check === type){
+  for (let check of Formality_4) {
+    if (check === type) {
       return 4;
     }
   }
@@ -77,13 +177,12 @@ export function getFormality(item: Item) {
 }
 
 export class Storage {
-
   static _storeData = async (key: string, value: any) => {
     try {
-      if(typeof value === "string"){
+      if (typeof value === 'string') {
         await AsyncStorage.setItem(key, value);
       } else {
-        await AsyncStorage.setItem(key, "***" + JSON.stringify(value));
+        await AsyncStorage.setItem(key, '***' + JSON.stringify(value));
       }
     } catch (error) {
       // Error saving data
@@ -94,8 +193,8 @@ export class Storage {
       const value: any = await AsyncStorage.getItem(item);
       if (value !== null) {
         // We have data!!
-        if(value.substr(0,3) === "***"){
-          return JSON.parse(value.substring(3))
+        if (value.substr(0, 3) === '***') {
+          return JSON.parse(value.substring(3));
         } else {
           return value;
         }
@@ -109,25 +208,27 @@ export class Storage {
 
   static _deleteData = async (item: string) => {
     AsyncStorage.removeItem(item);
-  }
+  };
 
-
-//review: does storing data need await?
+  //review: does storing data need await?
 
   static async storeItem(item: Item) {
-
-    let numberOfPages:number = await this._retrieveData('pages');
-    if(!numberOfPages){ //if null
+    let numberOfPages: number = await this._retrieveData('pages');
+    if (!numberOfPages) {
+      //if null
       await this._storeData('pages', 1); //pages = 1
-      let newPage:Page = {items: [item]};
+      let newPage: Page = { items: [item] };
       await this._storeData('page1', newPage); //page1 = new page
-    } else { //if pages exist
-      let lastPage:Page = await this._retrieveData('page' + numberOfPages); //get last page
-      if (lastPage.items.length < 5){ //last page not full
+    } else {
+      //if pages exist
+      let lastPage: Page = await this._retrieveData('page' + numberOfPages); //get last page
+      if (lastPage.items.length < 5) {
+        //last page not full
         lastPage.items.push(item); // add item to last page
-        await this._storeData("page" + numberOfPages, lastPage); //store last page
-      } else { //last page full
-        let newLastPage:Page = {items: [item]};
+        await this._storeData('page' + numberOfPages, lastPage); //store last page
+      } else {
+        //last page full
+        let newLastPage: Page = { items: [item] };
         await this._storeData('page' + (numberOfPages + 1), newLastPage);
         await this._storeData('pages', numberOfPages + 1);
       }
@@ -136,35 +237,34 @@ export class Storage {
 
   //review: if code is proven true & bug free, assertions can be commented out
   //page index starts at 1? good idea? no?
-  static async DeleteItem(page: number, itemIndex: number){
-    let numberOfPages:number = await this._retrieveData('pages');
-    if(!numberOfPages) { 
-      throw "no pages exist";
+  static async DeleteItem(page: number, itemIndex: number) {
+    let numberOfPages: number = await this._retrieveData('pages');
+    if (!numberOfPages) {
+      throw 'no pages exist';
     }
-    if(page > numberOfPages){ 
+    if (page > numberOfPages) {
       throw "page doesn't exist";
     }
-    let returnedPage:Page = await this._retrieveData('page' + page); //get page
-    if(itemIndex > returnedPage.items.length - 1) {
-      throw "item does not exist";
+    let returnedPage: Page = await this._retrieveData('page' + page); //get page
+    if (itemIndex > returnedPage.items.length - 1) {
+      throw 'item does not exist';
     }
-    returnedPage.items.splice(itemIndex, 1); //delete item 
+    returnedPage.items.splice(itemIndex, 1); //delete item
 
     await this._storeData('page' + page, returnedPage);
 
-    
     //shift items on all pages down
-    for(let i = page + 1; i <= numberOfPages; i++){
-      let nextPage:Page = await this._retrieveData("page" + i) //get next page
-      let currentPage:Page = await this._retrieveData('page' + (i - 1))
+    for (let i = page + 1; i <= numberOfPages; i++) {
+      let nextPage: Page = await this._retrieveData('page' + i); //get next page
+      let currentPage: Page = await this._retrieveData('page' + (i - 1));
       //first item on next page
       let firstItem = nextPage.items[0];
       //delete first item
-      nextPage.items.splice(0,1);
+      nextPage.items.splice(0, 1);
       //if next page empty, delete page
-      if(nextPage.items.length === 0) {
+      if (nextPage.items.length === 0) {
         this._deleteData('page' + i);
-        this._storeData('pages', numberOfPages-1);
+        this._storeData('pages', numberOfPages - 1);
       } else {
         await this._storeData('page' + i, nextPage);
       }
@@ -174,30 +274,66 @@ export class Storage {
       //store current page
       await this._storeData('page' + (i - 1), currentPage);
     }
-
   }
-
 }
 
-export function roundColor(colorRGB: {r: number, g: number, b: number}): string{
-  const colors:Array<{r: number, b: number, g: number}> = [{r: 255, g: 0, b: 0}, {r: 0, g: 255, b: 0}, {r: 0, g:0, b:255}]
-  const names:Array<string> = ["red", "green", "blue"]
+export function roundColor(colorRGB: { r: number; g: number; b: number }): string {
+  const colors: Array<{name: string, color: {r: number, g: number, b: number}}> = [
+    // {name: "black", color: {r: 0, g: 0, b: 0}},
+    // {name: "white", color: {r: 255, g: 255, b: 255}},
+    // {name: "red", color: {r: 255, g: 0, b: 0}},
+    // {name: "lime", color: {r: 0, g: 255, b: 0}},
+    // {name: "blue", color: {r: 0, g: 0, b: 255}},
+    // {name: "yellow", color: {r: 255, g: 255, b: 0}},
+    // {name: "cyan", color: {r: 0, g: 255, b: 255}},
+    // {name: "fuchsia", color: {r: 255, g: 0, b: 255}},
+    // {name: "silver", color: {r: 192, g: 192, b: 192}},
+    // {name: "gray", color: {r: 128, g: 128, b: 128}},
+    // {name: "maroon", color: {r: 128, g: 0, b: 0}},
+    // {name: "olive", color: {r: 128, g: 128, b: 0}},
+    // {name: "green", color: {r: 0, g: 128, b: 0}},
+    // {name: "purple", color: {r: 128, g: 0, b: 128}},
+    // {name: "teal", color: {r: 0, g: 128, b: 128}},
+    // {name: "navy", color: {r: 0, g: 0, b: 128}},
+    {name: "black", color: {r: 0, g: 0, b: 0}},
+    {name: "gray", color: {r: 128, g: 128, b: 128}},
+    {name: "white", color: {r: 255, g: 255, b: 255}},
+    {name: "maroon", color: {r: 128, g: 0, b: 0}},
+    {name: "red", color: {r: 230, g: 25, b: 75}},
+    {name: "pink", color: {r: 250, g: 190, b: 190}},
+    {name: "brown", color: {r: 170, g: 110, b: 40}},
+    {name: "orange", color: {r: 245, g: 130, b: 48}},
+    {name: "apricot", color: {r: 255, g: 215, b: 180}},
+    {name: "olive", color: {r: 128, g: 128, b: 0}},
+    {name: "yellow", color: {r:255 , g:255 , b:25 }},
+    {name: "beige", color: {r:255 , g:250 , b:200 }},
+    {name: "lime", color: {r: 210, g: 245, b: 60}},
+    {name: "green", color: {r: 60, g: 180, b: 75}},
+    {name: "mint", color: {r: 170, g: 255, b: 195}},
+    {name: "teal", color: {r: 0, g: 128, b: 128}},
+    {name: "cyan", color: {r: 70, g: 240, b: 240}},
+    {name: "navy", color: {r: 0, g: 0, b: 128}},
+    {name: "blue", color: {r: 0, g: 130, b: 200}},
+    {name: "purple", color: {r: 145, g: 30, b: 180}},
+    {name: "lavender", color: {r: 230, g: 190, b: 255}},
+    {name: "magenta", color: {r: 240, g: 50, b: 230}},
+    // {name: "", color: {r: , g: , b: }},
+    // {name: "", color: {r: , g: , b: }},
+  ]
   let smallestIndex = 0;
   let smallest = 10000;
   let index = 0;
-  for(let color of colors){
+  for (let color of colors) {
     let distance = Math.sqrt(
-      Math.pow((colorRGB.r - color.r), 2)
-      +
-      Math.pow((colorRGB.g - color.g), 2)
-      +
-      Math.pow((colorRGB.b - color.b), 2)
+      Math.pow(colorRGB.r - color.color.r, 2) +
+        Math.pow(colorRGB.g - color.color.g, 2) +
+        Math.pow(colorRGB.b - color.color.b, 2)
     );
-    if(distance < smallest){
+    if (distance < smallest) {
       smallest = distance;
       smallestIndex = index;
     }
     index++;
   }
-  return names[smallestIndex];
+  return colors[smallestIndex].name;
 }
