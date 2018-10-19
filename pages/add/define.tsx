@@ -251,6 +251,7 @@ export class Define extends React.Component<DefineProps, DefineState> {
                   //android
                   <View style={styles.defineContainer}>
                     <Label>Clothing Item Type</Label>
+                    <View style={styles.fullWidthButton}>
                     <Picker onValueChange={value => this.updateData('class', value)} selectedValue={this.state.options.class}>
                       <Picker.Item label="top" value="top" />
                       <Picker.Item label="bottom" value="bottom" />
@@ -258,6 +259,7 @@ export class Define extends React.Component<DefineProps, DefineState> {
                       <Picker.Item label="shoes" value="shoes" />
                       <Picker.Item label="accessory" value="accessory" />
                     </Picker>
+                    </View>
                   </View>
                 )}
               </View>
@@ -424,10 +426,6 @@ const styles = StyleSheet.create({
   },
   touchableHighlight: {
     padding: 5
-  },
-  required: {
-    //used?
-    color: '#e6194B'
   },
   typeList: {
     paddingHorizontal: 5

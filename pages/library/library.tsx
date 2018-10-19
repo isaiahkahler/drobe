@@ -15,10 +15,10 @@ import {
   Image,
   Animated
 } from 'react-native';
-import { PageLayout } from '../components/page';
-import { commonStyles } from '../components/styles';
+import { PageLayout } from '../../components/page';
+import { commonStyles } from '../../components/styles';
 import { createStackNavigator } from 'react-navigation';
-import { getFormality, Item, Storage, Page } from '../components/formats';
+import { getFormality, Item, Storage, Page } from '../../components/formats';
 
 const width = Dimensions.get('screen').width;
 const height = Dimensions.get('screen').height;
