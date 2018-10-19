@@ -19,16 +19,22 @@ import { PageLayout } from '../../components/page';
 import { commonStyles } from '../../components/styles';
 import { createStackNavigator } from 'react-navigation';
 import { getFormality, Item, Storage, Page } from '../../components/formats';
+import { ItemView } from './itemView';
+import { reverse } from 'dns';
+import { number } from 'prop-types';
 
 const width = Dimensions.get('screen').width;
 const height = Dimensions.get('screen').height;
 
-interface LibraryProps {}
+interface LibraryProps {
+  navigation: any;
+}
 interface LibraryState {
   // numberOfPages: number;
   pages: Array<Page>;
   drawerOpen: boolean;
   showModal: boolean;
+  //is this used? i think it was for old modal setup - review
   currentItem: { page: number; item: number };
   modalFadeInAnimation: Animated.Value;
 }
@@ -72,9 +78,25 @@ class Library extends React.Component<LibraryProps, LibraryState> {
     //get from storage
     let numberOfPages = await Storage.getNumberOfPages();
     if (numberOfPages !== 0) {
-      let pageOne = await Storage.getPage(1);
-      this.setState({ pages: [pageOne] });
+      // let pageOne = await Storage.getPage(1);
+      // this.setState({ pages: [pageOne] });
+      this.recursiveLoadPages(1, numberOfPages);
     }
+  };
+
+  recursiveLoadPages = async (pageNumber: number, numberOfPages: number) => {
+    let page = await Storage.getPage(pageNumber);
+    this.setState(
+      previousState => ({
+        ...previousState,
+        pages: [...previousState.pages, page]
+      }),
+      () => {
+        if (pageNumber < numberOfPages) {
+          this.recursiveLoadPages(pageNumber + 1, numberOfPages);
+        }
+      }
+    );
   };
 
   loadMore = () => {
@@ -83,7 +105,9 @@ class Library extends React.Component<LibraryProps, LibraryState> {
     //   ...previousState,
     //   section: [...previousState.pages, 'new tile', 'new tile 2']
     // }));
-    this.getClothes();
+    this.setState({ pages: [] }, () => {
+      this.getClothes();
+    });
   };
 
   getTiles() {
@@ -102,10 +126,17 @@ class Library extends React.Component<LibraryProps, LibraryState> {
                 name={item.name}
                 pageIndex={pageIndex}
                 itemIndex={itemIndex}
-                openModal={(pageIndex, itemIndex) => {
-                  //review: merge these two calls into the show modal function?
-                  this.showModal();
-                  this.setState({ currentItem: { page: pageIndex, item: itemIndex } });
+                // openModal={(pageIndex, itemIndex) => {
+                //   //review: merge these two calls into the show modal function?
+                //   this.showModal();
+                //   this.setState({ currentItem: { page: pageIndex, item: itemIndex } });
+                // }}
+                openItemScreen={(pageIndex, itemIndex) => {
+                  this.props.navigation.navigate('ItemView', {
+                    title: this.state.pages[pageIndex].items[itemIndex].name,
+                    page: pageIndex + 1,
+                    item: itemIndex + 1
+                  });
                 }}
               >
                 {/* <Text>{item.name}</Text> */}
@@ -150,7 +181,7 @@ class Library extends React.Component<LibraryProps, LibraryState> {
               <View style={styles.searchContainer}>
                 <TextInput style={[styles.search, commonStyles.h2]} placeholder="search" />
               </View>
-
+              {/* review: should this be unified? */}
               {Platform.OS === 'ios' ? (
                 <TouchableHighlight
                   onPress={() => this.toggleSidebar()}
@@ -173,7 +204,7 @@ class Library extends React.Component<LibraryProps, LibraryState> {
             <SortSidebar />
           </View>
         </ScrollView>
-        {this.state.showModal && (
+        {/* {this.state.showModal && (
           <Animated.View style={[styles.modalView, { opacity: this.state.modalFadeInAnimation }]}>
             <TouchableHighlight style={styles.modalTouchable} onPress={this.hideModal} underlayColor="rgba(0,0,0,0)">
               <View style={styles.modal}>
@@ -197,7 +228,7 @@ class Library extends React.Component<LibraryProps, LibraryState> {
               </View>
             </TouchableHighlight>
           </Animated.View>
-        )}
+        )} */}
       </PageLayout>
     );
   }
@@ -209,15 +240,17 @@ function Tile(props: {
   name: string;
   pageIndex: number;
   itemIndex: number;
-  openModal: Function;
+  // openModal: Function;
+  openItemScreen: Function;
 }) {
   // return <View style={styles.tile}>{props.children}</View>;
   return (
     <TouchableHighlight
       underlayColor="rgba(0,0,0,0)"
-      onPress={() => {
-        props.openModal(props.pageIndex, props.itemIndex);
-      }}
+      // onPress={() => {
+      // props.openModal(props.pageIndex, props.itemIndex);
+      // }}
+      onPress={() => props.openItemScreen(props.pageIndex, props.itemIndex)}
       style={{
         margin: '5%',
         flexDirection: 'column',
@@ -265,7 +298,10 @@ class SortSidebar extends React.Component<{}> {
 }
 
 export const LibraryStack = createStackNavigator(
-  { Library: Library },
+  {
+    Library: { screen: Library },
+    ItemView: { screen: ItemView }
+  },
   { initialRouteName: 'Library' }
 );
 
@@ -366,7 +402,7 @@ const styles = StyleSheet.create({
     borderColor: '#000',
     backgroundColor: '#fff',
     padding: '5%',
-    flex: 1,
+    flex: 1
     // flexDirection: 'row',
     // justifyContent: 'center'
   }
