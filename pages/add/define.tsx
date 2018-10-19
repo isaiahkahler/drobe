@@ -209,7 +209,7 @@ export class Define extends React.Component<DefineProps, DefineState> {
       <React.Fragment>
         <PageLayout scroll>
           <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-            <View>
+            <View style={{padding: "5%"}}>
               {/* image preview */}
               <View style={styles.defineContainer}>
                 {this.state.renderImage && (
@@ -325,11 +325,11 @@ export class Define extends React.Component<DefineProps, DefineState> {
                 </View>
               </Animated.View>
 
-              <View style={styles.defineContainer}>
+              {/* <View style={styles.defineContainer}>
                 <View style={styles.fullWidthButton}>
                   <Button title="print data" onPress={this.printData} />
                 </View>
-              </View>
+              </View> */}
               <View style={styles.defineContainer}>
                 <View style={styles.fullWidthButton}>
                   <Button title="add item" onPress={this.addItem} />
@@ -406,7 +406,6 @@ function Label(props: { children: any; isFilledIn?: any; showRequired?: boolean 
 const styles = StyleSheet.create({
   defineContainer: {
     width: '100%',
-    paddingHorizontal: '5%',
     marginVertical: width * 0.025
   },
   inputLine: {

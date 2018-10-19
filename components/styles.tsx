@@ -7,6 +7,9 @@ export const commonStyles = StyleSheet.create({
     backgroundColor: "#fff", //regular #E9E9EF
     width: Dimensions.get("screen").width
   },
+  paddingFive: {
+    padding: "5%"
+  },
   container: {
     flex: 1,
     flexDirection: 'column',

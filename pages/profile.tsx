@@ -41,7 +41,7 @@ class Profile extends React.Component<ProfileProps, ProfileState> {
         <View style={commonStyles.body}>
           <View style={styles.topContainer}>
             <View style={styles.profilePictureContainer}>
-              <Image source={require('../media/noProfile2.png')} style={styles.profilePicture}></Image>
+              {/* <Image source={require('../media/noProfile2.png')} style={styles.profilePicture}></Image> */}
             </View>
             <View style={styles.profileInfoContainer}>
               <Text style={commonStyles.h2}>Isaiah Kahler</Text>

@@ -228,7 +228,7 @@ export class Storage {
     } else {
       //if pages exist
       let lastPage: Page = await this._retrieveData('page' + numberOfPages); //get last page
-      if (lastPage.items.length < 5) {
+      if (lastPage.items.length < 10) {
         //last page not full
         lastPage.items.push(item); // add item to last page
         await this._storeData('page' + numberOfPages, lastPage); //store last page
@@ -290,6 +290,10 @@ export class Storage {
     return number;
   }
 
+  /**
+   * 
+   * @param pageNumber indexes from 1
+   */
   static async getPage(pageNumber: number) {
     let page:Page = await this._retrieveData('page' + pageNumber);
     return page;
@@ -301,7 +305,8 @@ export class Storage {
    */
   static async getItem(pageNumber: number, itemNumber: number) {
     let page = await this.getPage(pageNumber);
-    let item = page.items[itemNumber + 1];
+    let item = page.items[itemNumber - 1];
+    return item;
   }
 
   static async MovePhotoFromCache(cacheURI: string, callback: Function) {
@@ -331,7 +336,7 @@ export class Storage {
         alert("oh no! there was a problem storing your item." + e);
         return;
       }
-      // console.log('success storing, didnt make dir');
+      // console.log('success storing, didn't make dir');
     }
     callback(newURI);
   }

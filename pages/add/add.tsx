@@ -12,7 +12,7 @@ import {
   Platform,
   ActivityIndicator
 } from 'react-native';
-import { Page } from '../../components/page';
+import { PageLayout } from '../../components/page';
 import { commonStyles } from '../../components/styles';
 import { createStackNavigator } from 'react-navigation';
 import { Camera, Permissions, FileSystem } from 'expo';
@@ -67,6 +67,7 @@ class Add extends React.Component<AddProps, AddState> {
     try {
       let photo = await this._camera.takePictureAsync().then((photo) => {
         Storage._storeData('addData', { uri: photo.uri, width: photo.width, height: photo.height });
+        this.setState({flash: "off"})
         this.props.navigation.navigate('Define');
       });
     } catch (e) {
@@ -155,7 +156,6 @@ class Temp extends React.Component<{}, TempState> {
         class: 'top',
         type: null,
         color: null,
-        cover: null,
         date: Date.now(),
         laundry: 0,
         name: null,
