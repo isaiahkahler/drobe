@@ -17,7 +17,7 @@ import { commonStyles } from '../../components/styles';
 import { createStackNavigator } from 'react-navigation';
 import { Camera, Permissions, FileSystem } from 'expo';
 import { Item, ItemDefinitions, Storage } from '../../components/formats';
-import { Define } from './define';
+import { Define } from './newDefine';
 import { setTimeout } from 'timers';
 
 const width = Dimensions.get('screen').width;
@@ -140,124 +140,6 @@ class Add extends React.Component<AddProps, AddState> {
         </View>
       );
     }
-  }
-}
-
-//delete!
-interface TempState {
-  options: Item;
-}
-
-class Temp extends React.Component<{}, TempState> {
-  constructor(props: any) {
-    super(props);
-    this.state = {
-      options: {
-        class: 'top',
-        type: null,
-        color: null,
-        date: Date.now(),
-        laundry: 0,
-        name: null,
-        uses: 0,
-        photoURI: null
-      }
-    };
-  }
-
-  updateData = (
-    key: 'class' | 'type' | 'color' | 'cover' | 'name',
-    value: boolean | string | number
-  ) => {
-    this.setState(previousState => ({
-      ...previousState,
-      options: { ...previousState.options, [key]: value }
-    }));
-  };
-
-  render() {
-    return (
-      <View>
-        <TextInput onChangeText={value => this.updateData('name', value)} placeholder="name" />
-        <TextInput onChangeText={value => this.updateData('type', value)} placeholder="type" />
-        <TextInput onChangeText={value => this.updateData('color', value)} placeholder="color" />
-        <TextInput onChangeText={value => this.updateData('cover', value)} placeholder="cover" />
-        <TextInput onChangeText={value => this.updateData('cover', value)} placeholder="cover" />
-        <Button
-          onPress={() => {
-            Storage.storeItem(this.state.options);
-          }}
-          title="store"
-        />
-        <Button
-          onPress={() => {
-            Storage._retrieveData('pages').then(value => {
-              console.log(value);
-            });
-            // Storage._retrieveData('page' + 1).then(value => console.log(value))
-            // Storage._retrieveData('page' + 2).then(value => console.log(value))
-            // Storage._retrieveData('page' + 3).then(value => console.log(value))
-            Storage._retrieveData('page1').then(value => {
-              console.log('page1');
-              if (!!value) {
-                console.log(value.items[0].name);
-              }
-              if (!!value) {
-                console.log(value.items[1].name);
-              }
-              if (!!value) {
-                console.log(value.items[2].name);
-              }
-              if (!!value) {
-                console.log(value.items[3].name);
-              }
-              if (!!value) {
-                console.log(value.items[4].name);
-              }
-            });
-            Storage._retrieveData('page2').then(value => {
-              console.log('page2');
-              if (!!value) {
-                console.log(value.items[0].name);
-              }
-              if (!!value) {
-                console.log(value.items[1].name);
-              }
-              if (!!value) {
-                console.log(value.items[2].name);
-              }
-              if (!!value) {
-                console.log(value.items[3].name);
-              }
-              if (!!value) {
-                console.log(value.items[4].name);
-              }
-            });
-            Storage._retrieveData('page3').then(value => {
-              console.log('page3');
-              if (!!value) {
-                console.log(value.items[0].name);
-              }
-              if (!!value) {
-                console.log(value.items[1].name);
-              }
-              if (!!value) {
-                console.log(value.items[2].name);
-              }
-              if (!!value) {
-                console.log(value.items[3].name);
-              }
-              if (!!value) {
-                console.log(value.items[4].name);
-              }
-            });
-          }}
-          title="print"
-        />
-        <Button title="delete second" onPress={() => Storage.DeleteItem(1, 2)} />
-        <Button title="delete all" onPress={() => AsyncStorage.clear()} />
-      </View>
-    );
   }
 }
 

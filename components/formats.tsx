@@ -395,4 +395,5 @@ export function roundColors(colors: string[]){
     }
     index++;
   }
+  return allColors;
 }

@@ -8,7 +8,7 @@ export const commonStyles = StyleSheet.create({
     width: Dimensions.get("screen").width
   },
   paddingFive: {
-    padding: "5%"
+    paddingHorizontal: "5%"
   },
   container: {
     flex: 1,
@@ -31,6 +31,9 @@ export const commonStyles = StyleSheet.create({
   },
   bold: {
     fontWeight: 'bold'
+  },
+  centerText: {
+    textAlign: "center"
   }
 });
 
