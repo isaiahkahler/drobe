@@ -1,18 +1,19 @@
 import React from 'react';
 import { AsyncStorage } from 'react-native';
 import { number } from 'prop-types';
-import { FileSystem } from 'expo'; 
+import { FileSystem } from 'expo';
+import Color from 'color';
 
 export interface Page {
   // full: boolean;
-  items: Array<Item>;
+  items: Item[];
 }
 
 export interface Item {
   class: 'top' | 'bottom' | 'full body' | 'shoes' | 'accessory';
-  name: string;
   type: Top | Bottom | Full | Shoes | Accessory;
-  color: string;
+  name: string;
+  colors: string[];
   date: number;
   uses: number;
   laundry: number;
@@ -50,15 +51,7 @@ export const ItemDefinitions = {
       'trousers',
       'yoga pants'
     ],
-    full: [
-      'dress', 
-      'jumpsuit', 
-      'overalls', 
-      'poncho', 
-      'robe', 
-      'romper', 
-      'tall coat'
-    ],
+    full: ['dress', 'jumpsuit', 'overalls', 'poncho', 'robe', 'romper', 'tall coat'],
     shoes: [
       'boots',
       'clogs',
@@ -177,10 +170,9 @@ export function getFormality(item: Item) {
   return new Error(`oh that shouldn't have happened.`);
 }
 
-export class Storage { 
-
+export class Storage {
   //review: using static right?
-  static libraryPhotosDirectory = FileSystem.documentDirectory + "libraryPhotos";
+  static libraryPhotosDirectory = FileSystem.documentDirectory + 'libraryPhotos';
 
   static _storeData = async (key: string, value: any) => {
     try {
@@ -283,7 +275,7 @@ export class Storage {
   }
 
   static async getNumberOfPages() {
-    let number:number = await this._retrieveData('pages');
+    let number: number = await this._retrieveData('pages');
     if (!number) {
       return 0;
     }
@@ -291,15 +283,15 @@ export class Storage {
   }
 
   /**
-   * 
+   *
    * @param pageNumber indexes from 1
    */
   static async getPage(pageNumber: number) {
-    let page:Page = await this._retrieveData('page' + pageNumber);
+    let page: Page = await this._retrieveData('page' + pageNumber);
     return page;
   }
   /**
-   * 
+   *
    * @param pageNumber indexes from 1
    * @param itemNumber indexes from 1
    */
@@ -311,29 +303,30 @@ export class Storage {
 
   static async MovePhotoFromCache(cacheURI: string, callback: Function) {
     let info = await FileSystem.getInfoAsync(this.libraryPhotosDirectory);
-    let newURI = this.libraryPhotosDirectory + '/' + Date.now() + cacheURI.substr(cacheURI.length - 4);
-    if(!info.exists){
+    let newURI =
+      this.libraryPhotosDirectory + '/' + Date.now() + cacheURI.substr(cacheURI.length - 4);
+    if (!info.exists) {
       //first time, directory does not exist
       try {
-        await FileSystem.makeDirectoryAsync(this.libraryPhotosDirectory, {intermediates: false});
-      } catch(e) {
-        alert("oh no! there was a problem storing your item." + e);
+        await FileSystem.makeDirectoryAsync(this.libraryPhotosDirectory, { intermediates: false });
+      } catch (e) {
+        alert('oh no! there was a problem storing your item.' + e);
         return;
       }
       // console.log('success making directory');  //temp
       try {
-        await FileSystem.moveAsync({from: cacheURI, to: newURI});
+        await FileSystem.moveAsync({ from: cacheURI, to: newURI });
       } catch (e) {
-        alert("oh no! there was a problem storing your item." + e);
+        alert('oh no! there was a problem storing your item.' + e);
         return;
       }
       // console.log('success storing, made dir');
     } else {
       //directory already established, store the item there
       try {
-        await FileSystem.moveAsync({from: cacheURI, to: newURI});
+        await FileSystem.moveAsync({ from: cacheURI, to: newURI });
       } catch (e) {
-        alert("oh no! there was a problem storing your item." + e);
+        alert('oh no! there was a problem storing your item.' + e);
         return;
       }
       // console.log('success storing, didn't make dir');
@@ -342,49 +335,33 @@ export class Storage {
   }
 }
 
-export function roundColor(colorRGB: { r: number; g: number; b: number }): string {
-  const colors: Array<{name: string, color: {r: number, g: number, b: number}}> = [
-    // {name: "black", color: {r: 0, g: 0, b: 0}},
-    // {name: "white", color: {r: 255, g: 255, b: 255}},
-    // {name: "red", color: {r: 255, g: 0, b: 0}},
-    // {name: "lime", color: {r: 0, g: 255, b: 0}},
-    // {name: "blue", color: {r: 0, g: 0, b: 255}},
-    // {name: "yellow", color: {r: 255, g: 255, b: 0}},
-    // {name: "cyan", color: {r: 0, g: 255, b: 255}},
-    // {name: "fuchsia", color: {r: 255, g: 0, b: 255}},
-    // {name: "silver", color: {r: 192, g: 192, b: 192}},
-    // {name: "gray", color: {r: 128, g: 128, b: 128}},
-    // {name: "maroon", color: {r: 128, g: 0, b: 0}},
-    // {name: "olive", color: {r: 128, g: 128, b: 0}},
-    // {name: "green", color: {r: 0, g: 128, b: 0}},
-    // {name: "purple", color: {r: 128, g: 0, b: 128}},
-    // {name: "teal", color: {r: 0, g: 128, b: 128}},
-    // {name: "navy", color: {r: 0, g: 0, b: 128}},
-    {name: "black", color: {r: 0, g: 0, b: 0}},
-    {name: "gray", color: {r: 128, g: 128, b: 128}},
-    {name: "white", color: {r: 255, g: 255, b: 255}},
-    {name: "maroon", color: {r: 128, g: 0, b: 0}},
-    {name: "red", color: {r: 230, g: 25, b: 75}},
-    {name: "pink", color: {r: 250, g: 190, b: 190}},
-    {name: "brown", color: {r: 170, g: 110, b: 40}},
-    {name: "orange", color: {r: 245, g: 130, b: 48}},
-    {name: "apricot", color: {r: 255, g: 215, b: 180}},
-    {name: "olive", color: {r: 128, g: 128, b: 0}},
-    {name: "yellow", color: {r:255 , g:255 , b:25 }},
-    {name: "beige", color: {r:255 , g:250 , b:200 }},
-    {name: "lime", color: {r: 210, g: 245, b: 60}},
-    {name: "green", color: {r: 60, g: 180, b: 75}},
-    {name: "mint", color: {r: 170, g: 255, b: 195}},
-    {name: "teal", color: {r: 0, g: 128, b: 128}},
-    {name: "cyan", color: {r: 70, g: 240, b: 240}},
-    {name: "navy", color: {r: 0, g: 0, b: 128}},
-    {name: "blue", color: {r: 0, g: 130, b: 200}},
-    {name: "purple", color: {r: 145, g: 30, b: 180}},
-    {name: "lavender", color: {r: 230, g: 190, b: 255}},
-    {name: "magenta", color: {r: 240, g: 50, b: 230}},
+export function roundColor(color: string): string {
+  let colorRGB = Color(color).object();
+  const colors: Array<{ name: string; color: { r: number; g: number; b: number } }> = [
+    { name: 'black', color: { r: 0, g: 0, b: 0 } },
+    { name: 'gray', color: { r: 128, g: 128, b: 128 } },
+    { name: 'white', color: { r: 255, g: 255, b: 255 } },
+    { name: 'maroon', color: { r: 128, g: 0, b: 0 } },
+    { name: 'red', color: { r: 230, g: 25, b: 75 } },
+    { name: 'pink', color: { r: 250, g: 190, b: 190 } },
+    { name: 'brown', color: { r: 170, g: 110, b: 40 } },
+    { name: 'orange', color: { r: 245, g: 130, b: 48 } },
+    { name: 'apricot', color: { r: 255, g: 215, b: 180 } },
+    { name: 'olive', color: { r: 128, g: 128, b: 0 } },
+    { name: 'yellow', color: { r: 255, g: 255, b: 25 } },
+    { name: 'beige', color: { r: 255, g: 250, b: 200 } },
+    { name: 'lime', color: { r: 210, g: 245, b: 60 } },
+    { name: 'green', color: { r: 60, g: 180, b: 75 } },
+    { name: 'mint', color: { r: 170, g: 255, b: 195 } },
+    { name: 'teal', color: { r: 0, g: 128, b: 128 } },
+    { name: 'cyan', color: { r: 70, g: 240, b: 240 } },
+    { name: 'navy', color: { r: 0, g: 0, b: 128 } },
+    { name: 'blue', color: { r: 0, g: 130, b: 200 } },
+    { name: 'purple', color: { r: 145, g: 30, b: 180 } },
+    { name: 'lavender', color: { r: 230, g: 190, b: 255 } },
+    { name: 'magenta', color: { r: 240, g: 50, b: 230 } }
     // {name: "", color: {r: , g: , b: }},
-    // {name: "", color: {r: , g: , b: }},
-  ]
+  ];
   let smallestIndex = 0;
   let smallest = 10000;
   let index = 0;
@@ -401,4 +378,21 @@ export function roundColor(colorRGB: { r: number; g: number; b: number }): strin
     index++;
   }
   return colors[smallestIndex].name;
+}
+
+export function roundColors(colors: string[]){
+  let allColors = '';
+  let index = 0;
+  for(let color of colors){
+    if(index === 0){
+      allColors += roundColor(color);
+    } else {
+      if(index === colors.length -1){
+        allColors = allColors + " and " + roundColor(color);
+      } else {
+        allColors = allColors + ', ' + roundColor(color);
+      }
+    }
+    index++;
+  }
 }

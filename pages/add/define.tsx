@@ -20,12 +20,11 @@ import {
 } from 'react-native';
 import { PageLayout } from '../../components/page';
 import { commonStyles } from '../../components/styles';
-import { Item, ItemDefinitions, Storage, roundColor } from '../../components/formats';
-import { TriangleColorPicker, fromHsv } from 'react-native-color-picker';
+import { Item, ItemDefinitions, Storage, roundColor, roundColors } from '../../components/formats';
+// import { TriangleColorPicker, fromHsv } from 'react-native-color-picker';
+import { TriangleColorPicker } from '../../components/colorpicker/TriangleColorPicker';
+import { fromHsv } from '../../components/colorpicker/utils';
 import Color from 'color';
-
-//temp
-import {FileSystem} from 'expo';
 
 const width = Dimensions.get('screen').width;
 const height = Dimensions.get('screen').height;
@@ -41,7 +40,8 @@ interface DefineState {
   uri: string;
   options: Item;
   showRequired: boolean;
-  colorButton: string;
+  colorButtons: string[];
+  modalIndex: number;
   modalFadeInAnimation: Animated.Value;
   showRequiredShakeAnimation: Animated.ValueXY;
 }
@@ -57,8 +57,7 @@ export class Define extends React.Component<DefineProps, DefineState> {
       options: {
         class: 'top',
         type: null,
-        color: null,
-        // cover: null,
+        colors: null,
         date: Date.now(),
         laundry: 0,
         name: null,
@@ -66,7 +65,8 @@ export class Define extends React.Component<DefineProps, DefineState> {
         photoURI: null
       },
       showRequired: false,
-      colorButton: '#000',
+      modalIndex: -1, //review: this okay? wait i think i fixed these two
+      colorButtons: [], //review: this okay?
       modalFadeInAnimation: new Animated.Value(0),
       showRequiredShakeAnimation: new Animated.ValueXY({ x: 0, y: 0 })
     };
@@ -104,66 +104,52 @@ export class Define extends React.Component<DefineProps, DefineState> {
   printData = async () => {
     let page1 = await Storage._retrieveData('page1');
     console.log(page1.items);
-    
   };
 
   componentDidUpdate = () => {
     if (this.state.showModal) {
       Animated.spring(this.state.modalFadeInAnimation, {
-        toValue: 1,
+        toValue: 1
         // duration: 100
       }).start();
     }
 
-    if(this.state.showRequired) {
-      
+    if (this.state.showRequired) {
     }
   };
 
   hideModal = () => {
     Animated.spring(this.state.modalFadeInAnimation, {
-      toValue: 0, 
+      toValue: 0
       // duration: 100
     }).start(() => this.setState({ showModal: false }));
   };
 
   shakeRequired = () => {
     Animated.sequence([
-      Animated.timing(
-        this.state.showRequiredShakeAnimation,
-        {
-          toValue: {x: 20, y: 0},
-          duration: 50
-        }
-      ),
-      Animated.timing(
-        this.state.showRequiredShakeAnimation,
-        {
-          toValue: {x: -20, y: 0},
-          duration: 100
-        }
-      ),
-      Animated.timing(
-        this.state.showRequiredShakeAnimation,
-        {
-          toValue: {x: 20, y: 0},
-          duration: 100
-        }
-      ),
-      Animated.timing(
-        this.state.showRequiredShakeAnimation,
-        {
-          toValue: {x: 0, y: 0},
-          duration: 50
-        }
-      ),
+      Animated.timing(this.state.showRequiredShakeAnimation, {
+        toValue: { x: 20, y: 0 },
+        duration: 50
+      }),
+      Animated.timing(this.state.showRequiredShakeAnimation, {
+        toValue: { x: -20, y: 0 },
+        duration: 100
+      }),
+      Animated.timing(this.state.showRequiredShakeAnimation, {
+        toValue: { x: 20, y: 0 },
+        duration: 100
+      }),
+      Animated.timing(this.state.showRequiredShakeAnimation, {
+        toValue: { x: 0, y: 0 },
+        duration: 50
+      })
     ]).start();
-  }
+  };
 
   addItem = () => {
     this.setState({ showRequired: true });
     this.shakeRequired();
-    if (!!this.state.options.color && !!this.state.options.type) {
+    if (this.state.options.colors.length !== 0 && !!this.state.options.type) {
       //if color and type are filled
       if (!this.state.options.name) {
         //if name is null fill name
@@ -172,9 +158,7 @@ export class Define extends React.Component<DefineProps, DefineState> {
             ...previousState,
             options: {
               ...previousState.options,
-              name: `${roundColor(Color(this.state.options.color).object() as any)} ${
-                this.state.options.type
-              }`
+              name: `${roundColors(this.state.options.colors)} ${this.state.options.type}`
             }
           }),
           () => {
@@ -191,25 +175,30 @@ export class Define extends React.Component<DefineProps, DefineState> {
 
   storeItem = () => {
     //async move photo from cache to filesystem storage .then store item
-    Storage.MovePhotoFromCache(this.state.uri, (newURI) => {
-      this.setState(previousState => ({
-        ...previousState,
-        options: {...previousState.options, photoURI: newURI}
-      }), async () => {
-        await Storage.storeItem(this.state.options);
-        this.props.navigation.navigate('Library');
-      });
+    Storage.MovePhotoFromCache(this.state.uri, newURI => {
+      this.setState(
+        previousState => ({
+          ...previousState,
+          options: { ...previousState.options, photoURI: newURI }
+        }),
+        async () => {
+          await Storage.storeItem(this.state.options);
+          this.props.navigation.navigate('Library');
+        }
+      );
     });
   };
 
-  selectItemType = (index: number) => {};
 
+
+
+  //review: compress styles? define container and touchable highlight?
   render() {
     return (
       <React.Fragment>
         <PageLayout scroll>
           <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-            <View style={{padding: "5%"}}>
+            <View style={{ padding: '5%' }}>
               {/* image preview */}
               <View style={styles.defineContainer}>
                 {this.state.renderImage && (
@@ -252,25 +241,34 @@ export class Define extends React.Component<DefineProps, DefineState> {
                   <View style={styles.defineContainer}>
                     <Label>Clothing Item Type</Label>
                     <View style={styles.fullWidthButton}>
-                    <Picker onValueChange={value => this.updateData('class', value)} selectedValue={this.state.options.class}>
-                      <Picker.Item label="top" value="top" />
-                      <Picker.Item label="bottom" value="bottom" />
-                      <Picker.Item label="full body" value="full body" />
-                      <Picker.Item label="shoes" value="shoes" />
-                      <Picker.Item label="accessory" value="accessory" />
-                    </Picker>
+                      <Picker
+                        onValueChange={value => this.updateData('class', value)}
+                        selectedValue={this.state.options.class}
+                      >
+                        <Picker.Item label="top" value="top" />
+                        <Picker.Item label="bottom" value="bottom" />
+                        <Picker.Item label="full body" value="full body" />
+                        <Picker.Item label="shoes" value="shoes" />
+                        <Picker.Item label="accessory" value="accessory" />
+                      </Picker>
                     </View>
                   </View>
                 )}
               </View>
               {/* type picker */}
-              <Animated.View style={[styles.defineContainer, (!this.state.options.type && {left: this.state.showRequiredShakeAnimation.x})]}>
+              <Animated.View
+                style={[
+                  styles.defineContainer,
+                  !this.state.options.type && { left: this.state.showRequiredShakeAnimation.x }
+                ]}
+              >
                 <Label isFilledIn={this.state.options.type} showRequired={this.state.showRequired}>
                   Clothing Item
                 </Label>
-                <View style={styles.fullWidthButton}>
+                {/* <View style={styles.fullWidthButton}> */}
+                <View>
                   <TouchableHighlight
-                    style={styles.touchableHighlight}
+                    style={styles.fullWidthButton}
                     onPress={() => {
                       this.setState({ showTypeList: true });
                     }}
@@ -303,26 +301,66 @@ export class Define extends React.Component<DefineProps, DefineState> {
               </Animated.View>
               {/* color picker button*/}
               {/* review: are you supposed to translate Animated.View by setting the style of the left and top? */}
-              <Animated.View style={[styles.defineContainer, (!this.state.options.color && {left: this.state.showRequiredShakeAnimation.x})]}>
-                <Label isFilledIn={this.state.options.color} showRequired={this.state.showRequired}>
+              <Animated.View
+                style={[
+                  styles.defineContainer,
+                  !this.state.options.colors && { left: this.state.showRequiredShakeAnimation.x }
+                ]}
+              >
+                <Label
+                  isFilledIn={this.state.options.colors}
+                  showRequired={this.state.showRequired}
+                >
                   Item Color
                 </Label>
-                <View
-                  style={[styles.fullWidthButton, { backgroundColor: this.state.options.color }]}
-                >
-                  <TouchableHighlight
-                    style={styles.touchableHighlight}
-                    onPress={() => {
-                      this.setState({ showModal: true });
-                    }}
-                  >
-                    <Text style={[commonStyles.pb, { color: this.state.colorButton }]}>
-                      {this.state.options.color
-                        ? roundColor(Color(this.state.options.color).object() as any)
-                        : 'choose color'}
-                    </Text>
-                  </TouchableHighlight>
-                </View>
+                {!!this.state.options.colors ? (
+                  <React.Fragment>
+                    {this.state.options.colors.map((item, index) => {
+                      return (<View key={index}>
+                        <TouchableHighlight
+                          style={[
+                            styles.fullWidthButton,
+                            { backgroundColor: this.state.options.colors[index] }
+                          ]}
+                          onPress={() => {
+                            this.setState({ showModal: true, modalIndex: index });
+                          }}
+                        >
+                          <Text
+                            style={[commonStyles.pb, { color: this.state.colorButtons[index] }]}
+                          >
+                            {roundColor(item)}
+                          </Text>
+                        </TouchableHighlight>
+                      </View>);
+                    })}
+                    {/* <View style={[styles.fullWidthButton, styles.defineContainer]}> */}
+                    <View style={styles.defineContainer}>
+                      <TouchableHighlight
+                      style={styles.fullWidthButton}
+                        onPress={() => {
+                          this.setState({
+                            showModal: true,
+                            modalIndex: this.state.options.colors.length
+                          });
+                        }}
+                      >
+                        <Text style={commonStyles.pb}>add color</Text>
+                      </TouchableHighlight>
+                    </View>
+                  </React.Fragment>
+                ) : (
+                  // <View style={styles.fullWidthButton}>
+                    <TouchableHighlight
+                      style={styles.fullWidthButton}
+                      onPress={() => {
+                        this.setState({ showModal: true, modalIndex: 0 });
+                      }}
+                    >
+                      <Text style={commonStyles.pb}>choose color</Text>
+                    </TouchableHighlight>
+                  // </View>
+                )}
               </Animated.View>
 
               {/* <View style={styles.defineContainer}>
@@ -341,30 +379,37 @@ export class Define extends React.Component<DefineProps, DefineState> {
         {/* color picker modal */}
         {this.state.showModal && (
           <Animated.View
-            style={[styles.modalAnimatedView, { opacity: this.state.modalFadeInAnimation}]} onPress={() => {console.log("hmm?")}}
+            style={[styles.modalAnimatedView, { opacity: this.state.modalFadeInAnimation }]}
           >
-            <TouchableHighlight 
+            <TouchableHighlight
               underlayColor="rgba(0,0,0,0)"
               onPress={this.hideModal}
               style={styles.modalContainer}
             >
               <View style={styles.modal}>
                 <TriangleColorPicker
-                  onColorChange={color => {
-                    let colorObj = Color(fromHsv(color));
-                    if (colorObj.luminosity() < 0.5) {
-                      this.setState({ colorButton: '#fff' });
-                    } else {
-                      this.setState({ colorButton: '#000' });
+                //on selected color = round color to name, set in state, 
+                //choose color button set in state (w index),  add color to state
+
+                  onColorSelected={(color) => {
+                    let hexColor = fromHsv(color);
+                    let colorObj = Color(hexColor);
+                    let buttonColor = "#fff";
+                    if(colorObj.isLight()){
+                      buttonColor = "#000";
                     }
                     this.setState(previousState => ({
                       ...previousState,
-                      options: { ...previousState.options, color: fromHsv(color) }
+                      options: {...previousState.options, colors: (!! previousState.options.colors ? [...previousState.options.colors, hexColor] : [hexColor])},
+                      colorButtons: [...previousState.colorButtons, buttonColor],
+                      modalIndex: -1,
+                      showModal: false,
                     }));
                   }}
                   style={{ width: '100%', aspectRatio: 1 }}
-                />
-                <View style={styles.modalButtonClose}>
+                >
+                </TriangleColorPicker>
+                {/* <View style={styles.modalButtonClose}>
                   <Button
                     title="close"
                     onPress={() => {
@@ -372,7 +417,7 @@ export class Define extends React.Component<DefineProps, DefineState> {
                     }}
                     color="#000"
                   />
-                </View>
+                </View> */}
               </View>
             </TouchableHighlight>
           </Animated.View>
@@ -421,30 +466,27 @@ const styles = StyleSheet.create({
   fullWidthButton: {
     borderWidth: 2,
     borderColor: '#000',
-    borderRadius: 10
-  },
-  touchableHighlight: {
+    borderRadius: 10,
     padding: 5
   },
   typeList: {
     paddingHorizontal: 5
   },
   modalAnimatedView: {
-    
     position: 'absolute',
     width: width,
     height: height,
     flex: 1,
-    zIndex: 5,
+    zIndex: 5
     // backgroundColor: "#00ff00"
   },
   modalContainer: {
     flex: 1,
-    width: "100%",
-    height: "100%",
+    width: '100%',
+    height: '100%',
     justifyContent: 'center',
     alignItems: 'center',
-    padding: '10%',
+    padding: '10%'
     // backgroundColor: "#ff0000"
   },
   modal: {
@@ -455,10 +497,10 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff', //'rgba(255,255,255,0.75)',
     padding: '5%'
   },
-  modalButtonClose: {
-    borderWidth: 2,
-    borderColor: '#000',
-    borderRadius: 10,
-    marginTop: 10
-  }
+  // modalButtonClose: {
+  //   borderWidth: 2,
+  //   borderColor: '#000',
+  //   borderRadius: 10,
+  //   marginTop: 10
+  // }
 });
