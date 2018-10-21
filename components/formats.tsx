@@ -170,6 +170,8 @@ export function getFormality(item: Item) {
   return new Error(`oh that shouldn't have happened.`);
 }
 
+
+//to do: AsyncStorage keeps track of indexed sort things! a list for everything purple, warm, formal, etc. good idea?
 export class Storage {
   //review: using static right?
   static libraryPhotosDirectory = FileSystem.documentDirectory + 'libraryPhotos';

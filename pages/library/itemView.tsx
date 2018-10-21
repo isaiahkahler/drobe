@@ -53,10 +53,18 @@ export class ItemView extends React.Component<ItemViewProps, ItemViewState> {
           />
           <ShowValue name="class:" type="class" value={this.state.item.class} />
           <ShowValue name="type:" type="type" value={this.state.item.type} />
-          <ShowValue name="color:" type="color" value={this.state.item.color} />
-          <ShowValue name="date added:" type="date" value={moment(this.state.item.date).calendar()} />
+          <ShowValue name="color:" type="colors" value={this.state.item.colors} />
+          <ShowValue
+            name="date added:"
+            type="date"
+            value={moment(this.state.item.date).calendar()}
+          />
           <ShowValue name="total times worn:" type="uses" value={this.state.item.uses} />
-          <ShowValue name="times worn since last wash:" type="uses" value={this.state.item.laundry} />
+          <ShowValue
+            name="times worn since last wash:"
+            type="uses"
+            value={this.state.item.laundry}
+          />
           {/* <ShowValue name="date added:" type="date" value={moment(this.state.item.date).calendar()} /> */}
         </PageLayout>
       );
@@ -69,35 +77,63 @@ export class ItemView extends React.Component<ItemViewProps, ItemViewState> {
 //review: change type from string to Item.type. may have to define that interface in Formats
 //review: remove 'type' prop replace with 'isColor' boolean
 function ShowValue(props: { name: string; type: string; value: any }) {
-  if (props.type !== 'color') {
+  if (props.type !== 'colors') {
     return (
-      <View style={styles.valueContainer}>
-        <Text style={[commonStyles.pb, styles.valueItem]}>{props.name}</Text>
-        <Text style={[commonStyles.pb, styles.valueItem]}>{props.value}</Text>
+      <View style={styles.valueRow}>
+        <View style={styles.valueColumn}>
+          <Text style={[commonStyles.pb, styles.valueItem]}>{props.name}</Text>
+        </View>
+        <View style={styles.valueColumn}>
+          <Text style={[commonStyles.pb, styles.valueItem]}>{props.value}</Text>
+        </View>
       </View>
     );
   } else {
     //review: copy and pasting Luminosity code from Define, try moving function to formats? make a color class?
-    let colorObj = Color(props.value);
-    let fontColor = '#fff';
-    if (colorObj.luminosity() > 0.5) {
-      fontColor = '#000';
-    }
+
     return (
-      <View style={styles.valueContainer}>
-        <Text style={[commonStyles.pb, styles.valueItem]}>{props.name}</Text>
-        <Text style={[commonStyles.pb, styles.valueItem, { color: fontColor, backgroundColor: props.value }]}>{roundColor(colorObj.object() as any)}</Text>
+      <View style={styles.valueRow}>
+        <View style={styles.valueColumn}>
+          <Text style={[commonStyles.pb, styles.valueItem]}>{props.name}</Text>
+        </View>
+        <View style={styles.valueColumn}>
+          {props.value.map((item, index) => {
+            let colorObj = Color(item);
+            let fontColor = '#fff';
+            if (colorObj.isLight()) {
+              fontColor = '#000';
+            }
+            return (
+              <Text
+                key={index}
+                style={[
+                  commonStyles.pb,
+                  styles.valueItem,
+                  { color: fontColor, backgroundColor: item }
+                ]}
+              >
+                {roundColor(colorObj.object() as any)}
+              </Text>
+            );
+          })}
+        </View>
       </View>
     );
   }
 }
 
-
 const styles = StyleSheet.create({
-  valueContainer: {
-    flexDirection: "row"
+  valueRow: {
+    flexDirection: 'row',
+    borderBottomWidth: 2,
+    borderBottomColor: '#000'
+  },
+  valueColumn: {
+    flexDirection: 'column',
+    // flexWrap: "wrap",
+    width: '50%'
   },
   valueItem: {
-    width: "50%"
+    width: '100%'
   }
 });

@@ -1,4 +1,3 @@
-'use strict';
 import * as React from 'react';
 import {
   StyleSheet,
@@ -21,7 +20,6 @@ import {
 import { PageLayout } from '../../components/page';
 import { commonStyles } from '../../components/styles';
 import { Item, ItemDefinitions, Storage, roundColor, roundColors } from '../../components/formats';
-// import { TriangleColorPicker, fromHsv } from 'react-native-color-picker';
 import { TriangleColorPicker } from '../../components/colorpicker/TriangleColorPicker';
 import { fromHsv } from '../../components/colorpicker/utils';
 import Color from 'color';
@@ -34,43 +32,53 @@ interface DefineProps {
   navigation: any;
 }
 interface DefineState {
-  showTypeList: boolean;
-  showModal: boolean;
+  options: Item;
   renderImage: boolean;
   uri: string;
-  options: Item;
+  showTypeList: boolean;
+  modal: {
+    show: boolean;
+    index: number;
+    action: 'new' | 'add' | 'change';
+  };
   showRequired: boolean;
-  colorButtons: string[];
-  modalIndex: number;
   modalFadeInAnimation: Animated.Value;
   showRequiredShakeAnimation: Animated.ValueXY;
 }
+
+//TO DO!!!!!!!!!!!!!!!!!!!!!!!! 
+//make sure that everything in this page woRKS with GIVEN DATA!!!!
+//it was designed from start to CREATE data, but should work to EDIT data!!!!
+
 
 export class Define extends React.Component<DefineProps, DefineState> {
   constructor(props: DefineProps) {
     super(props);
     this.state = {
-      showTypeList: false,
-      showModal: false,
-      renderImage: false,
-      uri: '',
       options: {
         class: 'top',
         type: null,
+        name: null,
         colors: null,
         date: Date.now(),
-        laundry: 0,
-        name: null,
         uses: 0,
+        laundry: 0,
         photoURI: null
       },
+      renderImage: false,
+      uri: null,
+      showTypeList: false,
+      modal: {
+        show: false,
+        index: -1,
+        action: null
+      },
       showRequired: false,
-      modalIndex: -1, //review: this okay? wait i think i fixed these two
-      colorButtons: [], //review: this okay?
       modalFadeInAnimation: new Animated.Value(0),
       showRequiredShakeAnimation: new Animated.ValueXY({ x: 0, y: 0 })
     };
   }
+
   static navigationOptions = {
     title: 'Define Attributes'
   };
@@ -100,14 +108,8 @@ export class Define extends React.Component<DefineProps, DefineState> {
     }
   };
 
-  //temp!!! delete later
-  printData = async () => {
-    let page1 = await Storage._retrieveData('page1');
-    console.log(page1.items);
-  };
-
   componentDidUpdate = () => {
-    if (this.state.showModal) {
+    if (this.state.modal.show) {
       Animated.spring(this.state.modalFadeInAnimation, {
         toValue: 1
         // duration: 100
@@ -122,7 +124,7 @@ export class Define extends React.Component<DefineProps, DefineState> {
     Animated.spring(this.state.modalFadeInAnimation, {
       toValue: 0
       // duration: 100
-    }).start(() => this.setState({ showModal: false }));
+    }).start(() => this.setState({ modal: { show: false, index: -1, action: null } }));
   };
 
   shakeRequired = () => {
@@ -149,26 +151,28 @@ export class Define extends React.Component<DefineProps, DefineState> {
   addItem = () => {
     this.setState({ showRequired: true });
     this.shakeRequired();
-    if (this.state.options.colors.length !== 0 && !!this.state.options.type) {
-      //if color and type are filled
-      if (!this.state.options.name) {
-        //if name is null fill name
-        this.setState(
-          previousState => ({
-            ...previousState,
-            options: {
-              ...previousState.options,
-              name: `${roundColors(this.state.options.colors)} ${this.state.options.type}`
+    if (!!this.state.options.colors && !!this.state.options.type) {
+      if(this.state.options.colors.length !== 0){
+        //if color and type are filled
+        if (!this.state.options.name) {
+          //if name is null fill name
+          this.setState(
+            previousState => ({
+              ...previousState,
+              options: {
+                ...previousState.options,
+                name: `${roundColors(this.state.options.colors)} ${this.state.options.type}`
+              }
+            }),
+            () => {
+              //one setState has finished
+              this.storeItem();
             }
-          }),
-          () => {
-            //one setState has finished
-            this.storeItem();
-          }
-        );
-      } else {
-        //color, type, and name are filled
-        this.storeItem();
+          );
+        } else {
+          //color, type, and name are filled
+          this.storeItem();
+        }
       }
     }
   };
@@ -189,18 +193,14 @@ export class Define extends React.Component<DefineProps, DefineState> {
     });
   };
 
-
-
-
-  //review: compress styles? define container and touchable highlight?
   render() {
     return (
       <React.Fragment>
-        <PageLayout scroll>
+        <PageLayout scroll padding>
           <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-            <View style={{ padding: '5%' }}>
+            <React.Fragment>
               {/* image preview */}
-              <View style={styles.defineContainer}>
+              <View style={styles.verticalPadding}>
                 {this.state.renderImage && (
                   <Image
                     source={{ uri: this.state.uri }}
@@ -209,7 +209,7 @@ export class Define extends React.Component<DefineProps, DefineState> {
                 )}
               </View>
               {/* name */}
-              <View style={styles.defineContainer}>
+              <View style={styles.verticalPadding}>
                 <Label>Clothing Item Name</Label>
                 <TextInput
                   placeholder="enter optional name"
@@ -218,11 +218,11 @@ export class Define extends React.Component<DefineProps, DefineState> {
                   value={this.state.options.name}
                 />
               </View>
-
               {/* class picker */}
               <View>
                 {isIos ? (
-                  <View style={styles.defineContainer}>
+                  //ios
+                  <View style={styles.verticalPadding}>
                     <Label>Clothing Item Type</Label>
                     <SegmentedControlIOS
                       values={['top', 'bottom', 'full body', 'shoes', 'accessory']}
@@ -238,9 +238,9 @@ export class Define extends React.Component<DefineProps, DefineState> {
                   </View>
                 ) : (
                   //android
-                  <View style={styles.defineContainer}>
+                  <View style={styles.verticalPadding}>
                     <Label>Clothing Item Type</Label>
-                    <View style={styles.fullWidthButton}>
+                    <View style={styles.androidPicker}>
                       <Picker
                         onValueChange={value => this.updateData('class', value)}
                         selectedValue={this.state.options.class}
@@ -255,20 +255,20 @@ export class Define extends React.Component<DefineProps, DefineState> {
                   </View>
                 )}
               </View>
+
               {/* type picker */}
+              {/* review: are you supposed to translate Animated.View by setting the style of the left and top? */}
               <Animated.View
                 style={[
-                  styles.defineContainer,
+                  styles.verticalPadding,
                   !this.state.options.type && { left: this.state.showRequiredShakeAnimation.x }
                 ]}
               >
                 <Label isFilledIn={this.state.options.type} showRequired={this.state.showRequired}>
                   Clothing Item
                 </Label>
-                {/* <View style={styles.fullWidthButton}> */}
-                <View>
+                <View style={styles.button}>
                   <TouchableHighlight
-                    style={styles.fullWidthButton}
                     onPress={() => {
                       this.setState({ showTypeList: true });
                     }}
@@ -299,11 +299,11 @@ export class Define extends React.Component<DefineProps, DefineState> {
                   )}
                 </View>
               </Animated.View>
-              {/* color picker button*/}
-              {/* review: are you supposed to translate Animated.View by setting the style of the left and top? */}
+
+              {/* color picker button */}
               <Animated.View
                 style={[
-                  styles.defineContainer,
+                  styles.verticalPadding,
                   !this.state.options.colors && { left: this.state.showRequiredShakeAnimation.x }
                 ]}
               >
@@ -316,32 +316,45 @@ export class Define extends React.Component<DefineProps, DefineState> {
                 {!!this.state.options.colors ? (
                   <React.Fragment>
                     {this.state.options.colors.map((item, index) => {
-                      return (<View key={index}>
-                        <TouchableHighlight
-                          style={[
-                            styles.fullWidthButton,
-                            { backgroundColor: this.state.options.colors[index] }
-                          ]}
-                          onPress={() => {
-                            this.setState({ showModal: true, modalIndex: index });
-                          }}
-                        >
-                          <Text
-                            style={[commonStyles.pb, { color: this.state.colorButtons[index] }]}
+                      return (
+                        <View key={index} style={(index === 0 ? undefined : {marginTop: width*0.025} )}>
+                          <TouchableHighlight
+                            style={[
+                              styles.button,
+                              { backgroundColor: this.state.options.colors[index] }
+                            ]}
+                            onPress={() => {
+                              this.setState({
+                                modal: { show: true, index: index, action: 'change' }
+                              });
+                            }}
                           >
-                            {roundColor(item)}
-                          </Text>
-                        </TouchableHighlight>
-                      </View>);
+                            <Text
+                              style={[
+                                commonStyles.pb,
+                                {
+                                  color: Color(this.state.options.colors[index]).isDark()
+                                    ? '#fff'
+                                    : '#000'
+                                }
+                              ]}
+                            >
+                              {roundColor(item)}
+                            </Text>
+                          </TouchableHighlight>
+                        </View>
+                      );
                     })}
-                    {/* <View style={[styles.fullWidthButton, styles.defineContainer]}> */}
-                    <View style={styles.defineContainer}>
+                    <View style={styles.verticalPadding}>
                       <TouchableHighlight
-                      style={styles.fullWidthButton}
+                        style={styles.button}
                         onPress={() => {
                           this.setState({
-                            showModal: true,
-                            modalIndex: this.state.options.colors.length
+                            modal: {
+                              show: true,
+                              index: this.state.options.colors.length,
+                              action: 'add'
+                            }
                           });
                         }}
                       >
@@ -350,76 +363,86 @@ export class Define extends React.Component<DefineProps, DefineState> {
                     </View>
                   </React.Fragment>
                 ) : (
-                  // <View style={styles.fullWidthButton}>
-                    <TouchableHighlight
-                      style={styles.fullWidthButton}
-                      onPress={() => {
-                        this.setState({ showModal: true, modalIndex: 0 });
-                      }}
-                    >
-                      <Text style={commonStyles.pb}>choose color</Text>
-                    </TouchableHighlight>
-                  // </View>
+                  <TouchableHighlight
+                    style={styles.button}
+                    onPress={() => {
+                      this.setState({ modal: { show: true, index: 0, action: 'new' } });
+                    }}
+                  >
+                    <Text style={commonStyles.pb}>choose color</Text>
+                  </TouchableHighlight>
                 )}
               </Animated.View>
 
-              {/* <View style={styles.defineContainer}>
-                <View style={styles.fullWidthButton}>
-                  <Button title="print data" onPress={this.printData} />
-                </View>
-              </View> */}
-              <View style={styles.defineContainer}>
-                <View style={styles.fullWidthButton}>
-                  <Button title="add item" onPress={this.addItem} />
-                </View>
+              {/* add button */}
+              <View style={styles.verticalPadding}>
+                <TouchableHighlight style={styles.button} onPress={this.addItem}>
+                  <Text style={[commonStyles.pb, commonStyles.centerText]}>add item</Text>
+                </TouchableHighlight>
               </View>
-            </View>
+            </React.Fragment>
           </TouchableWithoutFeedback>
         </PageLayout>
+
         {/* color picker modal */}
-        {this.state.showModal && (
+        {this.state.modal.show && (
           <Animated.View
             style={[styles.modalAnimatedView, { opacity: this.state.modalFadeInAnimation }]}
           >
-            <TouchableHighlight
-              underlayColor="rgba(0,0,0,0)"
-              onPress={this.hideModal}
-              style={styles.modalContainer}
-            >
+            <View style={styles.modalContainer}>
               <View style={styles.modal}>
-                <TriangleColorPicker
-                //on selected color = round color to name, set in state, 
-                //choose color button set in state (w index),  add color to state
-
-                  onColorSelected={(color) => {
-                    let hexColor = fromHsv(color);
-                    let colorObj = Color(hexColor);
-                    let buttonColor = "#fff";
-                    if(colorObj.isLight()){
-                      buttonColor = "#000";
-                    }
-                    this.setState(previousState => ({
-                      ...previousState,
-                      options: {...previousState.options, colors: (!! previousState.options.colors ? [...previousState.options.colors, hexColor] : [hexColor])},
-                      colorButtons: [...previousState.colorButtons, buttonColor],
-                      modalIndex: -1,
-                      showModal: false,
-                    }));
-                  }}
-                  style={{ width: '100%', aspectRatio: 1 }}
-                >
-                </TriangleColorPicker>
-                {/* <View style={styles.modalButtonClose}>
-                  <Button
-                    title="close"
-                    onPress={() => {
-                      this.hideModal();
+                {this.state.modal.action === 'change' ? (
+                  <TriangleColorPicker
+                    oldColor={this.state.options.colors[this.state.modal.index]}
+                    onColorSelected={color => {
+                      let hexColor = fromHsv(color);
+                      this.setState(previousState => ({
+                        ...previousState,
+                        options: {
+                          ...previousState.options,
+                          colors: [
+                            ...previousState.options.colors.slice(0, previousState.modal.index),
+                            hexColor,
+                            ...previousState.options.colors.splice(
+                              previousState.modal.index + 1,
+                              previousState.options.colors.length
+                            )
+                          ]
+                        },
+                        modal: { show: false, index: -1, action: null }
+                      }));
                     }}
-                    color="#000"
+                    style={{ width: '100%', aspectRatio: 1 }}
                   />
-                </View> */}
+                ) : (
+                  <TriangleColorPicker
+                    //on selected color = round color to name, set in state,
+                    //choose color button set in state (w index),  add color to state
+
+                    onColorSelected={color => {
+                      let hexColor = fromHsv(color);
+                      if (this.state.modal.action === 'new') {
+                        this.setState(previousState => ({
+                          ...previousState,
+                          options: { ...previousState.options, colors: [hexColor] },
+                          modal: { show: false, index: -1, action: null }
+                        }));
+                      } else if (this.state.modal.action === 'add') {
+                        this.setState(previousState => ({
+                          ...previousState,
+                          options: {
+                            ...previousState.options,
+                            colors: [...previousState.options.colors, hexColor]
+                          },
+                          modal: { show: false, index: -1, action: null }
+                        }));
+                      }
+                    }}
+                    style={{ width: '100%', aspectRatio: 1 }}
+                  />
+                )}
               </View>
-            </TouchableHighlight>
+            </View>
           </Animated.View>
         )}
       </React.Fragment>
@@ -449,9 +472,15 @@ function Label(props: { children: any; isFilledIn?: any; showRequired?: boolean 
 }
 
 const styles = StyleSheet.create({
-  defineContainer: {
+  verticalPadding: {
     width: '100%',
     marginVertical: width * 0.025
+  },
+  button: {
+    borderWidth: 2,
+    borderColor: '#000',
+    borderRadius: 10,
+    padding: 5
   },
   inputLine: {
     width: '100%',
@@ -463,22 +492,12 @@ const styles = StyleSheet.create({
   label: {
     marginBottom: 5
   },
-  fullWidthButton: {
-    borderWidth: 2,
-    borderColor: '#000',
-    borderRadius: 10,
-    padding: 5
-  },
-  typeList: {
-    paddingHorizontal: 5
-  },
   modalAnimatedView: {
     position: 'absolute',
     width: width,
     height: height,
     flex: 1,
     zIndex: 5
-    // backgroundColor: "#00ff00"
   },
   modalContainer: {
     flex: 1,
@@ -487,20 +506,20 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     padding: '10%'
-    // backgroundColor: "#ff0000"
   },
   modal: {
-    // aspectRatio: 0.75,
     width: '100%',
     borderWidth: 2,
     borderRadius: 10,
     backgroundColor: '#fff', //'rgba(255,255,255,0.75)',
     padding: '5%'
   },
-  // modalButtonClose: {
-  //   borderWidth: 2,
-  //   borderColor: '#000',
-  //   borderRadius: 10,
-  //   marginTop: 10
-  // }
+  androidPicker: {
+    borderWidth: 2,
+    borderColor: '#000',
+    borderRadius: 10
+  },
+  typeList: {
+    marginHorizontal: 5
+  }
 });
