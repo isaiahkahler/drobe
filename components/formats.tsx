@@ -222,7 +222,7 @@ export class Storage {
     } else {
       //if pages exist
       let lastPage: Page = await this._retrieveData('page' + (numberOfPages - 1)); //get last page
-      if (lastPage.items.length < 5) {
+      if (lastPage.items.length < 10) {
         //last page not full
         lastPage.items.push(item); // add item to last page
         await this._storeData('page' + (numberOfPages - 1), lastPage); //store last page

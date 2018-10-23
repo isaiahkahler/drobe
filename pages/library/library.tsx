@@ -80,7 +80,7 @@ class Library extends React.Component<LibraryProps, LibraryState> {
     if (numberOfPages !== 0) {
       // let pageOne = await Storage.getPage(1);
       // this.setState({ pages: [pageOne] });
-      this.recursiveLoadPages(1, numberOfPages);
+      this.recursiveLoadPages(0, numberOfPages);
     }
   };
 
@@ -92,7 +92,7 @@ class Library extends React.Component<LibraryProps, LibraryState> {
         pages: [...previousState.pages, page]
       }),
       () => {
-        if (pageNumber < numberOfPages) {
+        if (pageNumber < (numberOfPages - 1)) {
           this.recursiveLoadPages(pageNumber + 1, numberOfPages);
         }
       }
@@ -134,8 +134,8 @@ class Library extends React.Component<LibraryProps, LibraryState> {
                 openItemScreen={(pageIndex, itemIndex) => {
                   this.props.navigation.navigate('ItemView', {
                     title: this.state.pages[pageIndex].items[itemIndex].name,
-                    page: pageIndex + 1,
-                    item: itemIndex + 1
+                    page: pageIndex,
+                    item: itemIndex
                   });
                 }}
               >
