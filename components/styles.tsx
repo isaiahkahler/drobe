@@ -34,6 +34,9 @@ export const commonStyles = StyleSheet.create({
   },
   centerText: {
     textAlign: "center"
+  },
+  rightText: {
+    textAlign: "right"
   }
 });
 
