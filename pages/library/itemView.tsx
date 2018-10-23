@@ -15,6 +15,8 @@ interface ItemViewProps {
   navigation: any;
 }
 interface ItemViewState {
+  pageIndex: number;
+  itemIndex: number;
   item: Item;
   editMode: boolean;
 }
@@ -22,13 +24,13 @@ interface ItemViewState {
 export class ItemView extends React.Component<ItemViewProps, ItemViewState> {
   constructor(props: ItemViewProps) {
     super(props);
-    this.state = { item: null, editMode: false };
+    this.state = { pageIndex: null, itemIndex: null, item: null, editMode: false };
   }
   static navigationOptions = ({ navigation }) => {
     return {
       title: navigation.getParam('title', 'Item'),
       headerRight: (
-        <TouchableHighlight>
+        <TouchableHighlight onPress={navigation.getParam('edit', () => {})}>
           <Text>Edit</Text>
         </TouchableHighlight>
       )
@@ -37,9 +39,18 @@ export class ItemView extends React.Component<ItemViewProps, ItemViewState> {
 
   componentDidMount = async () => {
     const navigation = this.props.navigation;
+    this.setState({pageIndex: navigation.state.params.page, itemIndex: navigation.state.params.item});
     let item = await Storage.getItem(navigation.state.params.page, navigation.state.params.item);
     this.setState({ item: item });
+    navigation.setParams({edit: this.editItem})
   };
+
+  //review: make setting define a method in format? probably a good idea.
+  editItem = () => {
+    Storage.storeDefineProps(true, this.state.pageIndex, this.state.itemIndex, this.state.item.photoURI, () => {
+      this.props.navigation.navigate('Edit');
+    });
+  }
 
   render() {
     if (!!this.state.item) {

@@ -276,6 +276,16 @@ export class Storage {
     }
   }
 
+  static async overwriteItem(pageIndex: number, itemIndex: number, item:Item, callback: Function){
+    let page:Page = await this.getPage(pageIndex);
+    page.items[itemIndex] = item;
+    this._storeData("page" + pageIndex, page).then(() => {
+      callback();
+    });
+  }
+
+
+  //hey!!! review: should these be async??? they have await in them? right?
   static async getNumberOfPages() {
     let number: number = await this._retrieveData('pages');
     if (!number) {
@@ -293,6 +303,17 @@ export class Storage {
     let page = await this.getPage(pageNumber);
     let item = page.items[itemNumber];
     return item;
+  }
+
+  static async storeDefineProps(editMode: boolean, pageIndex: number, itemIndex: number, uri: string, callback: Function) {
+    this._storeData('define', {
+      editMode: editMode,
+      pageIndex: pageIndex,
+      itemIndex: itemIndex,
+      uri: uri
+    }).then(() => {
+      callback();
+    });
   }
 
   static async MovePhotoFromCache(cacheURI: string, callback: Function) {

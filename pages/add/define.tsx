@@ -23,6 +23,7 @@ import { Item, ItemDefinitions, Storage, roundColor, roundColors } from '../../c
 import { TriangleColorPicker } from '../../components/colorpicker/TriangleColorPicker';
 import { fromHsv } from '../../components/colorpicker/utils';
 import Color from 'color';
+import { number } from 'prop-types';
 
 const width = Dimensions.get('screen').width;
 const height = Dimensions.get('screen').height;
@@ -32,6 +33,9 @@ interface DefineProps {
   navigation: any;
 }
 interface DefineState {
+  editMode: boolean;
+  pageIndex: number;
+  itemIndex: number;
   options: Item;
   renderImage: boolean;
   uri: string;
@@ -54,6 +58,9 @@ export class Define extends React.Component<DefineProps, DefineState> {
   constructor(props: DefineProps) {
     super(props);
     this.state = {
+      editMode: false,
+      pageIndex: null,
+      itemIndex: null,
       options: {
         class: 'top',
         type: null,
@@ -83,8 +90,15 @@ export class Define extends React.Component<DefineProps, DefineState> {
   };
 
   componentDidMount = async () => {
-    let data = await Storage._retrieveData('addData');
+    let data = await Storage._retrieveData('define');
+    if(data.editMode){
+      let item:Item = await Storage.getItem(data.pageIndex, data.itemIndex);
+      this.setState({options: item})
+    }
     this.setState(previousState => ({
+      editMode: data.editMode,
+      pageIndex: data.pageIndex,
+      itemIndex: data.itemIndex,
       uri: data.uri,
       renderImage: true
     }));
@@ -115,8 +129,6 @@ export class Define extends React.Component<DefineProps, DefineState> {
       }).start();
     }
 
-    if (this.state.showRequired) {
-    }
   };
 
   hideModal = () => {
@@ -177,19 +189,28 @@ export class Define extends React.Component<DefineProps, DefineState> {
   };
 
   storeItem = () => {
-    //async move photo from cache to filesystem storage .then store item
-    Storage.MovePhotoFromCache(this.state.uri, newURI => {
-      this.setState(
-        previousState => ({
-          ...previousState,
-          options: { ...previousState.options, photoURI: newURI }
-        }),
-        async () => {
-          await Storage.storeItem(this.state.options);
-          this.props.navigation.navigate('Library');
-        }
-      );
-    });
+    if(!this.state.editMode) {
+      //async move photo from cache to filesystem storage .then store item
+      Storage.MovePhotoFromCache(this.state.uri, newURI => {
+        this.setState(
+          previousState => ({
+            ...previousState,
+            options: { ...previousState.options, photoURI: newURI }
+          }),
+          async () => {
+            await Storage.storeItem(this.state.options);
+            this.props.navigation.navigate('Library');
+          }
+        );
+      });
+    } else { //is in edit mode
+      Storage.overwriteItem(this.state.pageIndex, this.state.itemIndex, this.state.options, () => {
+        this.props.navigation.goBack();
+      })
+    }
+
+    //for both
+   Storage._deleteData('define');
   };
 
   render() {
@@ -392,7 +413,11 @@ export class Define extends React.Component<DefineProps, DefineState> {
               {/* add button */}
               <View style={styles.verticalPadding}>
                 <TouchableHighlight style={styles.button} onPress={this.addItem}>
+                  {this.state.editMode ? (
+                    <Text style={[commonStyles.pb, commonStyles.centerText]}>store edits</Text>
+                  ) : (
                   <Text style={[commonStyles.pb, commonStyles.centerText]}>add item</Text>
+                  )}
                 </TouchableHighlight>
               </View>
             </React.Fragment>

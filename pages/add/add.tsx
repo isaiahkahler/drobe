@@ -65,10 +65,13 @@ class Add extends React.Component<AddProps, AddState> {
     //   await Storage._storeData('addData', { uri: photo.uri, width: photo.width, height: photo.height });
     //   this.props.navigation.navigate('Define');
     try {
+      //review: should this be passed as a navigaiton prop instead of storing and grabbing?
       let photo = await this._camera.takePictureAsync().then((photo) => {
-        Storage._storeData('addData', { uri: photo.uri, width: photo.width, height: photo.height });
         this.setState({flash: "off"})
-        this.props.navigation.navigate('Define');
+        // Storage._storeData('define', { editMode: false, uri: photo.uri, width: photo.width, height: photo.height });
+        Storage.storeDefineProps(false, -1, -1, photo.uri, () => {
+          this.props.navigation.navigate('Define');
+        });
       });
     } catch (e) {
       alert('oops! picture could not be taken. \n' + e);

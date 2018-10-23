@@ -20,8 +20,7 @@ import { commonStyles } from '../../components/styles';
 import { createStackNavigator } from 'react-navigation';
 import { getFormality, Item, Storage, Page } from '../../components/formats';
 import { ItemView } from './itemView';
-import { reverse } from 'dns';
-import { number } from 'prop-types';
+import { Define } from '../add/define';
 
 const width = Dimensions.get('screen').width;
 const height = Dimensions.get('screen').height;
@@ -300,7 +299,8 @@ class SortSidebar extends React.Component<{}> {
 export const LibraryStack = createStackNavigator(
   {
     Library: { screen: Library },
-    ItemView: { screen: ItemView }
+    ItemView: { screen: ItemView },
+    Edit: { screen: Define }
   },
   { initialRouteName: 'Library' }
 );
