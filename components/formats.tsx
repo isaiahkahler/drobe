@@ -218,25 +218,25 @@ export class Storage {
       //if null
       await this._storeData('pages', 1); //pages = 1
       let newPage: Page = { items: [item] };
-      await this._storeData('page1', newPage); //page1 = new page
+      await this._storeData('page0', newPage); //page0 = new page
     } else {
       //if pages exist
-      let lastPage: Page = await this._retrieveData('page' + numberOfPages); //get last page
-      if (lastPage.items.length < 10) {
+      let lastPage: Page = await this._retrieveData('page' + (numberOfPages - 1)); //get last page
+      if (lastPage.items.length < 5) {
         //last page not full
         lastPage.items.push(item); // add item to last page
-        await this._storeData('page' + numberOfPages, lastPage); //store last page
+        await this._storeData('page' + (numberOfPages - 1), lastPage); //store last page
       } else {
         //last page full
         let newLastPage: Page = { items: [item] };
-        await this._storeData('page' + (numberOfPages + 1), newLastPage);
+        await this._storeData('page' + (numberOfPages), newLastPage);
         await this._storeData('pages', numberOfPages + 1);
       }
     }
   }
 
   //review: if code is proven true & bug free, assertions can be commented out
-  //page index starts at 1? good idea? no?
+  //page index starts at 1? good idea? no? - changed to 0
   static async DeleteItem(page: number, itemIndex: number) {
     let numberOfPages: number = await this._retrieveData('pages');
     if (!numberOfPages) {
@@ -246,7 +246,7 @@ export class Storage {
       throw "page doesn't exist";
     }
     let returnedPage: Page = await this._retrieveData('page' + page); //get page
-    if (itemIndex > returnedPage.items.length - 1) {
+    if (itemIndex > returnedPage.items.length - 1) { //review: double check this ?
       throw 'item does not exist';
     }
     returnedPage.items.splice(itemIndex, 1); //delete item
@@ -254,7 +254,7 @@ export class Storage {
     await this._storeData('page' + page, returnedPage);
 
     //shift items on all pages down
-    for (let i = page + 1; i <= numberOfPages; i++) {
+    for (let i = page + 1; i < numberOfPages; i++) {
       let nextPage: Page = await this._retrieveData('page' + i); //get next page
       let currentPage: Page = await this._retrieveData('page' + (i - 1));
       //first item on next page
@@ -284,22 +284,14 @@ export class Storage {
     return number;
   }
 
-  /**
-   *
-   * @param pageNumber indexes from 1
-   */
   static async getPage(pageNumber: number) {
     let page: Page = await this._retrieveData('page' + pageNumber);
     return page;
   }
-  /**
-   *
-   * @param pageNumber indexes from 1
-   * @param itemNumber indexes from 1
-   */
+
   static async getItem(pageNumber: number, itemNumber: number) {
     let page = await this.getPage(pageNumber);
-    let item = page.items[itemNumber - 1];
+    let item = page.items[itemNumber];
     return item;
   }
 
