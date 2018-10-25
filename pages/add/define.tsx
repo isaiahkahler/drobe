@@ -69,7 +69,7 @@ export class Define extends React.Component<DefineProps, DefineState> {
         date: Date.now(),
         uses: 0,
         laundry: 0,
-        photoURI: null
+        photoURI: null,
       },
       renderImage: false,
       uri: null,

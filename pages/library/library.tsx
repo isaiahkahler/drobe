@@ -21,6 +21,7 @@ import { createStackNavigator } from 'react-navigation';
 import { getFormality, Item, Storage, Page } from '../../components/formats';
 import { ItemView } from './itemView';
 import { Define } from '../add/define';
+import { SortSidebar } from './sortSidebar';
 
 const width = Dimensions.get('screen').width;
 const height = Dimensions.get('screen').height;
@@ -165,6 +166,9 @@ class Library extends React.Component<LibraryProps, LibraryState> {
   };
 
   render() {
+    if(!this.state.pages || this.state.pages.length === 0) {
+      return <View style={{flex: 1, alignContent: 'center', justifyContent: "center"}}><Text style={commonStyles.centerText}>No Items.</Text></View>
+    }
     return (
       <PageLayout>
         <ScrollView horizontal pagingEnabled ref={this._drawer}>
@@ -199,8 +203,9 @@ class Library extends React.Component<LibraryProps, LibraryState> {
             </View>
           </View>
 
-          <View style={styles.sidebar}>
-            <SortSidebar />
+          {/* <View style={styles.sidebar}> */}
+          <View>
+            <SortSidebar onSelect={() => {}} />
           </View>
         </ScrollView>
         {/* {this.state.showModal && (
@@ -276,25 +281,7 @@ function Tile(props: {
   );
 }
 
-class SortSidebar extends React.Component<{}> {
-  render() {
-    return (
-      <View style={styles.sidebar}>
-        {/* <SectionList
-          sections={[
-            { title: 'D', data: ['Devin'] },
-            { title: 'J', data: ['Jackson', 'James', 'Jillian', 'Jimmy', 'Joel', 'John', 'Julie'] }
-          ]}
-          renderItem={({ item }) => <Text style={[styles.listItem, commonStyles.pb]}>{item}</Text>}
-          renderSectionHeader={({ section }) => (
-            <Text style={[styles.listSectionHeader, commonStyles.h2]}>{section.title}</Text>
-          )}
-          keyExtractor={(item, index) => index}
-        /> */}
-      </View>
-    );
-  }
-}
+
 
 export const LibraryStack = createStackNavigator(
   {
@@ -359,6 +346,11 @@ const styles = StyleSheet.create({
     flex: 1,
     height: 20
   },
+  // sidebar: {
+  //   width: Dimensions.get('screen').width * 0.8,
+  //   padding: 10,
+  //   backgroundColor: '#E9E9EF'
+  // },
   sortButton: {
     backgroundColor: '#fff',
     borderWidth: 2,
@@ -372,11 +364,6 @@ const styles = StyleSheet.create({
     height: 20,
     width: '100%',
     margin: 15
-  },
-  sidebar: {
-    width: Dimensions.get('screen').width * 0.8,
-    padding: 10,
-    backgroundColor: '#E9E9EF'
   },
   listItem: {},
   listSectionHeader: {},

@@ -17,7 +17,6 @@ export interface Item {
   date: number;
   uses: number;
   laundry: number;
-  // cover: boolean;
   photoURI: string;
 }
 
@@ -231,6 +230,17 @@ export class Storage {
         let newLastPage: Page = { items: [item] };
         await this._storeData('page' + (numberOfPages), newLastPage);
         await this._storeData('pages', numberOfPages + 1);
+      }
+    }
+  }
+
+  static checkItem (item: Item, onSuccess: Function, onFail: Function) {
+    //if null
+    if(!item.name) {
+      if(!!item.colors && !!item.type) {
+        if(item.colors.values.length !== 0){
+          
+        }
       }
     }
   }

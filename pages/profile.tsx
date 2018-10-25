@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { StyleSheet, Text, View, Button, AsyncStorage, TouchableHighlight, Image } from 'react-native';
+import { StyleSheet, Text, View, Button, AsyncStorage, TouchableHighlight, Image, } from 'react-native';
 import { PageLayout } from '../components/page';
 import { commonStyles } from '../components/styles';
 import { createStackNavigator } from 'react-navigation';
@@ -46,6 +46,15 @@ class Profile extends React.Component<ProfileProps, ProfileState> {
             <View style={styles.profileInfoContainer}>
               <Text style={commonStyles.h2}>Isaiah Kahler</Text>
             </View>
+            
+            
+            {/* temp! */}
+            <TouchableHighlight onPress={() => {AsyncStorage.clear()}}>
+              <Text>Clear AsyncStorage</Text>
+            </TouchableHighlight>
+          
+          
+          
           </View>
         </View>
       </PageLayout>
