@@ -315,6 +315,34 @@ export class Storage {
     return item;
   }
 
+  /**
+   * @returns Array of all pages
+   */
+  static async getAllPages() {
+    let numberOfPages = await this.getNumberOfPages();
+    let pages:Page[] = [];
+    for(let i = 0; i < numberOfPages; i++){
+      let page = await this.getPage(i);
+      pages.push(page)
+    }
+    return pages;
+  }
+
+  /**
+   * 
+   * @param term 
+   * @param value 
+   * @returns Array of pages with 
+   */
+  static async sortBy(term: string, value: any){
+    let allPages = await this.getAllPages();
+    for(let page of allPages){
+      for(let item of page.items){
+        
+      }
+    }
+  }
+
   static async storeDefineProps(editMode: boolean, pageIndex: number, itemIndex: number, uri: string, callback: Function) {
     this._storeData('define', {
       editMode: editMode,
