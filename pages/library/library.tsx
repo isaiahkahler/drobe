@@ -13,7 +13,8 @@ import {
   Platform,
   TouchableNativeFeedback,
   Image,
-  Animated
+  Animated,
+  NativeScrollEvent
 } from 'react-native';
 import { PageLayout } from '../../components/page';
 import { commonStyles } from '../../components/styles';
@@ -22,6 +23,7 @@ import { getFormality, Item, Storage, Page } from '../../components/formats';
 import { ItemView } from './itemView';
 import { Define } from '../add/define';
 import { SortSidebar } from './sortSidebar';
+import { unwatchFile } from 'fs';
 
 const width = Dimensions.get('screen').width;
 const height = Dimensions.get('screen').height;
@@ -32,10 +34,9 @@ interface LibraryProps {
 interface LibraryState {
   // numberOfPages: number;
   pages: Array<Page>;
+  pagesShown: number;
   drawerOpen: boolean;
   showModal: boolean;
-  //is this used? i think it was for old modal setup - review
-  currentItem: { page: number; item: number };
   modalFadeInAnimation: Animated.Value;
 }
 
@@ -44,10 +45,10 @@ class Library extends React.Component<LibraryProps, LibraryState> {
     super(props);
     this.state = {
       pages: [],
+      pagesShown: 1,
       drawerOpen: false,
       showModal: false,
-      modalFadeInAnimation: new Animated.Value(0),
-      currentItem: null
+      modalFadeInAnimation: new Animated.Value(0)
     };
   }
 
@@ -75,13 +76,8 @@ class Library extends React.Component<LibraryProps, LibraryState> {
   };
 
   getClothes = async () => {
-    //get from storage
-    let numberOfPages = await Storage.getNumberOfPages();
-    if (numberOfPages !== 0) {
-      // let pageOne = await Storage.getPage(1);
-      // this.setState({ pages: [pageOne] });
-      this.recursiveLoadPages(0, numberOfPages);
-    }
+    let allPages = await Storage.getAllPages();
+    this.setState({ pages: allPages })
   };
 
   recursiveLoadPages = async (pageNumber: number, numberOfPages: number) => {
@@ -100,22 +96,30 @@ class Library extends React.Component<LibraryProps, LibraryState> {
   };
 
   loadMore = () => {
-    //load more from storage?
-    // this.setState(previousState => ({
-    //   ...previousState,
-    //   section: [...previousState.pages, 'new tile', 'new tile 2']
-    // }));
-    this.setState({ pages: [] }, () => {
-      this.getClothes();
-    });
+    if (this.state.pages.length > this.state.pagesShown) {
+      this.setState(previousState => ({
+        ...previousState,
+        pagesShown: previousState.pagesShown + 1
+      }))
+    }
   };
+
+  hasScrolledToEnd(nativeEvent: NativeScrollEvent, callback?: Function) {
+    const paddingToBottom = 20;
+    if ( nativeEvent.layoutMeasurement.height + nativeEvent.contentOffset.y >=
+      nativeEvent.contentSize.height - paddingToBottom ) {
+      if (!!callback) {
+        callback();
+      }
+    }
+  }
 
   getTiles() {
     //map data to tiles
     if (!this.state.pages) {
       return undefined;
     }
-    return this.state.pages.map((page, pageIndex) => {
+    return this.state.pages.slice(0, this.state.pagesShown).map((page, pageIndex) => {
       return (
         <View key={pageIndex} style={styles.container}>
           {page.items.map((item, itemIndex) => {
@@ -126,11 +130,6 @@ class Library extends React.Component<LibraryProps, LibraryState> {
                 name={item.name}
                 pageIndex={pageIndex}
                 itemIndex={itemIndex}
-                // openModal={(pageIndex, itemIndex) => {
-                //   //review: merge these two calls into the show modal function?
-                //   this.showModal();
-                //   this.setState({ currentItem: { page: pageIndex, item: itemIndex } });
-                // }}
                 openItemScreen={(pageIndex, itemIndex) => {
                   this.props.navigation.navigate('ItemView', {
                     title: this.state.pages[pageIndex].items[itemIndex].name,
@@ -139,8 +138,6 @@ class Library extends React.Component<LibraryProps, LibraryState> {
                   });
                 }}
               >
-                {/* <Text>{item.name}</Text> */}
-                {/* <Image source={{uri: item.photoURI}} style={{width: 0.35*width, height: 0.35*width}}/> */}
               </Tile>
             );
           })}
@@ -166,73 +163,39 @@ class Library extends React.Component<LibraryProps, LibraryState> {
   };
 
   render() {
-    if(!this.state.pages || this.state.pages.length === 0) {
-      return <View style={{flex: 1, alignContent: 'center', justifyContent: "center"}}><Text style={commonStyles.centerText}>No Items.</Text></View>
+    if (!this.state.pages || this.state.pages.length === 0) {
+      return <View style={{ flex: 1, alignContent: 'center', justifyContent: "center" }}><Text style={commonStyles.centerText}>No Items.</Text></View>
     }
     return (
       <PageLayout>
         <ScrollView horizontal pagingEnabled ref={this._drawer}>
           <View style={styles.page}>
-            <ScrollView style={styles.scrollContainer}>
+            <ScrollView style={styles.scrollContainer} onScroll={({ nativeEvent }) => this.hasScrolledToEnd(nativeEvent, this.loadMore)} scrollEventThrottle={400}>
               <View style={styles.topContainerSpacer} />
               {this.getTiles()}
-              <View style={styles.button}>
+              {/* <View style={styles.button}>
                 <Button onPress={this.loadMore} title="reload" />
-              </View>
+              </View> */}
             </ScrollView>
             <View style={styles.fixedTopContainer}>
               <View style={styles.searchContainer}>
                 <TextInput style={[styles.search, commonStyles.h2]} placeholder="search" />
               </View>
-              {/* review: should this be unified? */}
-              {Platform.OS === 'ios' ? (
-                <TouchableHighlight
-                  onPress={() => this.toggleSidebar()}
-                  underlayColor="rgba(0,0,0,0.1)"
-                  style={styles.sortButton}
-                >
-                  <Text style={commonStyles.h2}>sort</Text>
-                </TouchableHighlight>
-              ) : (
-                <TouchableNativeFeedback onPress={() => this.toggleSidebar()}>
-                  <View style={styles.sortButton}>
-                    <Text style={commonStyles.h2}>sort</Text>
-                  </View>
-                </TouchableNativeFeedback>
-              )}
+              <TouchableHighlight
+                onPress={() => this.toggleSidebar()}
+                underlayColor="rgba(0,0,0,0.1)"
+                style={styles.sortButton}
+              >
+                <Text style={commonStyles.h2}>sort</Text>
+              </TouchableHighlight>
             </View>
           </View>
 
           {/* <View style={styles.sidebar}> */}
           <View>
-            <SortSidebar onSelect={() => {}} />
+            <SortSidebar onSelect={(type, value) => { console.log("type", type, "value", value) }} />
           </View>
         </ScrollView>
-        {/* {this.state.showModal && (
-          <Animated.View style={[styles.modalView, { opacity: this.state.modalFadeInAnimation }]}>
-            <TouchableHighlight style={styles.modalTouchable} onPress={this.hideModal} underlayColor="rgba(0,0,0,0)">
-              <View style={styles.modal}>
-                <Text style={commonStyles.h2}>
-                  {
-                    this.state.pages[this.state.currentItem.page].items[this.state.currentItem.item]
-                      .name
-                  }
-                </Text>
-                <Image
-                  source={{
-                    uri: this.state.pages[this.state.currentItem.page].items[
-                      this.state.currentItem.item
-                    ].photoURI
-                  }}
-                  style={{
-                    width: 0.8 * width,
-                    aspectRatio: 1
-                  }}
-                />
-              </View>
-            </TouchableHighlight>
-          </Animated.View>
-        )} */}
       </PageLayout>
     );
   }
