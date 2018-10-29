@@ -334,7 +334,7 @@ export class Storage {
    * @param value 
    * @returns Array of pages with 
    */
-  static async sortBy(selections: Array<{type: "hide" | "order", name: string, value: any}>) {
+  static async sortBy(selections: Array<{ type: "hide" | "order", name: string, value: any }>) {
     let allPages = await this.getAllPages();
     for (let selection of selections) {
       if (selection.type === "hide") {
@@ -343,13 +343,13 @@ export class Storage {
             let newPages: Page[] = [];
             for (let page of allPages) {
               for (let item of page.items) {
-                if(item.type === selection.value){
-                  if(newPages.length === 0) {
-                    newPages = [{items: [item]}];
-                  } else if(newPages[newPages.length - 1].items.length < 10){
+                if (item.type === selection.value) {
+                  if (newPages.length === 0) {
+                    newPages = [{ items: [item] }];
+                  } else if (newPages[newPages.length - 1].items.length < 10) {
                     newPages[newPages.length - 1].items.push(item)
-                  } else if(newPages[newPages.length - 1].items.length === 10) {
-                    newPages.push({items: [item]});
+                  } else if (newPages[newPages.length - 1].items.length === 10) {
+                    newPages.push({ items: [item] });
                   }
                 }
               }
@@ -359,34 +359,43 @@ export class Storage {
         }
 
       } else { // type === "order"
+
+        let sortedItems: Item[] = [];
+        for (let page of allPages) {
+          for (let item of page.items) {
+            sortedItems.push(item);
+          }
+        }
+
         switch (selection.name) {
           case "date":
-            let sortedItems: Item[] = [];
-            for (let page of allPages) {
-              for (let item of page.items) {
-                sortedItems.push(item);
-              }
-            }
-            if(selection.value === "new to old"){
-              sortedItems.sort((a,b) => {return b.date - a.date});
+
+            if (selection.value === "new to old") {
+              sortedItems.sort((a, b) => { return b.date - a.date });
             } else {
-              sortedItems.sort((a,b) => {return a.date - b.date});
+              sortedItems.sort((a, b) => { return a.date - b.date });
             }
-            //break array of sorted items into newPages
-            let newPages: Page[] = [];
-            for(let sortedItem of sortedItems){
-              if(newPages.length === 0) {
-                newPages = [{items: [sortedItem]}];
-              } else if(newPages[newPages.length - 1].items.length < 10){
-                newPages[newPages.length - 1].items.push(sortedItem)
-              } else if(newPages[newPages.length - 1].items.length === 10) {
-                newPages.push({items: [sortedItem]});
-              }
-            }
-            allPages = newPages;
+            
+            break;
+          case "color":
+            sortedItems.sort((a, b) => { return colorDistance(selection.value, a.colors[0]) - colorDistance(selection.value, b.colors[0]) });
             break;
           default:
         }
+
+        //break array of sorted items into newPages
+        let newPages: Page[] = [];
+        for (let sortedItem of sortedItems) {
+          if (newPages.length === 0) {
+            newPages = [{ items: [sortedItem] }];
+          } else if (newPages[newPages.length - 1].items.length < 10) {
+            newPages[newPages.length - 1].items.push(sortedItem)
+          } else if (newPages[newPages.length - 1].items.length === 10) {
+            newPages.push({ items: [sortedItem] });
+          }
+        }
+        allPages = newPages;
+        
       }
     }
 
@@ -447,37 +456,49 @@ export class Storage {
   }
 }
 
+const colorSpace: Array<{ name: string; color: { r: number; g: number; b: number } }> = [
+  { name: 'black', color: { r: 0, g: 0, b: 0 } },
+  { name: 'gray', color: { r: 128, g: 128, b: 128 } },
+  { name: 'white', color: { r: 255, g: 255, b: 255 } },
+  { name: 'maroon', color: { r: 128, g: 0, b: 0 } },
+  { name: 'red', color: { r: 230, g: 25, b: 75 } },
+  { name: 'pink', color: { r: 250, g: 190, b: 190 } },
+  { name: 'brown', color: { r: 170, g: 110, b: 40 } },
+  { name: 'orange', color: { r: 245, g: 130, b: 48 } },
+  { name: 'apricot', color: { r: 255, g: 215, b: 180 } },
+  { name: 'olive', color: { r: 128, g: 128, b: 0 } },
+  { name: 'yellow', color: { r: 255, g: 255, b: 25 } },
+  { name: 'beige', color: { r: 255, g: 250, b: 200 } },
+  { name: 'lime', color: { r: 210, g: 245, b: 60 } },
+  { name: 'green', color: { r: 60, g: 180, b: 75 } },
+  { name: 'mint', color: { r: 170, g: 255, b: 195 } },
+  { name: 'teal', color: { r: 0, g: 128, b: 128 } },
+  { name: 'cyan', color: { r: 70, g: 240, b: 240 } },
+  { name: 'navy', color: { r: 0, g: 0, b: 128 } },
+  { name: 'blue', color: { r: 0, g: 130, b: 200 } },
+  { name: 'purple', color: { r: 145, g: 30, b: 180 } },
+  { name: 'lavender', color: { r: 230, g: 190, b: 255 } },
+  { name: 'magenta', color: { r: 240, g: 50, b: 230 } }
+  // {name: "", color: {r: , g: , b: }},
+];
+
+export function colorDistance(color1: string, color2: string) {
+  let color1obj = Color(color1).object();
+  let color2obj = Color(color2).object();
+  return Math.sqrt(
+    Math.pow(color1obj.r - color2obj.r, 2) +
+    Math.pow(color1obj.g - color2obj.g, 2) +
+    Math.pow(color1obj.b - color2obj.b, 2)
+  );
+}
+
 export function roundColor(color: string): string {
   let colorRGB = Color(color).object();
-  const colors: Array<{ name: string; color: { r: number; g: number; b: number } }> = [
-    { name: 'black', color: { r: 0, g: 0, b: 0 } },
-    { name: 'gray', color: { r: 128, g: 128, b: 128 } },
-    { name: 'white', color: { r: 255, g: 255, b: 255 } },
-    { name: 'maroon', color: { r: 128, g: 0, b: 0 } },
-    { name: 'red', color: { r: 230, g: 25, b: 75 } },
-    { name: 'pink', color: { r: 250, g: 190, b: 190 } },
-    { name: 'brown', color: { r: 170, g: 110, b: 40 } },
-    { name: 'orange', color: { r: 245, g: 130, b: 48 } },
-    { name: 'apricot', color: { r: 255, g: 215, b: 180 } },
-    { name: 'olive', color: { r: 128, g: 128, b: 0 } },
-    { name: 'yellow', color: { r: 255, g: 255, b: 25 } },
-    { name: 'beige', color: { r: 255, g: 250, b: 200 } },
-    { name: 'lime', color: { r: 210, g: 245, b: 60 } },
-    { name: 'green', color: { r: 60, g: 180, b: 75 } },
-    { name: 'mint', color: { r: 170, g: 255, b: 195 } },
-    { name: 'teal', color: { r: 0, g: 128, b: 128 } },
-    { name: 'cyan', color: { r: 70, g: 240, b: 240 } },
-    { name: 'navy', color: { r: 0, g: 0, b: 128 } },
-    { name: 'blue', color: { r: 0, g: 130, b: 200 } },
-    { name: 'purple', color: { r: 145, g: 30, b: 180 } },
-    { name: 'lavender', color: { r: 230, g: 190, b: 255 } },
-    { name: 'magenta', color: { r: 240, g: 50, b: 230 } }
-    // {name: "", color: {r: , g: , b: }},
-  ];
+
   let smallestIndex = 0;
   let smallest = 10000;
   let index = 0;
-  for (let color of colors) {
+  for (let color of colorSpace) {
     let distance = Math.sqrt(
       Math.pow(colorRGB.r - color.color.r, 2) +
       Math.pow(colorRGB.g - color.color.g, 2) +
@@ -489,7 +510,7 @@ export function roundColor(color: string): string {
     }
     index++;
   }
-  return colors[smallestIndex].name;
+  return colorSpace[smallestIndex].name;
 }
 
 export function roundColors(colors: string[]) {

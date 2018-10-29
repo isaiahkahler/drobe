@@ -38,7 +38,7 @@ interface LibraryState {
   pagesShown: number;
   drawerOpen: boolean;
   showModal: boolean;
-  modalFadeInAnimation: Animated.Value;
+  // modalFadeInAnimation: Animated.Value;
   selections: Array<{ type: "hide" | "order", name: string, value: any }>;
 }
 
@@ -50,7 +50,7 @@ class Library extends React.Component<LibraryProps, LibraryState> {
       pagesShown: 1,
       drawerOpen: false,
       showModal: false,
-      modalFadeInAnimation: new Animated.Value(0),
+      // modalFadeInAnimation: new Animated.Value(0),
       selections: []
     };
   }
@@ -64,20 +64,20 @@ class Library extends React.Component<LibraryProps, LibraryState> {
     this.setLibrary(allPages)
   };
 
-  showModal = () => {
-    this.setState({ showModal: true });
-    Animated.spring(this.state.modalFadeInAnimation, {
-      toValue: 1
-    }).start();
-  };
+  // showModal = () => {
+  //   this.setState({ showModal: true });
+  //   Animated.spring(this.state.modalFadeInAnimation, {
+  //     toValue: 1
+  //   }).start();
+  // };
 
-  hideModal = () => {
-    Animated.spring(this.state.modalFadeInAnimation, {
-      toValue: 0
-    }).start(() => {
-      this.setState({ showModal: false });
-    });
-  };
+  // hideModal = () => {
+  //   Animated.spring(this.state.modalFadeInAnimation, {
+  //     toValue: 0
+  //   }).start(() => {
+  //     this.setState({ showModal: false });
+  //   });
+  // };
 
   loadMore = () => {
     if (this.state.pages.length > this.state.pagesShown) {
@@ -107,7 +107,8 @@ class Library extends React.Component<LibraryProps, LibraryState> {
   }
 
   onSelect = async (type: "hide" | "order", name: string, value: number) => {
-    console.log(type, name, value)
+    this.hideSidebar();
+    // console.log(type, name, value)
 
     let selectionIndex = this.state.selections.findIndex((selection) => {
       return selection.name === name;
@@ -161,8 +162,9 @@ class Library extends React.Component<LibraryProps, LibraryState> {
                 openItemScreen={(pageIndex, itemIndex) => {
                   this.props.navigation.navigate('ItemView', {
                     title: this.state.pages[pageIndex].items[itemIndex].name,
-                    page: pageIndex,
-                    item: itemIndex
+                    pageIndex: pageIndex,
+                    itemIndex: itemIndex,
+                    item: this.state.pages[pageIndex].items[itemIndex]
                   });
                 }}
               >
@@ -175,6 +177,10 @@ class Library extends React.Component<LibraryProps, LibraryState> {
   }
 
   private _drawer = React.createRef<ScrollView>();
+
+  hideSidebar = () => {
+    this._drawer.current.scrollTo({x: 0, animated: true})
+  }
 
   toggleSidebar = () => {
     this._drawer.current.scrollToEnd();

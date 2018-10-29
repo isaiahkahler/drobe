@@ -2,6 +2,8 @@ import * as React from 'react';
 import { View, Text, TouchableHighlight, StyleSheet, Dimensions, SectionList, ScrollView } from 'react-native';
 import { commonStyles } from '../../components/styles';
 import { ItemDefinitions } from '../../components/formats';
+import {TriangleColorPicker} from '../../components/colorpicker/TriangleColorPicker';
+import { fromHsv } from '../../components/colorpicker/utils';
 
 const width = Dimensions.get('screen').width;
 const height = Dimensions.get('screen').height;
@@ -61,7 +63,7 @@ export class SortSidebar extends React.Component<SortSidebarProps, SortSidebarSt
       <React.Fragment>
 
         <View style={styles.sidebar}>
-          <ScrollView>
+          <ScrollView scrollEnabled={false}>
             <Text style={[commonStyles.h1, commonStyles.bold]}>sort by</Text>
             <Section label="date" options={['new to old', 'old to new']} action={(index) => { this.props.onSelect("order", "date", index) }} />
             <Section label="type" options={[
@@ -71,6 +73,9 @@ export class SortSidebar extends React.Component<SortSidebarProps, SortSidebarSt
               { sublabel: "shoes", options: ItemDefinitions.types.shoes },
               { sublabel: "accessories", options: ItemDefinitions.types.accessory },
             ]} action={(type, value) => { this.props.onSelect("hide", type, value) }} />
+            <Section label="color" options='colorpicker' action={() => {}}>
+              <TriangleColorPicker style={styles.colorpicker} onColorSelected={color => {this.props.onSelect("order", "color", fromHsv(color))}}/>
+            </Section>
           </ScrollView>
         </View>
 
@@ -80,7 +85,7 @@ export class SortSidebar extends React.Component<SortSidebarProps, SortSidebarSt
 }
 
 interface SectionProps {
-  label: string, options: Array<string | { sublabel: string, options: Array<string> }>, action: Function
+  label: string, options: Array<string | { sublabel: string, options: Array<string> }> | "colorpicker", action: Function
 }
 
 interface SectionState {
@@ -108,18 +113,21 @@ class Section extends React.Component<SectionProps, SectionState> {
         </TouchableHighlight>
         {this.state.show && (
           <View style={styles.optionLabel}>
-
-            {this.props.options.map((item, index) => {
-              if (typeof item === "string") {
-                return (
-                  <TouchableHighlight onPress={() => this.props.action(this.props.options[index])} key={index} underlayColor='rgba(0,0,0,0.1)' ><Text style={commonStyles.h2}>{item}</Text></TouchableHighlight>
-                );
-              } else {
-                return (
-                  <Subsection label={item.sublabel} options={item.options} action={(value) => this.props.action(this.props.label, value)} key={index} />
-                );
-              }
-            })}
+            {this.props.options === "colorpicker" ? (
+              this.props.children
+            ) : (
+              this.props.options.map((item, index) => {
+                if (typeof item === "string") {
+                  return (
+                    <TouchableHighlight onPress={() => this.props.action(this.props.options[index])} key={index} underlayColor='rgba(0,0,0,0.1)' ><Text style={commonStyles.h2}>{item}</Text></TouchableHighlight>
+                  );
+                } else {
+                  return (
+                    <Subsection label={item.sublabel} options={item.options} action={(value) => this.props.action(this.props.label, value)} key={index} />
+                  );
+                }
+              })
+            )}
           </View>
         )}
       </View>
@@ -186,22 +194,8 @@ const styles = StyleSheet.create({
     paddingTop: 2
   },
   subsection: {},
-  // fixedBottomContainer: {
-  //   position: "absolute",
-  //   flex: 1,
-  //   width: width,
-  //   flexDirection: "column-reverse",
-  //   zIndex: 100,
-  //   backgroundColor: "#00ff00",
-  // },
-  pillContainer: {
-    flex: 1,
-    flexDirection: "row",
-    justifyContent: "space-around",
-    backgroundColor: "#ff0000"
-  },
-  pill: {
-    borderRadius: 25,
-    borderWidth: 2
+  colorpicker: {
+    width: "100%",
+    aspectRatio: 1,
   }
 });
