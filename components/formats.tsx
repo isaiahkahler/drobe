@@ -81,62 +81,62 @@ export const ItemDefinitions = {
 
 export interface Top {
   type:
-    | 'blazer'
-    | 'blouse'
-    | 'cardigan'
-    | 'coat'
-    | 'dress shirt'
-    | 'hoodie'
-    | 'jacket'
-    | 'polo'
-    | 'shirt'
-    | 'sweatshirt'
-    | 't-shirt'
-    | 'tank top'
-    | 'vest';
+  | 'blazer'
+  | 'blouse'
+  | 'cardigan'
+  | 'coat'
+  | 'dress shirt'
+  | 'hoodie'
+  | 'jacket'
+  | 'polo'
+  | 'shirt'
+  | 'sweatshirt'
+  | 't-shirt'
+  | 'tank top'
+  | 'vest';
 }
 export interface Bottom {
   type:
-    | "capri's"
-    | 'dress pants'
-    | 'jeans'
-    | 'joggers'
-    | 'leggings'
-    | 'shorts'
-    | 'skirt'
-    | 'sweatpants'
-    | 'trousers'
-    | 'yoga pants';
+  | "capri's"
+  | 'dress pants'
+  | 'jeans'
+  | 'joggers'
+  | 'leggings'
+  | 'shorts'
+  | 'skirt'
+  | 'sweatpants'
+  | 'trousers'
+  | 'yoga pants';
 }
 export interface Full {
   type: 'dress' | 'jumpsuit' | 'overalls' | 'poncho' | 'robe' | 'romper' | 'tall coat';
 }
 export interface Shoes {
   type:
-    | 'boots'
-    | 'clogs'
-    | 'dress shoes'
-    | 'heels'
-    | 'moccasin'
-    | 'running shoes'
-    | 'sandals'
-    | 'slides'
-    | 'slip-ons'
-    | 'sneakers';
+  | 'boots'
+  | 'clogs'
+  | 'dress shoes'
+  | 'heels'
+  | 'moccasin'
+  | 'running shoes'
+  | 'sandals'
+  | 'slides'
+  | 'slip-ons'
+  | 'sneakers';
 }
 export interface Accessory {
   type:
-    | 'bag'
-    | 'belt'
-    | 'bow tie'
-    | 'bracelet'
-    | 'glasses'
-    | 'gloves'
-    | 'hat'
-    | 'scarf'
-    | 'shawl'
-    | 'socks'
-    | 'tie';
+  | 'bag'
+  | 'belt'
+  | 'bow tie'
+  | 'bracelet'
+  | 'glasses'
+  | 'gloves'
+  | 'hat'
+  | 'scarf'
+  | 'shawl'
+  | 'socks'
+  | 'tie';
 }
 
 export const Formality_1 = [];
@@ -234,12 +234,12 @@ export class Storage {
     }
   }
 
-  static checkItem (item: Item, onSuccess: Function, onFail: Function) {
+  static checkItem(item: Item, onSuccess: Function, onFail: Function) {
     //if null
-    if(!item.name) {
-      if(!!item.colors && !!item.type) {
-        if(item.colors.values.length !== 0){
-          
+    if (!item.name) {
+      if (!!item.colors && !!item.type) {
+        if (item.colors.values.length !== 0) {
+
         }
       }
     }
@@ -286,8 +286,8 @@ export class Storage {
     }
   }
 
-  static async overwriteItem(pageIndex: number, itemIndex: number, item:Item, callback: Function){
-    let page:Page = await this.getPage(pageIndex);
+  static async overwriteItem(pageIndex: number, itemIndex: number, item: Item, callback: Function) {
+    let page: Page = await this.getPage(pageIndex);
     page.items[itemIndex] = item;
     this._storeData("page" + pageIndex, page).then(() => {
       callback();
@@ -320,8 +320,8 @@ export class Storage {
    */
   static async getAllPages() {
     let numberOfPages = await this.getNumberOfPages();
-    let pages:Page[] = [];
-    for(let i = 0; i < numberOfPages; i++){
+    let pages: Page[] = [];
+    for (let i = 0; i < numberOfPages; i++) {
       let page = await this.getPage(i);
       pages.push(page)
     }
@@ -334,13 +334,72 @@ export class Storage {
    * @param value 
    * @returns Array of pages with 
    */
-  static async sortBy(term: string, value: any){
+  static async sortBy(selections: Array<{type: "hide" | "order", name: string, value: any}>) {
     let allPages = await this.getAllPages();
-    for(let page of allPages){
-      for(let item of page.items){
-        
+    for (let selection of selections) {
+      if (selection.type === "hide") {
+        switch (selection.name) {
+          case "type":
+            let newPages: Page[] = [];
+            for (let page of allPages) {
+              for (let item of page.items) {
+                if(item.type === selection.value){
+                  if(newPages.length === 0) {
+                    newPages = [{items: [item]}];
+                  } else if(newPages[newPages.length - 1].items.length < 10){
+                    newPages[newPages.length - 1].items.push(item)
+                  } else if(newPages[newPages.length - 1].items.length === 10) {
+                    newPages.push({items: [item]});
+                  }
+                }
+              }
+            }
+            allPages = newPages;
+            break;
+        }
+
+      } else { // type === "order"
+        switch (selection.name) {
+          case "date":
+            let sortedItems: Item[] = [];
+            for (let page of allPages) {
+              for (let item of page.items) {
+                sortedItems.push(item);
+              }
+            }
+            if(selection.value === "new to old"){
+              sortedItems.sort((a,b) => {return b.date - a.date});
+            } else {
+              sortedItems.sort((a,b) => {return a.date - b.date});
+            }
+            //break array of sorted items into newPages
+            let newPages: Page[] = [];
+            for(let sortedItem of sortedItems){
+              if(newPages.length === 0) {
+                newPages = [{items: [sortedItem]}];
+              } else if(newPages[newPages.length - 1].items.length < 10){
+                newPages[newPages.length - 1].items.push(sortedItem)
+              } else if(newPages[newPages.length - 1].items.length === 10) {
+                newPages.push({items: [sortedItem]});
+              }
+            }
+            allPages = newPages;
+            break;
+          default:
+        }
       }
     }
+
+
+    for (let page of allPages) {
+      for (let item of page.items) {
+
+      }
+    }
+
+
+
+    return allPages;
   }
 
   static async storeDefineProps(editMode: boolean, pageIndex: number, itemIndex: number, uri: string, callback: Function) {
@@ -421,8 +480,8 @@ export function roundColor(color: string): string {
   for (let color of colors) {
     let distance = Math.sqrt(
       Math.pow(colorRGB.r - color.color.r, 2) +
-        Math.pow(colorRGB.g - color.color.g, 2) +
-        Math.pow(colorRGB.b - color.color.b, 2)
+      Math.pow(colorRGB.g - color.color.g, 2) +
+      Math.pow(colorRGB.b - color.color.b, 2)
     );
     if (distance < smallest) {
       smallest = distance;
@@ -433,14 +492,14 @@ export function roundColor(color: string): string {
   return colors[smallestIndex].name;
 }
 
-export function roundColors(colors: string[]){
+export function roundColors(colors: string[]) {
   let allColors = '';
   let index = 0;
-  for(let color of colors){
-    if(index === 0){
+  for (let color of colors) {
+    if (index === 0) {
       allColors += roundColor(color);
     } else {
-      if(index === colors.length -1){
+      if (index === colors.length - 1) {
         allColors = allColors + " and " + roundColor(color);
       } else {
         allColors = allColors + ', ' + roundColor(color);

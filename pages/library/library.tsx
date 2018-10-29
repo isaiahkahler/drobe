@@ -24,6 +24,7 @@ import { ItemView } from './itemView';
 import { Define } from '../add/define';
 import { SortSidebar } from './sortSidebar';
 import { unwatchFile } from 'fs';
+import { string } from 'prop-types';
 
 const width = Dimensions.get('screen').width;
 const height = Dimensions.get('screen').height;
@@ -38,6 +39,7 @@ interface LibraryState {
   drawerOpen: boolean;
   showModal: boolean;
   modalFadeInAnimation: Animated.Value;
+  selections: Array<{ type: "hide" | "order", name: string, value: any }>;
 }
 
 class Library extends React.Component<LibraryProps, LibraryState> {
@@ -48,7 +50,8 @@ class Library extends React.Component<LibraryProps, LibraryState> {
       pagesShown: 1,
       drawerOpen: false,
       showModal: false,
-      modalFadeInAnimation: new Animated.Value(0)
+      modalFadeInAnimation: new Animated.Value(0),
+      selections: []
     };
   }
 
@@ -56,8 +59,9 @@ class Library extends React.Component<LibraryProps, LibraryState> {
     title: 'Library'
   };
 
-  componentDidMount = () => {
-    this.getClothes();
+  componentDidMount = async () => {
+    let allPages = await Storage.getAllPages();
+    this.setLibrary(allPages)
   };
 
   showModal = () => {
@@ -75,26 +79,6 @@ class Library extends React.Component<LibraryProps, LibraryState> {
     });
   };
 
-  getClothes = async () => {
-    let allPages = await Storage.getAllPages();
-    this.setState({ pages: allPages })
-  };
-
-  recursiveLoadPages = async (pageNumber: number, numberOfPages: number) => {
-    let page = await Storage.getPage(pageNumber);
-    this.setState(
-      previousState => ({
-        ...previousState,
-        pages: [...previousState.pages, page]
-      }),
-      () => {
-        if (pageNumber < (numberOfPages - 1)) {
-          this.recursiveLoadPages(pageNumber + 1, numberOfPages);
-        }
-      }
-    );
-  };
-
   loadMore = () => {
     if (this.state.pages.length > this.state.pagesShown) {
       this.setState(previousState => ({
@@ -106,12 +90,56 @@ class Library extends React.Component<LibraryProps, LibraryState> {
 
   hasScrolledToEnd(nativeEvent: NativeScrollEvent, callback?: Function) {
     const paddingToBottom = 20;
-    if ( nativeEvent.layoutMeasurement.height + nativeEvent.contentOffset.y >=
-      nativeEvent.contentSize.height - paddingToBottom ) {
+    if (nativeEvent.layoutMeasurement.height + nativeEvent.contentOffset.y >=
+      nativeEvent.contentSize.height - paddingToBottom) {
       if (!!callback) {
         callback();
       }
     }
+  }
+
+  sortBySelections = async () => {
+    this.setLibrary(await Storage.sortBy(this.state.selections));
+  }
+
+  setLibrary = (pages: Page[]) => {
+    this.setState({pages: pages})
+  }
+
+  onSelect = async (type: "hide" | "order", name: string, value: number) => {
+    console.log(type, name, value)
+
+    let selectionIndex = this.state.selections.findIndex((selection) => {
+      return selection.name === name;
+    });
+
+    // if(selectionIndex === -1) { //no selection filers of same type
+
+    if (selectionIndex === -1) { //if selection does not exist
+      await this.setState(previousState => ({
+        ...previousState,
+        selections: [...previousState.selections, { type: type, name: name, value: value }]
+      }), () => {
+        this.sortBySelections()
+      });
+    } else {
+      await this.setState(previousState => ({
+        ...previousState,
+        selections: [...previousState.selections.slice(0, selectionIndex), {type: type, name: name, value: value}, ...previousState.selections.slice(selectionIndex + 1, previousState.selections.length)]
+      }), () => {
+        this.sortBySelections();
+      })
+    }
+    
+  }
+
+  removePill = (index) => {
+    this.setState(previousState => ({
+      ...previousState,
+      selections: [...previousState.selections.slice(0, index), ...previousState.selections.slice(index + 1, previousState.selections.length)]
+    }), () => {
+      this.sortBySelections();
+    })
   }
 
   getTiles() {
@@ -163,14 +191,12 @@ class Library extends React.Component<LibraryProps, LibraryState> {
   };
 
   render() {
-    if (!this.state.pages || this.state.pages.length === 0) {
-      return <View style={{ flex: 1, alignContent: 'center', justifyContent: "center" }}><Text style={commonStyles.centerText}>No Items.</Text></View>
-    }
+
     return (
       <PageLayout>
         <ScrollView horizontal pagingEnabled ref={this._drawer}>
           <View style={styles.page}>
-            <ScrollView style={styles.scrollContainer} onScroll={({ nativeEvent }) => this.hasScrolledToEnd(nativeEvent, this.loadMore)} scrollEventThrottle={400}>
+            <ScrollView onScroll={({ nativeEvent }) => this.hasScrolledToEnd(nativeEvent, this.loadMore)} scrollEventThrottle={400}>
               <View style={styles.topContainerSpacer} />
               {this.getTiles()}
               {/* <View style={styles.button}>
@@ -178,22 +204,35 @@ class Library extends React.Component<LibraryProps, LibraryState> {
               </View> */}
             </ScrollView>
             <View style={styles.fixedTopContainer}>
-              <View style={styles.searchContainer}>
-                <TextInput style={[styles.search, commonStyles.h2]} placeholder="search" />
+              <View style={styles.searchAndSortContainer}>
+                <View style={styles.searchContainer}>
+                  <TextInput style={[styles.search, commonStyles.h2]} placeholder="search" />
+                </View>
+                <TouchableHighlight
+                  onPress={() => this.toggleSidebar()}
+                  underlayColor="rgba(0,0,0,0.1)"
+                  style={styles.sortButton}
+                >
+                  <Text style={commonStyles.h2}>sort</Text>
+                </TouchableHighlight>
               </View>
-              <TouchableHighlight
-                onPress={() => this.toggleSidebar()}
-                underlayColor="rgba(0,0,0,0.1)"
-                style={styles.sortButton}
-              >
-                <Text style={commonStyles.h2}>sort</Text>
-              </TouchableHighlight>
+              <View style={styles.pillContainer}>
+                {/* <View style={styles.pill}>
+                  <Text style={commonStyles.pb}>hi</Text>
+
+                </View> */}
+                {this.state.selections.map((item, index) => {
+                  return(<TouchableHighlight style={styles.pill} key={index} onPress={() => this.removePill(index)}>
+                    <Text style={commonStyles.pb}>{item.value}</Text>
+                  </TouchableHighlight>);
+                })}
+              </View>
             </View>
           </View>
 
           {/* <View style={styles.sidebar}> */}
           <View>
-            <SortSidebar onSelect={(type, value) => { console.log("type", type, "value", value) }} />
+            <SortSidebar onSelect={(type, name, value) => this.onSelect(type, name, value)} />
           </View>
         </ScrollView>
       </PageLayout>
@@ -290,10 +329,12 @@ const styles = StyleSheet.create({
     position: 'absolute',
     width: '100%',
     flex: 1,
-    flexDirection: 'row',
+    flexDirection: 'column',
     zIndex: 5
   },
-  scrollContainer: {},
+  searchAndSortContainer: {
+    flexDirection: "row"
+  },
   searchContainer: {
     flex: 1,
     width: '60%',
@@ -309,11 +350,6 @@ const styles = StyleSheet.create({
     flex: 1,
     height: 20
   },
-  // sidebar: {
-  //   width: Dimensions.get('screen').width * 0.8,
-  //   padding: 10,
-  //   backgroundColor: '#E9E9EF'
-  // },
   sortButton: {
     backgroundColor: '#fff',
     borderWidth: 2,
@@ -322,6 +358,26 @@ const styles = StyleSheet.create({
     padding: 5,
     marginLeft: 0,
     margin: 10
+  },
+  pillContainer: {
+    flex: 1,
+    flexDirection: "row",
+    justifyContent: "center",
+    // backgroundColor: "#ff0000",
+    // height: 50,
+    paddingLeft: 5,
+    paddingRight: 5,
+    marginHorizontal: 5,
+  },
+  pill: {
+    // flex: 1,
+    borderRadius: 25,
+    borderWidth: 2,
+    padding: 3,
+    marginHorizontal: 5,
+    backgroundColor: "#fff"
+    // height: 50,
+    // backgroundColor: "#00ff00"
   },
   topContainerSpacer: {
     height: 20,
