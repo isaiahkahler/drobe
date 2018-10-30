@@ -20,7 +20,7 @@ export interface Item {
   photoURI: string;
 }
 
-export const ItemDefinitions = {
+export const ItemDefinitions: { classes: string[], types: { top: string[], bottom: string[], full: string[], shoes: string[], accessory: string[] }, items: {type: string, formality: number, temperature: number, cover: number}[] } = {
   classes: ['top', 'bottom', 'full', 'shoes', 'accessory'],
   types: {
     top: [
@@ -76,7 +76,56 @@ export const ItemDefinitions = {
       'socks',
       'tie'
     ]
-  }
+  },
+  items:
+    [
+      // { type: '', formality: , temperature: , cover: },
+      //tops
+      { type: 'blazer', formality: 4, temperature: 3, cover: 3 },
+      { type: 'blouse', formality: 3, temperature: 2, cover: 2 },
+      { type: 'cardigan', formality: 2, temperature: 3, cover: 3 },
+      { type: 'coat', formality: 2, temperature: 4, cover: 3 },
+      { type: 'dress shirt', formality: 4, temperature: 2, cover: 2 },
+      { type: 'hoodie', formality: 1, temperature: 3, cover: 2 },
+      { type: 'jacket', formality: 2, temperature: 3, cover: 3 },
+      { type: 'polo', formality: 3, temperature: 2, cover: 2 },
+      { type: 'shirt', formality: 2, temperature: 2, cover: 2 },
+      { type: 'sweatshirt', formality: 1, temperature: 3, cover: 2 },
+      { type: 't-shirt', formality: 1, temperature: 1, cover: 2 },
+      { type: 'tank top', formality: 1, temperature: 1, cover: 2 },
+      { type: 'vest', formality: 3, temperature: 3, cover: 3 },
+      //bottoms
+      { type: "capri's", formality: 3, temperature: 2, cover: 1},
+      { type: 'dress pants', formality: 4, temperature: 2, cover: 1},
+      { type: 'jeans', formality: 2, temperature: 3, cover: 1}, //2.5 temp
+      { type: 'joggers', formality: 1, temperature: 2, cover: 1},
+      { type: 'leggings', formality: 2, temperature: 2, cover: 1}, //2.5 temp
+      { type: 'shorts', formality: 1, temperature: 1, cover: 1},
+      { type: 'skirt', formality: 2, temperature: 1, cover: 1},
+      { type: 'sweatpants', formality: 1, temperature: 3, cover: 1},
+      { type: 'trousers', formality: 3, temperature: 3, cover: 1},
+      { type: 'yoga pants', formality: 1, temperature: 2, cover: 1},
+      //full
+      { type: 'dress', formality: 3, temperature: 2, cover: 2},
+      { type: 'jumpsuit', formality: 2, temperature: 2, cover: 2},
+      { type: 'overalls', formality: 2, temperature: 3, cover: 3},
+      { type: 'poncho', formality: 2, temperature: 3, cover: 3},
+      { type: 'robe', formality: 1, temperature: 2, cover: 3},
+      { type: 'romper', formality: 2, temperature: 1, cover: 2},
+      { type: 'tall coat', formality: 3, temperature: 4, cover: 1},
+      //shoes
+      { type: 'boots', formality: 3, temperature: 3, cover: 1},
+      { type: 'clogs', formality: 1, temperature: 2, cover: 1},
+      { type: 'dress shoes', formality: 4, temperature: 2, cover: 1},
+      { type: 'heels', formality: 4, temperature: 2, cover: 1},
+      { type: 'moccasin', formality: 1, temperature: 3, cover: 1},
+      { type: 'running shoes', formality: 2, temperature: 2, cover: 1}, //2.5 temp
+      { type: 'sandals', formality: 1, temperature: 1, cover: 1},
+      { type: 'slides', formality: 1, temperature: 1, cover: 1},
+      { type: 'slip-ons', formality: 2, temperature: 2, cover: 1},//2.5 temp
+      { type: 'sneakers', formality: 2, temperature: 2, cover: 1},//2.5 temp
+    ]
+
 };
 
 export interface Top {
@@ -137,36 +186,6 @@ export interface Accessory {
   | 'shawl'
   | 'socks'
   | 'tie';
-}
-
-export const Formality_1 = [];
-export const Formality_2 = [];
-export const Formality_3 = [];
-export const Formality_4 = [];
-
-export function getFormality(item: Item) {
-  let type = item.type.type;
-  for (let check of Formality_1) {
-    if (check === type) {
-      return 1;
-    }
-  }
-  for (let check of Formality_2) {
-    if (check === type) {
-      return 2;
-    }
-  }
-  for (let check of Formality_3) {
-    if (check === type) {
-      return 3;
-    }
-  }
-  for (let check of Formality_4) {
-    if (check === type) {
-      return 4;
-    }
-  }
-  return new Error(`oh that shouldn't have happened.`);
 }
 
 
@@ -375,7 +394,7 @@ export class Storage {
             } else {
               sortedItems.sort((a, b) => { return a.date - b.date });
             }
-            
+
             break;
           case "color":
             sortedItems.sort((a, b) => { return colorDistance(selection.value, a.colors[0]) - colorDistance(selection.value, b.colors[0]) });
@@ -395,7 +414,7 @@ export class Storage {
           }
         }
         allPages = newPages;
-        
+
       }
     }
 
