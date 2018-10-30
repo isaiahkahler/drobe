@@ -65,7 +65,7 @@ export class SortSidebar extends React.Component<SortSidebarProps, SortSidebarSt
         <View style={styles.sidebar}>
           <ScrollView scrollEnabled={false}>
             <Text style={[commonStyles.h1, commonStyles.bold]}>sort by</Text>
-            <Section label="date" options={['new to old', 'old to new']} action={(index) => { this.props.onSelect("order", "date", index) }} />
+            <Section label="date" options={['new to old', 'old to new']} action={(value) => { this.props.onSelect("order", "date", value) }} />
             <Section label="type" options={[
               { sublabel: "tops", options: ItemDefinitions.types.top },
               { sublabel: "bottoms", options: ItemDefinitions.types.bottom },
@@ -76,6 +76,7 @@ export class SortSidebar extends React.Component<SortSidebarProps, SortSidebarSt
             <Section label="color" options='colorpicker' action={() => {}}>
               <TriangleColorPicker style={styles.colorpicker} onColorSelected={color => {this.props.onSelect("order", "color", fromHsv(color))}}/>
             </Section>
+            <Section label="formality" options={['casual', 'semi-casual', 'semi-formal', 'formal']} action={(value) => { this.props.onSelect("hide", "formality", value) }}/>
           </ScrollView>
         </View>
 

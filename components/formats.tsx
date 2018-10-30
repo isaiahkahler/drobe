@@ -20,7 +20,7 @@ export interface Item {
   photoURI: string;
 }
 
-export const ItemDefinitions: { classes: string[], types: { top: string[], bottom: string[], full: string[], shoes: string[], accessory: string[] }, items: {type: string, formality: number, temperature: number, cover: number}[] } = {
+export const ItemDefinitions: { classes: string[], types: { top: string[], bottom: string[], full: string[], shoes: string[], accessory: string[] }, items: { type: string, formality: number, temperature: number, cover: number }[] } = {
   classes: ['top', 'bottom', 'full', 'shoes', 'accessory'],
   types: {
     top: [
@@ -95,35 +95,48 @@ export const ItemDefinitions: { classes: string[], types: { top: string[], botto
       { type: 'tank top', formality: 1, temperature: 1, cover: 2 },
       { type: 'vest', formality: 3, temperature: 3, cover: 3 },
       //bottoms
-      { type: "capri's", formality: 3, temperature: 2, cover: 1},
-      { type: 'dress pants', formality: 4, temperature: 2, cover: 1},
-      { type: 'jeans', formality: 2, temperature: 3, cover: 1}, //2.5 temp
-      { type: 'joggers', formality: 1, temperature: 2, cover: 1},
-      { type: 'leggings', formality: 2, temperature: 2, cover: 1}, //2.5 temp
-      { type: 'shorts', formality: 1, temperature: 1, cover: 1},
-      { type: 'skirt', formality: 2, temperature: 1, cover: 1},
-      { type: 'sweatpants', formality: 1, temperature: 3, cover: 1},
-      { type: 'trousers', formality: 3, temperature: 3, cover: 1},
-      { type: 'yoga pants', formality: 1, temperature: 2, cover: 1},
+      { type: "capri's", formality: 3, temperature: 2, cover: 1 },
+      { type: 'dress pants', formality: 4, temperature: 2, cover: 1 },
+      { type: 'jeans', formality: 2, temperature: 3, cover: 1 }, //2.5 temp
+      { type: 'joggers', formality: 1, temperature: 2, cover: 1 },
+      { type: 'leggings', formality: 2, temperature: 2, cover: 1 }, //2.5 temp
+      { type: 'shorts', formality: 1, temperature: 1, cover: 1 },
+      { type: 'skirt', formality: 2, temperature: 1, cover: 1 },
+      { type: 'sweatpants', formality: 1, temperature: 3, cover: 1 },
+      { type: 'trousers', formality: 3, temperature: 3, cover: 1 },
+      { type: 'yoga pants', formality: 1, temperature: 2, cover: 1 },
       //full
-      { type: 'dress', formality: 3, temperature: 2, cover: 2},
-      { type: 'jumpsuit', formality: 2, temperature: 2, cover: 2},
-      { type: 'overalls', formality: 2, temperature: 3, cover: 3},
-      { type: 'poncho', formality: 2, temperature: 3, cover: 3},
-      { type: 'robe', formality: 1, temperature: 2, cover: 3},
-      { type: 'romper', formality: 2, temperature: 1, cover: 2},
-      { type: 'tall coat', formality: 3, temperature: 4, cover: 1},
+      { type: 'dress', formality: 3, temperature: 2, cover: 2 },
+      { type: 'jumpsuit', formality: 2, temperature: 2, cover: 2 },
+      { type: 'overalls', formality: 2, temperature: 3, cover: 3 },
+      { type: 'poncho', formality: 2, temperature: 3, cover: 3 },
+      { type: 'robe', formality: 1, temperature: 2, cover: 3 },
+      { type: 'romper', formality: 2, temperature: 1, cover: 2 },
+      { type: 'tall coat', formality: 3, temperature: 4, cover: 1 },
       //shoes
-      { type: 'boots', formality: 3, temperature: 3, cover: 1},
-      { type: 'clogs', formality: 1, temperature: 2, cover: 1},
-      { type: 'dress shoes', formality: 4, temperature: 2, cover: 1},
-      { type: 'heels', formality: 4, temperature: 2, cover: 1},
-      { type: 'moccasin', formality: 1, temperature: 3, cover: 1},
-      { type: 'running shoes', formality: 2, temperature: 2, cover: 1}, //2.5 temp
-      { type: 'sandals', formality: 1, temperature: 1, cover: 1},
-      { type: 'slides', formality: 1, temperature: 1, cover: 1},
-      { type: 'slip-ons', formality: 2, temperature: 2, cover: 1},//2.5 temp
-      { type: 'sneakers', formality: 2, temperature: 2, cover: 1},//2.5 temp
+      { type: 'boots', formality: 3, temperature: 3, cover: 1 },
+      { type: 'clogs', formality: 1, temperature: 2, cover: 1 },
+      { type: 'dress shoes', formality: 4, temperature: 2, cover: 1 },
+      { type: 'heels', formality: 4, temperature: 2, cover: 1 },
+      { type: 'moccasin', formality: 1, temperature: 3, cover: 1 },
+      { type: 'running shoes', formality: 2, temperature: 2, cover: 1 }, //2.5 temp
+      { type: 'sandals', formality: 1, temperature: 1, cover: 1 },
+      { type: 'slides', formality: 1, temperature: 1, cover: 1 },
+      { type: 'slip-ons', formality: 2, temperature: 2, cover: 1 },//2.5 temp
+      { type: 'sneakers', formality: 2, temperature: 2, cover: 1 },//2.5 temp
+      // accessories 
+
+      { type: 'bag', formality: -1, temperature: -1, cover: -1},
+      { type: 'belt', formality: -1, temperature: -1, cover: -1},
+      { type: 'bow tie', formality: -1, temperature: -1, cover: -1},
+      { type: 'bracelet', formality: -1, temperature: -1, cover: -1},
+      { type: 'glasses', formality: -1, temperature: -1, cover: -1},
+      { type: 'gloves', formality: -1, temperature: -1, cover: -1},
+      { type: 'hat', formality: -1, temperature: -1, cover: -1},
+      { type: 'scarf', formality: -1, temperature: -1, cover: -1},
+      { type: 'shawl', formality: -1, temperature: -1, cover: -1},
+      { type: 'socks', formality: -1, temperature: -1, cover: -1},
+      { type: 'tie', formality: -1, temperature: -1, cover: -1},
     ]
 
 };
@@ -347,6 +360,21 @@ export class Storage {
     return pages;
   }
 
+  static itemListToPages(itemList: Item[]) {
+    let pages: Page[] = [];
+    for (let item of itemList) {
+      if (pages.length === 0) {
+        pages = [{ items: [item] }];
+      } else if (pages[pages.length - 1].items.length < 10) {
+        pages[pages.length - 1].items.push(item)
+      } else if (pages[pages.length - 1].items.length === 10) {
+        pages.push({ items: [item] });
+      }
+    }
+    return pages;
+  }
+
+
   /**
    * 
    * @param term 
@@ -357,25 +385,34 @@ export class Storage {
     let allPages = await this.getAllPages();
     for (let selection of selections) {
       if (selection.type === "hide") {
+        let shownItems: Item[] = [];
+        for (let page of allPages) {
+          for (let item of page.items) {
+            shownItems.push(item);
+          }
+        }
+
         switch (selection.name) {
           case "type":
-            let newPages: Page[] = [];
-            for (let page of allPages) {
-              for (let item of page.items) {
-                if (item.type === selection.value) {
-                  if (newPages.length === 0) {
-                    newPages = [{ items: [item] }];
-                  } else if (newPages[newPages.length - 1].items.length < 10) {
-                    newPages[newPages.length - 1].items.push(item)
-                  } else if (newPages[newPages.length - 1].items.length === 10) {
-                    newPages.push({ items: [item] });
-                  }
-                }
-              }
+            shownItems = shownItems.filter(item => item.type === selection.value);
+            break;
+          case "formality":
+            let formality = -1;
+            if (selection.value === "casual") {
+              formality = 1;
+            } else if (selection.value === "semi-casual") {
+              formality = 2;
+            } else if (selection.value === 'semi-formal') {
+              formality = 3;
+            } else {
+              formality = 4;
             }
-            allPages = newPages;
+            shownItems = shownItems.filter(item => {
+              return ItemDefinitions.items[ItemDefinitions.items.findIndex(e => {return e.type === item.type as any})].formality === formality
+            })
             break;
         }
+        allPages = this.itemListToPages(shownItems);
 
       } else { // type === "order"
 
@@ -402,19 +439,7 @@ export class Storage {
           default:
         }
 
-        //break array of sorted items into newPages
-        let newPages: Page[] = [];
-        for (let sortedItem of sortedItems) {
-          if (newPages.length === 0) {
-            newPages = [{ items: [sortedItem] }];
-          } else if (newPages[newPages.length - 1].items.length < 10) {
-            newPages[newPages.length - 1].items.push(sortedItem)
-          } else if (newPages[newPages.length - 1].items.length === 10) {
-            newPages.push({ items: [sortedItem] });
-          }
-        }
-        allPages = newPages;
-
+        allPages = this.itemListToPages(sortedItems);
       }
     }
 

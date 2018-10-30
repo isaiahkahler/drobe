@@ -103,7 +103,7 @@ class Library extends React.Component<LibraryProps, LibraryState> {
   }
 
   setLibrary = (pages: Page[]) => {
-    this.setState({pages: pages})
+    this.setState({pages: pages, pagesShown: 1})
   }
 
   onSelect = async (type: "hide" | "order", name: string, value: number) => {
