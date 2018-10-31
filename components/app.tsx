@@ -1,11 +1,10 @@
 import * as React from 'react';
 import { StyleSheet, Text, View, Button, Image, Platform } from 'react-native';
 import { createBottomTabNavigator } from 'react-navigation';
-import { Create } from '../pages/create';
+import { Create, CreateStack } from '../pages/create/create';
 // import { LibraryStack } from '../pages/library';
 import { StatsStack } from '../pages/stats';
 import { AddStack } from '../pages/add/add';
-import { SettingsStack } from '../pages/settings';
 import { ProfileStack } from '../pages/profile';
 import { Icon } from '../components/icon';
 
@@ -16,7 +15,7 @@ import { LibraryStack } from '../pages/library/library';
 
 let App = createBottomTabNavigator(
   {
-    Create: { screen: Create },
+    Create: { screen: CreateStack },
     Library: { screen: LibraryStack },
     Add: { screen: AddStack },
     Stats: { screen: StatsStack },

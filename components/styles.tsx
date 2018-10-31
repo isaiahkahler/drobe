@@ -15,7 +15,7 @@ export const commonStyles = StyleSheet.create({
     flexDirection: 'column',
     justifyContent: 'space-around', 
     alignItems: 'center',
-    paddingTop: Expo.Constants.statusBarHeight,
+    // paddingTop: Expo.Constants.statusBarHeight,
   },
   h1: {
     fontSize: 28

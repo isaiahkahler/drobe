@@ -63,11 +63,30 @@ class Library extends React.Component<LibraryProps, LibraryState> {
     title: 'Library'
   };
 
-  componentDidMount = async () => {
+  componentDidMount() {
+    this.loadLibrary()
+  }
+
+  loadLibrary = async () => {
     let allPages = await Storage.getAllPages();
     this.setPages(allPages)
     this.setState({library: allPages});
   };
+
+  //review: do you need to reload on every focus?
+  // willFocusSubscription = this.props.navigation.addListener(
+  //   'willFocus',
+  //   payload => {
+  //     console.debug('willFocus');
+  //     this.loadLibrary()
+  //   }
+  // );
+
+  // componentWillUnmount = () => {
+  //     console.log("unmount library")
+  //     this.willFocusSubscription.remove();
+  // }
+
 
   // showModal = () => {
   //   this.setState({ showModal: true });

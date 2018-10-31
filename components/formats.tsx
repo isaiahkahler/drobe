@@ -466,7 +466,7 @@ export class Storage {
       }
     }
     let filteredTerms = unfilteredTerms.filter(item => {
-      return item.name.indexOf(term) !== -1 || item.type.indexOf(term) !== -1 || item.class.indexOf(term) !== -1
+      return item.name.indexOf(term.toLowerCase()) !== -1 || item.type.indexOf(term.toLowerCase()) !== -1 || item.class.indexOf(term.toLowerCase()) !== -1
     })
     // if(filteredTerms.length !== 0){
     //   filteredTerms = unfilteredTerms.filter(item => item.type.indexOf(term) !== -1)
