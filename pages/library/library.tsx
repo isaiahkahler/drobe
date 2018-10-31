@@ -34,24 +34,28 @@ interface LibraryProps {
 }
 interface LibraryState {
   // numberOfPages: number;
+  library: Array<Page>;
   pages: Array<Page>;
   pagesShown: number;
   drawerOpen: boolean;
   showModal: boolean;
   // modalFadeInAnimation: Animated.Value;
   selections: Array<{ type: "hide" | "order", name: string, value: any }>;
+  searchValue: string;
 }
 
 class Library extends React.Component<LibraryProps, LibraryState> {
   constructor(props: LibraryProps) {
     super(props);
     this.state = {
+      library: [],
       pages: [],
       pagesShown: 1,
       drawerOpen: false,
       showModal: false,
       // modalFadeInAnimation: new Animated.Value(0),
-      selections: []
+      selections: [],
+      searchValue: ''
     };
   }
 
@@ -61,7 +65,8 @@ class Library extends React.Component<LibraryProps, LibraryState> {
 
   componentDidMount = async () => {
     let allPages = await Storage.getAllPages();
-    this.setLibrary(allPages)
+    this.setPages(allPages)
+    this.setState({library: allPages});
   };
 
   // showModal = () => {
@@ -99,10 +104,10 @@ class Library extends React.Component<LibraryProps, LibraryState> {
   }
 
   sortBySelections = async () => {
-    this.setLibrary(await Storage.sortBy(this.state.selections));
+    this.setPages(await Storage.sortBy(this.state.selections));
   }
 
-  setLibrary = (pages: Page[]) => {
+  setPages = (pages: Page[]) => {
     this.setState({pages: pages, pagesShown: 1})
   }
 
@@ -133,7 +138,8 @@ class Library extends React.Component<LibraryProps, LibraryState> {
     
   }
 
-  search = () => {
+  search = (text) => {
+    this.setState({searchValue: text}, async () => Storage.search(this.state.searchValue, this.state.library, (pages) => this.setPages(pages)))
 
   }
 
@@ -153,6 +159,7 @@ class Library extends React.Component<LibraryProps, LibraryState> {
   getTiles() {
     //map data to tiles
     if (!this.state.pages) {
+      console.log("i think this never runs")
       return undefined;
     }
     return this.state.pages.slice(0, this.state.pagesShown).map((page, pageIndex) => {
@@ -219,7 +226,7 @@ class Library extends React.Component<LibraryProps, LibraryState> {
             <View style={styles.fixedTopContainer}>
               <View style={styles.searchAndSortContainer}>
                 <View style={styles.searchContainer}>
-                  <TextInput style={[styles.search, commonStyles.h2]} placeholder="search" onSubmitEditing={this.search} />
+                  <TextInput style={[styles.search, commonStyles.h2]} placeholder="search" onChangeText={text => this.search(text)} value={this.state.searchValue} />
                 </View>
                 <TouchableHighlight
                   onPress={() => this.toggleSidebar()}

@@ -3,6 +3,7 @@ import { AsyncStorage } from 'react-native';
 import { number } from 'prop-types';
 import { FileSystem } from 'expo';
 import Color from 'color';
+import { filter } from 'minimatch';
 
 export interface Page {
   // full: boolean;
@@ -375,13 +376,6 @@ export class Storage {
     return pages;
   }
 
-
-  /**
-   * 
-   * @param term 
-   * @param value 
-   * @returns Array of pages with 
-   */
   static async sortBy(selections: Array<{ type: "hide" | "order", name: string, value: any }>) {
     let allPages = await this.getAllPages();
     for (let selection of selections) {
@@ -460,17 +454,28 @@ export class Storage {
       }
     }
 
-
-    for (let page of allPages) {
-      for (let item of page.items) {
-
-      }
-    }
-
-
-
     return allPages;
   }
+
+  //review: efficiency? 
+  static async search(term: string, data: Page[], callback: (pages) => void){
+    let unfilteredTerms: Item[] = [];
+    for(let page of data) {
+      for(let item of page.items){
+        unfilteredTerms.push(item);
+      }
+    }
+    let filteredTerms = unfilteredTerms.filter(item => {
+      return item.name.indexOf(term) !== -1 || item.type.indexOf(term) !== -1 || item.class.indexOf(term) !== -1
+    })
+    // if(filteredTerms.length !== 0){
+    //   filteredTerms = unfilteredTerms.filter(item => item.type.indexOf(term) !== -1)
+    // } 
+    let newPages = this.itemListToPages(filteredTerms);
+    callback(newPages);
+    
+  }
+
 
   static async storeDefineProps(editMode: boolean, pageIndex: number, itemIndex: number, uri: string, callback: Function) {
     this._storeData('define', {
