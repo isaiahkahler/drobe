@@ -43,7 +43,7 @@ export class ItemView extends React.Component<ItemViewProps, ItemViewState> {
     // let item = await Storage.getItem(navigation.state.params.page, navigation.state.params.item);
     // this.setState({ item: item });
     this.setState({ item: navigation.state.params.item });
-    console.log("navigation item", navigation.state.params.item)
+    // console.log("navigation item", navigation.state.params.item)
     navigation.setParams({edit: this.editItem})
   };
 

@@ -28,35 +28,7 @@ export class SortSidebar extends React.Component<SortSidebarProps, SortSidebarSt
     }
   }
 
-  // getPills = () => {
-  //   return (
-  //     <View style={styles.fixedBottomContainer}>
-  //       <View style={styles.pillContainer}>
-  //         {this.state.selections.map((item, index) => {
-  //           <View style={styles.pill} key={index}>
-  //             <Text style={commonStyles.pb}>{item.type}</Text>
-  //           </View>
-  //         })}
-  //       </View>
-  //     </View>
-  //   );
-  // }
 
-  // onSelect = (type: string, index: number) => {
-  //   let selectionIndex = this.state.selections.indexOf({ type: type, index: index });
-  //   console.log("type", type, "index", index)
-  //   if (selectionIndex === -1) {
-  //     this.setState(previousState => ({
-  //       ...previousState,
-  //       selections: [...previousState.selections, { type: type, index: index }]
-  //     }), () => { console.log(this.state.selections) })
-  //   } else {
-  //     this.setState(previousState => ({
-  //       ...previousState,
-  //       selections: [...previousState.selections.slice(0, selectionIndex), ...previousState.selections.slice(selectionIndex + 1, previousState.selections.length)]
-  //     }))
-  //   }
-  // }
 
   render() {
     return (
@@ -77,6 +49,7 @@ export class SortSidebar extends React.Component<SortSidebarProps, SortSidebarSt
               <TriangleColorPicker style={styles.colorpicker} onColorSelected={color => {this.props.onSelect("order", "color", fromHsv(color))}}/>
             </Section>
             <Section label="formality" options={['casual', 'semi-casual', 'semi-formal', 'formal']} action={(value) => { this.props.onSelect("hide", "formality", value) }}/>
+            <Section label="temperature" options={['very light clothes', 'light clothes', 'warm clothes', 'very warm clothes']} action={(value) => { this.props.onSelect("hide", "temperature", value) }}/>
           </ScrollView>
         </View>
 

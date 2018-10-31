@@ -19,7 +19,7 @@ import {
 import { PageLayout } from '../../components/page';
 import { commonStyles } from '../../components/styles';
 import { createStackNavigator } from 'react-navigation';
-import { getFormality, Item, Storage, Page } from '../../components/formats';
+import { Item, Storage, Page } from '../../components/formats';
 import { ItemView } from './itemView';
 import { Define } from '../add/define';
 import { SortSidebar } from './sortSidebar';
@@ -114,7 +114,6 @@ class Library extends React.Component<LibraryProps, LibraryState> {
       return selection.name === name;
     });
 
-    // if(selectionIndex === -1) { //no selection filers of same type
 
     if (selectionIndex === -1) { //if selection does not exist
       await this.setState(previousState => ({
@@ -134,6 +133,10 @@ class Library extends React.Component<LibraryProps, LibraryState> {
     
   }
 
+  search = () => {
+
+  }
+
   removePill = (index) => {
     this.setState(previousState => ({
       ...previousState,
@@ -141,6 +144,10 @@ class Library extends React.Component<LibraryProps, LibraryState> {
     }), () => {
       this.sortBySelections();
     })
+  }
+
+  removeAllPills = () => {
+    this.setState({selections: []});
   }
 
   getTiles() {
@@ -212,7 +219,7 @@ class Library extends React.Component<LibraryProps, LibraryState> {
             <View style={styles.fixedTopContainer}>
               <View style={styles.searchAndSortContainer}>
                 <View style={styles.searchContainer}>
-                  <TextInput style={[styles.search, commonStyles.h2]} placeholder="search" />
+                  <TextInput style={[styles.search, commonStyles.h2]} placeholder="search" onSubmitEditing={this.search} />
                 </View>
                 <TouchableHighlight
                   onPress={() => this.toggleSidebar()}
@@ -257,35 +264,34 @@ function Tile(props: {
 }) {
   // return <View style={styles.tile}>{props.children}</View>;
   return (
-    <TouchableHighlight
+      <View style={{
+        marginHorizontal: '5%',
+        marginTop: '5%'
+      }}>
+      <TouchableHighlight
       underlayColor="rgba(0,0,0,0)"
       // onPress={() => {
       // props.openModal(props.pageIndex, props.itemIndex);
       // }}
       onPress={() => props.openItemScreen(props.pageIndex, props.itemIndex)}
-      style={{
-        margin: '5%',
-        flexDirection: 'column',
-        justifyContent: 'space-evenly',
-        alignItems: 'center'
-      }}
+      // style={{
+        // margin: '5%',
+        // flexDirection: 'column',
+        // justifyContent: 'space-evenly',
+        // alignItems: 'center'
+      // }}
     >
       <React.Fragment>
         <Image
           source={{ uri: props.uri }}
-          style={{
-            width: width * 0.4,
-            height: width * 0.4,
-            borderRadius: 25,
-            borderWidth: 2,
-            borderColor: '#000'
-          }}
+          style={styles.tileImage as any}
         />
-        <Text style={[commonStyles.pb, { position: 'absolute', color: '#ccc', marginTop: 5 }]}>
-          {props.name}
-        </Text>
       </React.Fragment>
     </TouchableHighlight>
+        <Text style={[commonStyles.pb, commonStyles.centerText, {width: width * 0.4,}]}>
+          {props.name}
+        </Text>
+      </View>
   );
 }
 
@@ -324,9 +330,11 @@ const styles = StyleSheet.create({
     margin: '5%'
   },
   tileImage: {
-    width: width * 0.35,
-    height: width * 0.35
-    // aspectRatio: 1
+    width: width * 0.4,
+    height: width * 0.4,
+    borderRadius: 25,
+    borderWidth: 2,
+    borderColor: '#000'
   },
   button: {
     width: '50%'

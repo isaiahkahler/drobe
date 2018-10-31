@@ -11,7 +11,8 @@ export interface Page {
 
 export interface Item {
   class: 'top' | 'bottom' | 'full body' | 'shoes' | 'accessory';
-  type: Top | Bottom | Full | Shoes | Accessory;
+  // type: Top | Bottom | Full | Shoes | Accessory;'
+  type: string;
   name: string;
   colors: string[];
   date: number;
@@ -126,17 +127,17 @@ export const ItemDefinitions: { classes: string[], types: { top: string[], botto
       { type: 'sneakers', formality: 2, temperature: 2, cover: 1 },//2.5 temp
       // accessories 
 
-      { type: 'bag', formality: -1, temperature: -1, cover: -1},
-      { type: 'belt', formality: -1, temperature: -1, cover: -1},
-      { type: 'bow tie', formality: -1, temperature: -1, cover: -1},
-      { type: 'bracelet', formality: -1, temperature: -1, cover: -1},
-      { type: 'glasses', formality: -1, temperature: -1, cover: -1},
-      { type: 'gloves', formality: -1, temperature: -1, cover: -1},
-      { type: 'hat', formality: -1, temperature: -1, cover: -1},
-      { type: 'scarf', formality: -1, temperature: -1, cover: -1},
-      { type: 'shawl', formality: -1, temperature: -1, cover: -1},
-      { type: 'socks', formality: -1, temperature: -1, cover: -1},
-      { type: 'tie', formality: -1, temperature: -1, cover: -1},
+      { type: 'bag', formality: -1, temperature: -1, cover: -1 },
+      { type: 'belt', formality: -1, temperature: -1, cover: -1 },
+      { type: 'bow tie', formality: -1, temperature: -1, cover: -1 },
+      { type: 'bracelet', formality: -1, temperature: -1, cover: -1 },
+      { type: 'glasses', formality: -1, temperature: -1, cover: -1 },
+      { type: 'gloves', formality: -1, temperature: -1, cover: -1 },
+      { type: 'hat', formality: -1, temperature: -1, cover: -1 },
+      { type: 'scarf', formality: -1, temperature: -1, cover: -1 },
+      { type: 'shawl', formality: -1, temperature: -1, cover: -1 },
+      { type: 'socks', formality: -1, temperature: -1, cover: -1 },
+      { type: 'tie', formality: -1, temperature: -1, cover: -1 },
     ]
 
 };
@@ -408,9 +409,25 @@ export class Storage {
               formality = 4;
             }
             shownItems = shownItems.filter(item => {
-              return ItemDefinitions.items[ItemDefinitions.items.findIndex(e => {return e.type === item.type as any})].formality === formality
+              return ItemDefinitions.items[ItemDefinitions.items.findIndex(e => { return e.type === item.type as any })].formality === formality
             })
             break;
+          case "temperature":
+            let temperature = -1;
+            if (selection.value === "very light clothes") {
+              temperature = 1;
+            } else if (selection.value === "light clothes") {
+              temperature = 2;
+            } else if (selection.value === 'warm clothes') {
+              temperature = 3;
+            } else {
+              temperature = 4;
+            }
+            shownItems = shownItems.filter(item => {
+              return ItemDefinitions.items[ItemDefinitions.items.findIndex(e => { return e.type === item.type as any })].temperature === temperature
+            })
+            break;
+
         }
         allPages = this.itemListToPages(shownItems);
 
