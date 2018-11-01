@@ -19,7 +19,9 @@ import {
 import { PageLayout } from '../../components/page';
 import { commonStyles } from '../../components/styles';
 import { createStackNavigator } from 'react-navigation';
-import { Item, Storage, Page } from '../../components/formats';
+import { Item, Page } from '../../components/formats';
+import { Storage } from '../../components/storage';
+import { ItemManager } from '../../components/itemManager';
 import { ItemView } from './itemView';
 import { Define } from '../add/define';
 import { SortSidebar } from './sortSidebar';
@@ -68,7 +70,7 @@ class Library extends React.Component<LibraryProps, LibraryState> {
   }
 
   loadLibrary = async () => {
-    let allPages = await Storage.getAllPages();
+    let allPages = await ItemManager.getAllPages();
     this.setPages(allPages)
     this.setState({library: allPages});
   };
@@ -123,7 +125,7 @@ class Library extends React.Component<LibraryProps, LibraryState> {
   }
 
   sortBySelections = async () => {
-    this.setPages(await Storage.sortBy(this.state.selections));
+    this.setPages(await ItemManager.sortBy(this.state.selections));
   }
 
   setPages = (pages: Page[]) => {
@@ -158,7 +160,7 @@ class Library extends React.Component<LibraryProps, LibraryState> {
   }
 
   search = (text) => {
-    this.setState({searchValue: text}, async () => Storage.search(this.state.searchValue, this.state.library, (pages) => this.setPages(pages)))
+    this.setState({searchValue: text}, async () => ItemManager.search(this.state.searchValue, this.state.library, (pages) => this.setPages(pages)))
 
   }
 

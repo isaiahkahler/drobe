@@ -19,8 +19,12 @@ import {
 } from 'react-native';
 import { PageLayout } from '../../components/page';
 import { commonStyles } from '../../components/styles';
-import { Item, ItemDefinitions, Storage, roundColor, roundColors } from '../../components/formats';
+import { Item, ItemDefinitions } from '../../components/formats';
+import { Storage } from '../../components/storage';
+import { ItemManager } from '../../components/itemManager';
+import { roundColor, roundColors } from '../../components/helpers';
 import { TriangleColorPicker } from '../../components/colorpicker/TriangleColorPicker';
+
 import { fromHsv } from '../../components/colorpicker/utils';
 import Color from 'color';
 import { number } from 'prop-types';
@@ -92,7 +96,7 @@ export class Define extends React.Component<DefineProps, DefineState> {
   componentDidMount = async () => {
     let data = await Storage._retrieveData('define');
     if(data.editMode){
-      let item:Item = await Storage.getItem(data.pageIndex, data.itemIndex);
+      let item:Item = await ItemManager.getItem(data.pageIndex, data.itemIndex);
       this.setState({options: item})
     }
     this.setState(previousState => ({
