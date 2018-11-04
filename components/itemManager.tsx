@@ -155,12 +155,16 @@ export class ItemManager {
     let itemType:string[] = [];
     let required:string[] = [];
     for(let item of items){
-      itemType.push(item.class);
       if(item.class === 'full'){
-        
+        if(ItemDefinitions.getCover(item.type) === 3){ //if full body needs top, it can be called a bottom
+          itemType.push('bottom')
+        }
+      } else {
+        itemType.push(item.class);
       }
     }
     if(itemType.indexOf('top') === -1 ){
+      required.push('top')
     }
     if(itemType.indexOf('bottom') === -1 ){
       required.push('bottom');
