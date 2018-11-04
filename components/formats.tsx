@@ -11,7 +11,7 @@ export interface Page {
 }
 
 export interface Item {
-  class: 'top' | 'bottom' | 'full body' | 'shoes' | 'accessory';
+  class: 'top' | 'bottom' | 'full' | 'shoes' | 'accessory';
   // type: Top | Bottom | Full | Shoes | Accessory;'
   type: string;
   name: string;
@@ -22,7 +22,16 @@ export interface Item {
   photoURI: string;
 }
 
-export const ItemDefinitions: { classes: string[], types: { top: string[], bottom: string[], full: string[], shoes: string[], accessory: string[] }, items: { type: string, formality: number, temperature: number, cover: number }[] } = {
+//review: INCONTINUITY! is it FULL or FULL BODY?
+export const ItemDefinitions: 
+{ 
+  classes: string[], 
+  types: { top: string[], bottom: string[], full: string[], shoes: string[], accessory: string[] }, 
+  items: { type: string, formality: number, temperature: number, cover: number }[], 
+  getFormality: Function,
+  getTemperature: (type: string) => number,
+  getCover: (type: string) => number,
+} = {
   classes: ['top', 'bottom', 'full', 'shoes', 'accessory'],
   types: {
     top: [
@@ -52,7 +61,8 @@ export const ItemDefinitions: { classes: string[], types: { top: string[], botto
       'trousers',
       'yoga pants'
     ],
-    full: ['dress', 'jumpsuit', 'overalls', 'poncho', 'robe', 'romper', 'tall coat'],
+    // full: ['dress', 'jumpsuit', 'overalls', 'poncho', 'robe', 'romper', 'tall coat'],
+    full: ['dress', 'jumpsuit', 'overalls', 'robe', 'romper', 'tall coat'],
     shoes: [
       'boots',
       'clogs',
@@ -111,7 +121,7 @@ export const ItemDefinitions: { classes: string[], types: { top: string[], botto
       { type: 'dress', formality: 3, temperature: 2, cover: 2 },
       { type: 'jumpsuit', formality: 2, temperature: 2, cover: 2 },
       { type: 'overalls', formality: 2, temperature: 3, cover: 3 },
-      { type: 'poncho', formality: 2, temperature: 3, cover: 3 },
+      // { type: 'poncho', formality: 2, temperature: 3, cover: 3 },
       { type: 'robe', formality: 1, temperature: 2, cover: 3 },
       { type: 'romper', formality: 2, temperature: 1, cover: 2 },
       { type: 'tall coat', formality: 3, temperature: 4, cover: 1 },
@@ -139,8 +149,18 @@ export const ItemDefinitions: { classes: string[], types: { top: string[], botto
       { type: 'shawl', formality: -1, temperature: -1, cover: -1 },
       { type: 'socks', formality: -1, temperature: -1, cover: -1 },
       { type: 'tie', formality: -1, temperature: -1, cover: -1 },
-    ]
+    ],
+    getFormality: function(type) {
+      return this.items[this.items.findIndex((e) => e.type === type)].formality;
+    },
+    getTemperature: function(type) {
+      return this.items[this.items.findIndex((e) => e.type === type)].temperature;
 
+    },
+    getCover: function(type) {
+      return this.items[this.items.findIndex((e) => e.type === type)].cover;
+
+    },
 };
 
 export interface Top {
@@ -173,7 +193,8 @@ export interface Bottom {
   | 'yoga pants';
 }
 export interface Full {
-  type: 'dress' | 'jumpsuit' | 'overalls' | 'poncho' | 'robe' | 'romper' | 'tall coat';
+  // type: 'dress' | 'jumpsuit' | 'overalls' | 'poncho' | 'robe' | 'romper' | 'tall coat';
+  type: 'dress' | 'jumpsuit' | 'overalls' | 'robe' | 'romper' | 'tall coat';
 }
 export interface Shoes {
   type:

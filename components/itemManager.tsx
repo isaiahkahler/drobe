@@ -1,6 +1,7 @@
 import { Page, Item, ItemDefinitions } from './formats';
 import { Storage } from './storage';
 import { colorDistance } from './helpers';
+import { string } from 'prop-types';
 
 export class ItemManager {
     //hey!!! review: should these be async??? they have await in them? right?
@@ -77,7 +78,7 @@ export class ItemManager {
               formality = 4;
             }
             shownItems = shownItems.filter(item => {
-              return ItemDefinitions.items[ItemDefinitions.items.findIndex(e => { return e.type === item.type as any })].formality === formality
+              return ItemDefinitions.getFormality(item.type) === formality
             })
             break;
           case "temperature":
@@ -92,7 +93,7 @@ export class ItemManager {
               temperature = 4;
             }
             shownItems = shownItems.filter(item => {
-              return ItemDefinitions.items[ItemDefinitions.items.findIndex(e => { return e.type === item.type as any })].temperature === temperature
+              return ItemDefinitions.getTemperature(item.type) === temperature
             })
             break;
 
@@ -148,6 +149,25 @@ export class ItemManager {
     let newPages = this.itemListToPages(filteredTerms);
     callback(newPages);
     
+  }
+
+  static outfitRequirements(items: Item[]){ //needs to take COVER into consideration
+    let itemType:string[] = [];
+    let required:string[] = [];
+    for(let item of items){
+      itemType.push(item.class);
+      if(item.class === 'full'){
+        
+      }
+    }
+    if(itemType.indexOf('top') === -1 ){
+    }
+    if(itemType.indexOf('bottom') === -1 ){
+      required.push('bottom');
+    }
+    if(itemType.indexOf('shoes') === -1 ){
+      required.push('shoes');
+    }
   }
 
 
