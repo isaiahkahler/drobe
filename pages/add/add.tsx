@@ -9,8 +9,7 @@ import {
   TouchableHighlight,
   TextInput,
   Dimensions,
-  Platform,
-  ActivityIndicator
+  Platform
 } from 'react-native';
 import { PageLayout } from '../../components/page';
 import { commonStyles } from '../../components/styles';
@@ -52,6 +51,23 @@ class Add extends React.Component<AddProps, AddState> {
       ...previousState,
       hasCameraPermission: status === 'granted'
     }));
+
+    const willBlurSubscription = this.props.navigation.addListener(
+      'willBlur',
+      payload => {
+        this.setState({showCamera: false})
+      }
+    );
+
+    const willFocusSubscription = this.props.navigation.addListener(
+      'willFocus',
+      payload => {
+        this.setState({showCamera: true})
+      }
+    );
+
+
+
   }
 
   private _camera: any;
@@ -138,7 +154,7 @@ class Add extends React.Component<AddProps, AddState> {
             </View>
           ) : (
             <View style={{ flex: 1, justifyContent: 'center' }}>
-              <ActivityIndicator size="large" color="#000" />
+              {/* <ActivityIndicator size="large" color="#000" /> */}
             </View>
           )}
         </View>

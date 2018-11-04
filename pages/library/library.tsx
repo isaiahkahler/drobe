@@ -35,26 +35,29 @@ interface LibraryProps {
   navigation: any;
 }
 interface LibraryState {
-  // numberOfPages: number;
   library: Array<Page>;
   pages: Array<Page>;
   pagesShown: number;
+  selectionMode: boolean;
+  greyMode: boolean;
   drawerOpen: boolean;
-  showModal: boolean;
+  // showModal: boolean;
   // modalFadeInAnimation: Animated.Value;
   selections: Array<{ type: "hide" | "order", name: string, value: any }>;
   searchValue: string;
 }
 
-class Library extends React.Component<LibraryProps, LibraryState> {
+export class Library extends React.Component<LibraryProps, LibraryState> {
   constructor(props: LibraryProps) {
     super(props);
     this.state = {
       library: [],
       pages: [],
       pagesShown: 1,
+      selectionMode: false,
+      greyMode: false,
       drawerOpen: false,
-      showModal: false,
+      // showModal: false,
       // modalFadeInAnimation: new Animated.Value(0),
       selections: [],
       searchValue: ''
@@ -67,12 +70,31 @@ class Library extends React.Component<LibraryProps, LibraryState> {
 
   componentDidMount() {
     this.loadLibrary()
+    const navigation = this.props.navigation;
+    if(navigation.state.params.hasOwnProperty('selectionMode')){
+      this.setState({ selectionMode: navigation.state.params.selectionMode })
+      console.log('has selection mode')
+    } else {
+      console.log('does not have selection mode')
+    }
+    if(navigation.state.params.hasOwnProperty('presetSelections')){
+      this.setState({selections: navigation.state.params.presetSelections})
+      console.log('has selections')
+    } else {
+      console.log('does not have selections')
+    }
+    if(navigation.state.params.hasOwnProperty('return')){
+      navigation.state.params.return();
+      console.log('has return')
+    } else {
+      console.log('does not have return')
+    }
   }
 
   loadLibrary = async () => {
     let allPages = await ItemManager.getAllPages();
     this.setPages(allPages)
-    this.setState({library: allPages});
+    this.setState({ library: allPages });
   };
 
   //review: do you need to reload on every focus?
@@ -129,7 +151,7 @@ class Library extends React.Component<LibraryProps, LibraryState> {
   }
 
   setPages = (pages: Page[]) => {
-    this.setState({pages: pages, pagesShown: 1})
+    this.setState({ pages: pages, pagesShown: 1 })
   }
 
   onSelect = async (type: "hide" | "order", name: string, value: number) => {
@@ -151,16 +173,16 @@ class Library extends React.Component<LibraryProps, LibraryState> {
     } else {
       await this.setState(previousState => ({
         ...previousState,
-        selections: [...previousState.selections.slice(0, selectionIndex), {type: type, name: name, value: value}, ...previousState.selections.slice(selectionIndex + 1, previousState.selections.length)]
+        selections: [...previousState.selections.slice(0, selectionIndex), { type: type, name: name, value: value }, ...previousState.selections.slice(selectionIndex + 1, previousState.selections.length)]
       }), () => {
         this.sortBySelections();
       })
     }
-    
+
   }
 
   search = (text) => {
-    this.setState({searchValue: text}, async () => ItemManager.search(this.state.searchValue, this.state.library, (pages) => this.setPages(pages)))
+    this.setState({ searchValue: text }, async () => ItemManager.search(this.state.searchValue, this.state.library, (pages) => this.setPages(pages)))
 
   }
 
@@ -174,7 +196,7 @@ class Library extends React.Component<LibraryProps, LibraryState> {
   }
 
   removeAllPills = () => {
-    this.setState({selections: []});
+    this.setState({ selections: [] });
   }
 
   getTiles() {
@@ -214,7 +236,7 @@ class Library extends React.Component<LibraryProps, LibraryState> {
   private _drawer = React.createRef<ScrollView>();
 
   hideSidebar = () => {
-    this._drawer.current.scrollTo({x: 0, animated: true})
+    this._drawer.current.scrollTo({ x: 0, animated: true })
   }
 
   toggleSidebar = () => {
@@ -263,7 +285,7 @@ class Library extends React.Component<LibraryProps, LibraryState> {
 
                 </View> */}
                 {this.state.selections.map((item, index) => {
-                  return(<TouchableHighlight style={styles.pill} key={index} onPress={() => this.removePill(index)}>
+                  return (<TouchableHighlight style={styles.pill} key={index} onPress={() => this.removePill(index)}>
                     <Text style={commonStyles.pb}>{item.value}</Text>
                   </TouchableHighlight>);
                 })}
@@ -292,34 +314,34 @@ function Tile(props: {
 }) {
   // return <View style={styles.tile}>{props.children}</View>;
   return (
-      <View style={{
-        marginHorizontal: '5%',
-        marginTop: '5%'
-      }}>
+    <View style={{
+      marginHorizontal: '5%',
+      marginTop: '5%'
+    }}>
       <TouchableHighlight
-      underlayColor="rgba(0,0,0,0)"
-      // onPress={() => {
-      // props.openModal(props.pageIndex, props.itemIndex);
-      // }}
-      onPress={() => props.openItemScreen(props.pageIndex, props.itemIndex)}
+        underlayColor="rgba(0,0,0,0)"
+        // onPress={() => {
+        // props.openModal(props.pageIndex, props.itemIndex);
+        // }}
+        onPress={() => props.openItemScreen(props.pageIndex, props.itemIndex)}
       // style={{
-        // margin: '5%',
-        // flexDirection: 'column',
-        // justifyContent: 'space-evenly',
-        // alignItems: 'center'
+      // margin: '5%',
+      // flexDirection: 'column',
+      // justifyContent: 'space-evenly',
+      // alignItems: 'center'
       // }}
-    >
-      <React.Fragment>
-        <Image
-          source={{ uri: props.uri }}
-          style={styles.tileImage as any}
-        />
-      </React.Fragment>
-    </TouchableHighlight>
-        <Text style={[commonStyles.pb, commonStyles.centerText, {width: width * 0.4,}]}>
-          {props.name}
-        </Text>
-      </View>
+      >
+        <React.Fragment>
+          <Image
+            source={{ uri: props.uri }}
+            style={styles.tileImage as any}
+          />
+        </React.Fragment>
+      </TouchableHighlight>
+      <Text style={[commonStyles.pb, commonStyles.centerText, { width: width * 0.4, }]}>
+        {props.name}
+      </Text>
+    </View>
   );
 }
 
@@ -331,7 +353,10 @@ export const LibraryStack = createStackNavigator(
     ItemView: { screen: ItemView },
     Edit: { screen: Define }
   },
-  { initialRouteName: 'Library' }
+  {
+    initialRouteName: 'Library',
+    initialRouteParams: { selectionMode: false }
+  }
 );
 
 const styles = StyleSheet.create({

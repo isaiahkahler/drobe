@@ -6,6 +6,9 @@ import { createStackNavigator } from 'react-navigation';
 import { Settings } from './settings';
 import { Icon } from '../components/icon';
 
+//temp
+import { ItemManager } from '../components/itemManager';
+
 interface ProfileProps {
   navigation: any;
 }
@@ -49,7 +52,15 @@ class Profile extends React.Component<ProfileProps, ProfileState> {
             
             
             {/* temp! */}
-            <TouchableHighlight onPress={() => {AsyncStorage.clear()}}>
+            {/* <TouchableHighlight onPress={() => {AsyncStorage.clear()}}> */}
+            <TouchableHighlight onPress={ async () => {
+              let allPages: Array<any> = await ItemManager.getAllPages();
+              for(let page of allPages){
+                for(let item of page.items){
+                  console.log(item.photoURI)
+                }
+              }
+            }}>
               <Text>Clear AsyncStorage</Text>
             </TouchableHighlight>
           

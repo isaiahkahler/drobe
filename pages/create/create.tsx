@@ -6,7 +6,7 @@ import { createStackNavigator } from 'react-navigation';
 import { Icon } from '../../components/icon';
 import { Manual } from './manual';
 import { Automatic } from './automatic';
-
+import { Library } from '../../pages/library/library';
 
 
 interface CreateProps {
@@ -76,7 +76,8 @@ export const CreateStack = createStackNavigator(
     },
     Automatic: {
       screen: Automatic
-    }
+    },
+    LibrarySelector: Library
   },
   { initialRouteName: 'Create' }
 );

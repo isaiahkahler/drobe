@@ -16,7 +16,7 @@ export class Settings extends React.Component<SettingsProps, SettingsState>{
   render() {
     return (
       <PageLayout><View style={commonStyles.body}>
-        <SectionList
+        {/* <SectionList
         style={styles.list}
         sections={[
             {title: 'Account', data: ['Email', 'Password', 'Delete Account']},
@@ -27,7 +27,7 @@ export class Settings extends React.Component<SettingsProps, SettingsState>{
           renderItem={({item}) => <Text style={[styles.listItem, commonStyles.pb]}>{item}</Text>}
           renderSectionHeader={({section}) => <Text style={[styles.listSectionHeader, commonStyles.h2, commonStyles.bold]}>{section.title}</Text>}
           keyExtractor={(item, index) => index}
-        />
+        /> */}
       </View></PageLayout>
     );
   }

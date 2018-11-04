@@ -1,11 +1,14 @@
 import * as React from 'react';
-import { StyleSheet, View, Text } from 'react-native';
+import { StyleSheet, View, Text, Button } from 'react-native';
 import { PageLayout } from '../../components/page';
 import { commonStyles } from '../../components/styles';
 import  ProgressCircle from 'react-native-progress-circle';
 
-interface AutomaticProps {
+//temp maybe
+import { Library } from '../../pages/library/library';
 
+interface AutomaticProps {
+    navigation: any;
 }
 
 interface AutomaticState {
@@ -22,17 +25,6 @@ export class Automatic extends React.Component <AutomaticProps, AutomaticState> 
         return(
             <PageLayout scroll padding>
             <View style={{flex:1, alignItems: "center"}}> 
-                <ProgressCircle
-                    color="#c964ff"
-                    bgColor="#fff"
-                    percent={95}
-                    radius={80}
-                    
-                    borderWidth={10}
-                    outerCircleStyle={{backgroundColor: "#fff"}}
-                >
-                    <Text style={[commonStyles.h1, commonStyles.bold]}>95</Text>
-                </ProgressCircle>
             </View>
             </PageLayout>
         );
