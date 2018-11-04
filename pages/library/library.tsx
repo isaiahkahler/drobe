@@ -41,6 +41,7 @@ interface LibraryState {
   selectionMode: boolean;
   greyMode: boolean;
   drawerOpen: boolean;
+  return: Function;
   // showModal: boolean;
   // modalFadeInAnimation: Animated.Value;
   selections: Array<{ type: "hide" | "order", name: string, value: any }>;
@@ -56,6 +57,7 @@ export class Library extends React.Component<LibraryProps, LibraryState> {
       pagesShown: 1,
       selectionMode: false,
       greyMode: false,
+      return: null,
       drawerOpen: false,
       // showModal: false,
       // modalFadeInAnimation: new Animated.Value(0),
@@ -72,22 +74,16 @@ export class Library extends React.Component<LibraryProps, LibraryState> {
     this.loadLibrary()
     const navigation = this.props.navigation;
     if(navigation.state.params.hasOwnProperty('selectionMode')){
-      this.setState({ selectionMode: navigation.state.params.selectionMode })
-      console.log('has selection mode')
-    } else {
-      console.log('does not have selection mode')
+      this.setState({ selectionMode: navigation.state.params.selectionMode });
     }
     if(navigation.state.params.hasOwnProperty('presetSelections')){
-      this.setState({selections: navigation.state.params.presetSelections})
-      console.log('has selections')
-    } else {
-      console.log('does not have selections')
+      this.setState({selections: navigation.state.params.presetSelections});
+    }
+    if(navigation.state.params.hasOwnProperty('greyMode')){
+      this.setState({greyMode: navigation.state.params.greyMode});
     }
     if(navigation.state.params.hasOwnProperty('return')){
-      navigation.state.params.return();
-      console.log('has return')
-    } else {
-      console.log('does not have return')
+      this.setState({return: navigation.state.params.return})
     }
   }
 
@@ -200,32 +196,37 @@ export class Library extends React.Component<LibraryProps, LibraryState> {
   }
 
   getTiles() {
-    //map data to tiles
-    if (!this.state.pages) {
-      console.log("i think this never runs")
-      return undefined;
-    }
     return this.state.pages.slice(0, this.state.pagesShown).map((page, pageIndex) => {
       return (
         <View key={pageIndex} style={styles.container}>
           {page.items.map((item, itemIndex) => {
             return (
-              <Tile
-                key={itemIndex}
-                uri={item.photoURI}
-                name={item.name}
-                pageIndex={pageIndex}
-                itemIndex={itemIndex}
-                openItemScreen={(pageIndex, itemIndex) => {
-                  this.props.navigation.navigate('ItemView', {
-                    title: this.state.pages[pageIndex].items[itemIndex].name,
-                    pageIndex: pageIndex,
-                    itemIndex: itemIndex,
-                    item: this.state.pages[pageIndex].items[itemIndex]
-                  });
-                }}
-              >
-              </Tile>
+              <View style={{
+                marginHorizontal: '5%',
+                marginTop: '5%'
+              }} key={itemIndex}>
+                <TouchableHighlight
+                  underlayColor="rgba(0,0,0,0)"
+                  onPress={() => {
+                        this.props.navigation.navigate('ItemView', {
+                          title: this.state.pages[pageIndex].items[itemIndex].name,
+                          pageIndex: pageIndex,
+                          itemIndex: itemIndex,
+                          item: this.state.pages[pageIndex].items[itemIndex]
+                        });
+                      }}
+                >
+                  <React.Fragment>
+                    <Image
+                      source={{ uri: item.photoURI }}
+                      style={styles.tileImage as any}
+                    />
+                  </React.Fragment>
+                </TouchableHighlight>
+                <Text style={[commonStyles.pb, commonStyles.centerText, { width: width * 0.4, }]}>
+                  {item.name}
+                </Text>
+              </View>
             );
           })}
         </View>
@@ -302,49 +303,6 @@ export class Library extends React.Component<LibraryProps, LibraryState> {
     );
   }
 }
-
-function Tile(props: {
-  children?: any;
-  uri: string;
-  name: string;
-  pageIndex: number;
-  itemIndex: number;
-  // openModal: Function;
-  openItemScreen: Function;
-}) {
-  // return <View style={styles.tile}>{props.children}</View>;
-  return (
-    <View style={{
-      marginHorizontal: '5%',
-      marginTop: '5%'
-    }}>
-      <TouchableHighlight
-        underlayColor="rgba(0,0,0,0)"
-        // onPress={() => {
-        // props.openModal(props.pageIndex, props.itemIndex);
-        // }}
-        onPress={() => props.openItemScreen(props.pageIndex, props.itemIndex)}
-      // style={{
-      // margin: '5%',
-      // flexDirection: 'column',
-      // justifyContent: 'space-evenly',
-      // alignItems: 'center'
-      // }}
-      >
-        <React.Fragment>
-          <Image
-            source={{ uri: props.uri }}
-            style={styles.tileImage as any}
-          />
-        </React.Fragment>
-      </TouchableHighlight>
-      <Text style={[commonStyles.pb, commonStyles.centerText, { width: width * 0.4, }]}>
-        {props.name}
-      </Text>
-    </View>
-  );
-}
-
 
 
 export const LibraryStack = createStackNavigator(
