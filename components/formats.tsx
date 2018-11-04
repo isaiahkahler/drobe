@@ -62,7 +62,7 @@ export const ItemDefinitions:
       'yoga pants'
     ],
     // full: ['dress', 'jumpsuit', 'overalls', 'poncho', 'robe', 'romper', 'tall coat'],
-    full: ['dress', 'jumpsuit', 'overalls', 'robe', 'romper', 'tall coat'],
+    full: ['dress', 'jumpsuit', 'overalls', 'romper'],
     shoes: [
       'boots',
       'clogs',
@@ -122,9 +122,9 @@ export const ItemDefinitions:
       { type: 'jumpsuit', formality: 2, temperature: 2, cover: 2 },
       { type: 'overalls', formality: 2, temperature: 3, cover: 3 },
       // { type: 'poncho', formality: 2, temperature: 3, cover: 3 },
-      { type: 'robe', formality: 1, temperature: 2, cover: 3 },
+      // { type: 'robe', formality: 1, temperature: 2, cover: 3 },
       { type: 'romper', formality: 2, temperature: 1, cover: 2 },
-      { type: 'tall coat', formality: 3, temperature: 4, cover: 1 },
+      // { type: 'tall coat', formality: 3, temperature: 4, cover: 1 },
       //shoes
       { type: 'boots', formality: 3, temperature: 3, cover: 1 },
       { type: 'clogs', formality: 1, temperature: 2, cover: 1 },
@@ -194,7 +194,7 @@ export interface Bottom {
 }
 export interface Full {
   // type: 'dress' | 'jumpsuit' | 'overalls' | 'poncho' | 'robe' | 'romper' | 'tall coat';
-  type: 'dress' | 'jumpsuit' | 'overalls' | 'robe' | 'romper' | 'tall coat';
+  type: 'dress' | 'jumpsuit' | 'overalls' | 'romper';
 }
 export interface Shoes {
   type:
