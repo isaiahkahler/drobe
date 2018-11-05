@@ -4,7 +4,7 @@ import { colorDistance } from './helpers';
 import { string } from 'prop-types';
 
 export class ItemManager {
-    //hey!!! review: should these be async??? they have await in them? right?
+  //hey!!! review: should these be async??? they have await in them? right?
   static async getNumberOfPages() {
     let number: number = await Storage._retrieveData('pages');
     if (!number) {
@@ -133,10 +133,10 @@ export class ItemManager {
   }
 
   //review: efficiency? 
-  static async search(term: string, data: Page[], callback: (pages) => void){
+  static async search(term: string, data: Page[], callback: (pages) => void) {
     let unfilteredTerms: Item[] = [];
-    for(let page of data) {
-      for(let item of page.items){
+    for (let page of data) {
+      for (let item of page.items) {
         unfilteredTerms.push(item);
       }
     }
@@ -148,7 +148,7 @@ export class ItemManager {
     // } 
     let newPages = this.itemListToPages(filteredTerms);
     callback(newPages);
-    
+
   }
 
   // static outfitRequirements(items: Item[]){ //needs to take COVER into consideration
@@ -178,26 +178,39 @@ export class ItemManager {
   //   return required;
   // }
 
-  static getOutfitRequirements(items: Item[]){
-    let requirements: string[] = [];
-    for(let item of items){
-      if(ItemDefinitions.getCover(item.type) === 3){ //item must be worn with 2
-        if(items.findIndex(e => (e.class === item.class && ItemDefinitions.getCover(e.type) === 2)) !== -1){ 
-          //all good
-        }
-      }
-    }
+  // static getOutfitRequirements(items: Item[]){
+  // not exactly logically sound! outfits can either be TOP + BOTTOM + SHOES or TOP + FULL3 + SHOES or FULL1/2 + SHOES
+  // }
+
+  static isValidOutfit(items: Item[]) {
+    let isTopBottomShoes =
+      (items.findIndex(e => e.class === 'top') !== -1) &&
+      (items.findIndex(e => e.class === 'bottom') !== -1) &&
+      (items.findIndex(e => e.class === 'shoes') !== -1);
+    let isTopFull3Shoes =
+      (items.findIndex(e => e.class === 'top') !== -1) &&
+      (items.findIndex(e => e.class === 'full' && ItemDefinitions.getCover(e.type) === 3) !== -1) &&
+      (items.findIndex(e => e.class === 'shoes') !== -1);
+    let isFull21Shoes =
+      (items.findIndex(e => e.class === 'full' &&
+        (ItemDefinitions.getCover(e.type) === 2 || ItemDefinitions.getCover(e.type) === 2)
+      ) !== -1) &&
+      (items.findIndex(e => e.class === 'shoes') !== -1);
+    return isTopBottomShoes || isTopFull3Shoes || isFull21Shoes;
   }
 
 
-  static getDisallowedTypes(items: Item[]){
-    let disallowed: string[] = [];
-    for(let item of items){
-      if(ItemDefinitions.getCover(item.type) === 1){
-        disallowed.push(item.class);
+  static getDisallowedItems(items: Item[]) {
+    let disallowed: Array<{ class?: string, type?: string, cover?: number }> = [];
+    for (let item of items) {
+      if (ItemDefinitions.getCover(item.type) === 1) {
+        disallowed.push({ class: item.class });
       }
-      if(ItemDefinitions.getCover(item.type) === 3){ //if must be worn alone, it should be ONLY one worn alone
-        disallowed.push("top3")
+      if (item.class === "full") {
+        disallowed.push({ class: "bottom" })
+      }
+      if (item.class === 'accessory') {
+        disallowed.push({ type: item.type })
       }
     }
     return disallowed;

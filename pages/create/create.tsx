@@ -7,7 +7,7 @@ import { Icon } from '../../components/icon';
 import { Manual } from './manual';
 import { Automatic } from './automatic';
 import { Library } from '../../pages/library/library';
-
+import { ItemView } from '../../pages/library/itemView';
 
 interface CreateProps {
   navigation: any;
@@ -77,7 +77,12 @@ export const CreateStack = createStackNavigator(
     Automatic: {
       screen: Automatic
     },
-    LibrarySelector: Library
+    LibrarySelector: {
+      screen: Library
+    },
+    CreateItemView: {
+      screen: ItemView
+    },
   },
   { initialRouteName: 'Create' }
 );
