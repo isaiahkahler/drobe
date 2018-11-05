@@ -4,8 +4,6 @@ import { PageLayout } from '../../components/page';
 import { commonStyles } from '../../components/styles';
 import  ProgressCircle from 'react-native-progress-circle';
 
-//temp maybe
-import { Library } from '../../pages/library/library';
 
 interface AutomaticProps {
     navigation: any;

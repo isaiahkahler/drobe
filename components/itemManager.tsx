@@ -151,27 +151,56 @@ export class ItemManager {
     
   }
 
-  static outfitRequirements(items: Item[]){ //needs to take COVER into consideration
-    let itemType:string[] = [];
-    let required:string[] = [];
+  // static outfitRequirements(items: Item[]){ //needs to take COVER into consideration
+  //   let itemType:string[] = [];
+  //   let required:string[] = [];
+  //   for(let item of items){
+  //     if(item.class === 'full'){
+  //       if(ItemDefinitions.getCover(item.type) === 3){ //if full body needs top, it can be called a bottom
+  //         itemType.push('bottom')
+  //       }
+  //     } else {
+  //       if(ItemDefinitions.getCover(item.type) === 3){ //item needs to be worn with item of same type
+
+  //       }
+  //       itemType.push(item.class);
+  //     }
+  //   }
+  //   if(itemType.indexOf('top') === -1 ){
+  //     required.push('top')
+  //   }
+  //   if(itemType.indexOf('bottom') === -1 ){
+  //     required.push('bottom');
+  //   }
+  //   if(itemType.indexOf('shoes') === -1 ){
+  //     required.push('shoes');
+  //   }
+  //   return required;
+  // }
+
+  static getOutfitRequirements(items: Item[]){
+    let requirements: string[] = [];
     for(let item of items){
-      if(item.class === 'full'){
-        if(ItemDefinitions.getCover(item.type) === 3){ //if full body needs top, it can be called a bottom
-          itemType.push('bottom')
+      if(ItemDefinitions.getCover(item.type) === 3){ //item must be worn with 2
+        if(items.findIndex(e => (e.class === item.class && ItemDefinitions.getCover(e.type) === 2)) !== -1){ 
+          //all good
         }
-      } else {
-        itemType.push(item.class);
       }
     }
-    if(itemType.indexOf('top') === -1 ){
-      required.push('top')
+  }
+
+
+  static getDisallowedTypes(items: Item[]){
+    let disallowed: string[] = [];
+    for(let item of items){
+      if(ItemDefinitions.getCover(item.type) === 1){
+        disallowed.push(item.class);
+      }
+      if(ItemDefinitions.getCover(item.type) === 3){ //if must be worn alone, it should be ONLY one worn alone
+        disallowed.push("top3")
+      }
     }
-    if(itemType.indexOf('bottom') === -1 ){
-      required.push('bottom');
-    }
-    if(itemType.indexOf('shoes') === -1 ){
-      required.push('shoes');
-    }
+    return disallowed;
   }
 
 

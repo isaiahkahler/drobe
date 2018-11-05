@@ -224,6 +224,8 @@ export interface Accessory {
   | 'tie';
 }
 
-
-
-  
+export interface SortFilter {
+  type: "hide" | "show" | "order",
+  name: "date" | "type" | "color" | "formality" | "temperature",
+  value: string
+}

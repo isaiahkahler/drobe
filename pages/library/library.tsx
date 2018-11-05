@@ -38,13 +38,14 @@ interface LibraryState {
   library: Array<Page>;
   pages: Array<Page>;
   pagesShown: number;
-  selectionMode: boolean;
+  selectionMode: "one" | "many" | "none";
   greyMode: boolean;
+  greyItems: Item[];
   drawerOpen: boolean;
   return: Function;
   // showModal: boolean;
   // modalFadeInAnimation: Animated.Value;
-  selections: Array<{ type: "hide" | "order", name: string, value: any }>;
+  sortFilters: Array<{ type: "hide" | "order", name: string, value: any }>;
   searchValue: string;
 }
 
@@ -55,13 +56,14 @@ export class Library extends React.Component<LibraryProps, LibraryState> {
       library: [],
       pages: [],
       pagesShown: 1,
-      selectionMode: false,
+      selectionMode: "none",
       greyMode: false,
+      greyItems: [],
       return: null,
       drawerOpen: false,
       // showModal: false,
       // modalFadeInAnimation: new Animated.Value(0),
-      selections: [],
+      sortFilters: [],
       searchValue: ''
     };
   }
@@ -76,8 +78,8 @@ export class Library extends React.Component<LibraryProps, LibraryState> {
     if(navigation.state.params.hasOwnProperty('selectionMode')){
       this.setState({ selectionMode: navigation.state.params.selectionMode });
     }
-    if(navigation.state.params.hasOwnProperty('presetSelections')){
-      this.setState({selections: navigation.state.params.presetSelections});
+    if(navigation.state.params.hasOwnProperty('filters')){
+      this.setState({greyItems: navigation.state.params.filters});
     }
     if(navigation.state.params.hasOwnProperty('greyMode')){
       this.setState({greyMode: navigation.state.params.greyMode});
@@ -142,19 +144,20 @@ export class Library extends React.Component<LibraryProps, LibraryState> {
     }
   }
 
-  sortBySelections = async () => {
-    this.setPages(await ItemManager.sortBy(this.state.selections));
+  sortByFilters = async () => {
+    this.setPages(await ItemManager.sortBy(this.state.sortFilters));
   }
 
   setPages = (pages: Page[]) => {
     this.setState({ pages: pages, pagesShown: 1 })
   }
 
+  //review: rename to sort filters instead of select
   onSelect = async (type: "hide" | "order", name: string, value: number) => {
     this.hideSidebar();
     // console.log(type, name, value)
 
-    let selectionIndex = this.state.selections.findIndex((selection) => {
+    let selectionIndex = this.state.sortFilters.findIndex((selection) => {
       return selection.name === name;
     });
 
@@ -162,16 +165,16 @@ export class Library extends React.Component<LibraryProps, LibraryState> {
     if (selectionIndex === -1) { //if selection does not exist
       await this.setState(previousState => ({
         ...previousState,
-        selections: [...previousState.selections, { type: type, name: name, value: value }]
+        sortFilters: [...previousState.sortFilters, { type: type, name: name, value: value }]
       }), () => {
-        this.sortBySelections()
+        this.sortByFilters()
       });
     } else {
       await this.setState(previousState => ({
         ...previousState,
-        selections: [...previousState.selections.slice(0, selectionIndex), { type: type, name: name, value: value }, ...previousState.selections.slice(selectionIndex + 1, previousState.selections.length)]
+        sortFilters: [...previousState.sortFilters.slice(0, selectionIndex), { type: type, name: name, value: value }, ...previousState.sortFilters.slice(selectionIndex + 1, previousState.sortFilters.length)]
       }), () => {
-        this.sortBySelections();
+        this.sortByFilters();
       })
     }
 
@@ -185,14 +188,14 @@ export class Library extends React.Component<LibraryProps, LibraryState> {
   removePill = (index) => {
     this.setState(previousState => ({
       ...previousState,
-      selections: [...previousState.selections.slice(0, index), ...previousState.selections.slice(index + 1, previousState.selections.length)]
+      sortFilters: [...previousState.sortFilters.slice(0, index), ...previousState.sortFilters.slice(index + 1, previousState.sortFilters.length)]
     }), () => {
-      this.sortBySelections();
+      this.sortByFilters();
     })
   }
 
   removeAllPills = () => {
-    this.setState({ selections: [] });
+    this.setState({ sortFilters: [] });
   }
 
   getTiles() {
@@ -208,12 +211,17 @@ export class Library extends React.Component<LibraryProps, LibraryState> {
                 <TouchableHighlight
                   underlayColor="rgba(0,0,0,0)"
                   onPress={() => {
-                        this.props.navigation.navigate('ItemView', {
-                          title: this.state.pages[pageIndex].items[itemIndex].name,
-                          pageIndex: pageIndex,
-                          itemIndex: itemIndex,
-                          item: this.state.pages[pageIndex].items[itemIndex]
-                        });
+                    if(this.state.selectionMode === "one"){
+                      this.state.return(this.state.pages[pageIndex].items[itemIndex]);
+                    } else if(this.state.selectionMode === "many") {
+                    } else {
+                      this.props.navigation.navigate('ItemView', {
+                        title: this.state.pages[pageIndex].items[itemIndex].name,
+                        pageIndex: pageIndex,
+                        itemIndex: itemIndex,
+                        item: this.state.pages[pageIndex].items[itemIndex]
+                      });
+                    }
                       }}
                 >
                   <React.Fragment>
@@ -285,7 +293,7 @@ export class Library extends React.Component<LibraryProps, LibraryState> {
                   <Text style={commonStyles.pb}>hi</Text>
 
                 </View> */}
-                {this.state.selections.map((item, index) => {
+                {this.state.sortFilters.map((item, index) => {
                   return (<TouchableHighlight style={styles.pill} key={index} onPress={() => this.removePill(index)}>
                     <Text style={commonStyles.pb}>{item.value}</Text>
                   </TouchableHighlight>);
