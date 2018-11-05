@@ -40,7 +40,7 @@ interface LibraryState {
   pagesShown: number;
   selectionMode: "one" | "many" | "none";
   greyMode: boolean;
-  greyItems: Item[];
+  greyItems: Array<{ class?: string, type?: string, cover?: number }>;
   drawerOpen: boolean;
   return: Function;
   // showModal: boolean;
@@ -75,17 +75,17 @@ export class Library extends React.Component<LibraryProps, LibraryState> {
   componentDidMount() {
     this.loadLibrary()
     const navigation = this.props.navigation;
-    if(navigation.state.params.hasOwnProperty('selectionMode')){
+    if (navigation.state.params.hasOwnProperty('selectionMode')) {
       this.setState({ selectionMode: navigation.state.params.selectionMode });
     }
-    if(navigation.state.params.hasOwnProperty('filters')){
-      this.setState({greyItems: navigation.state.params.filters});
+    if (navigation.state.params.hasOwnProperty('filters')) {
+      this.setState({ greyItems: navigation.state.params.filters });
     }
-    if(navigation.state.params.hasOwnProperty('greyMode')){
-      this.setState({greyMode: navigation.state.params.greyMode});
+    if (navigation.state.params.hasOwnProperty('greyMode')) {
+      this.setState({ greyMode: navigation.state.params.greyMode });
     }
-    if(navigation.state.params.hasOwnProperty('return')){
-      this.setState({return: navigation.state.params.return})
+    if (navigation.state.params.hasOwnProperty('return')) {
+      this.setState({ return: navigation.state.params.return })
     }
   }
 
@@ -211,9 +211,9 @@ export class Library extends React.Component<LibraryProps, LibraryState> {
                 <TouchableHighlight
                   underlayColor="rgba(0,0,0,0)"
                   onPress={() => {
-                    if(this.state.selectionMode === "one"){
+                    if (this.state.selectionMode === "one") {
                       this.state.return(this.state.pages[pageIndex].items[itemIndex]);
-                    } else if(this.state.selectionMode === "many") {
+                    } else if (this.state.selectionMode === "many") {
                     } else {
                       this.props.navigation.navigate('ItemView', {
                         title: this.state.pages[pageIndex].items[itemIndex].name,
@@ -222,12 +222,30 @@ export class Library extends React.Component<LibraryProps, LibraryState> {
                         item: this.state.pages[pageIndex].items[itemIndex]
                       });
                     }
-                      }}
+                  }}
                 >
-                    <Image
-                      source={{ uri: item.photoURI }}
-                      style={styles.tileImage as any}
-                    />
+                  <View>
+
+
+
+
+                    { this.state.greyMode && 
+                      (this.state.greyItems.findIndex(e => e.class === item.class) !== -1 ||
+                      this.state.greyItems.findIndex(e => e.type === item.type) !== -1
+                      ) ? (
+
+                    <React.Fragment>
+                      <Image source={{ uri: item.photoURI }} style={[styles.tileImage as any, { tintColor: 'gray' }]} />
+                      <Image source={{ uri: item.photoURI }} style={[styles.tileImage as any, { position: 'absolute', opacity: 0.3 }]} />
+                    </React.Fragment>
+                      ) : (
+                        <Image
+                        source={{ uri: item.photoURI }}
+                        style={[styles.tileImage as any]}
+                      /> 
+                      )
+                    }
+                  </View>
                 </TouchableHighlight>
                 <Text style={[commonStyles.pb, commonStyles.centerText, { width: width * 0.4, }]}>
                   {item.name}
@@ -287,10 +305,6 @@ export class Library extends React.Component<LibraryProps, LibraryState> {
                 </TouchableHighlight>
               </View>
               <View style={styles.pillContainer}>
-                {/* <View style={styles.pill}>
-                  <Text style={commonStyles.pb}>hi</Text>
-
-                </View> */}
                 {this.state.sortFilters.map((item, index) => {
                   return (<TouchableHighlight style={styles.pill} key={index} onPress={() => this.removePill(index)}>
                     <Text style={commonStyles.pb}>{item.value}</Text>
@@ -300,7 +314,6 @@ export class Library extends React.Component<LibraryProps, LibraryState> {
             </View>
           </View>
 
-          {/* <View style={styles.sidebar}> */}
           <View>
             <SortSidebar onSelect={(type, name, value) => this.onSelect(type, name, value)} />
           </View>
@@ -352,6 +365,13 @@ const styles = StyleSheet.create({
     borderRadius: 25,
     borderWidth: 2,
     borderColor: '#000'
+  },
+  greyOverlay: {
+    position: "absolute",
+    width: "100%",
+    height: '100%',
+    backgroundColor: "rgba(0,0,0,0.5)",
+    borderRadius: 25
   },
   button: {
     width: '50%'

@@ -209,6 +209,9 @@ export class ItemManager {
       if (item.class === "full") {
         disallowed.push({ class: "bottom" })
       }
+      if(item.class === "bottom"){
+        disallowed.push({class: "full"})
+      }
       if (item.class === 'accessory') {
         disallowed.push({ type: item.type })
       }

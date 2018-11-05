@@ -51,8 +51,9 @@ export class ItemView extends React.Component<ItemViewProps, ItemViewState> {
   };
 
   //review: make setting define a method in format? probably a good idea.
+  //review: dont use asnyc store! use navigation props you butt
   editItem = () => {
-    if(!!this.state.itemIndex && !!this.state.pageIndex){
+    if(this.state.itemIndex !== null && this.state.pageIndex !== null){
       Storage.storeDefineProps(true, this.state.pageIndex, this.state.itemIndex, this.state.item.photoURI, () => {
         this.props.navigation.navigate('Edit');
       });

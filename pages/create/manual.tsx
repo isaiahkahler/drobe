@@ -35,8 +35,8 @@ export class Manual extends React.Component<ManualProps, ManualState> {
       outfit: [...previousState.outfit, item],
       disallowedTypes: ItemManager.getDisallowedItems([...previousState.outfit, item])
     }), () => {
-      console.log(this.state.disallowedTypes)
-      console.log("is valid", ItemManager.isValidOutfit(this.state.outfit))
+      // console.log(this.state.disallowedTypes)
+      // console.log("is valid", ItemManager.isValidOutfit(this.state.outfit))
     })
   }
 
