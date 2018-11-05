@@ -151,14 +151,14 @@ export const ItemDefinitions:
       { type: 'tie', formality: -1, temperature: -1, cover: -1 },
     ],
     getFormality: function(type) {
-      return this.items[this.items.findIndex((e) => e.type === type)].formality;
+      return this.items.find((e) => e.type === type).formality;
     },
     getTemperature: function(type) {
-      return this.items[this.items.findIndex((e) => e.type === type)].temperature;
+      return this.items.find((e) => e.type === type).temperature;
 
     },
     getCover: function(type) {
-      return this.items[this.items.findIndex((e) => e.type === type)].cover;
+      return this.items.find((e) => e.type === type).cover;
 
     },
 };

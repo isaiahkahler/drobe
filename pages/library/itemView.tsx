@@ -40,7 +40,9 @@ export class ItemView extends React.Component<ItemViewProps, ItemViewState> {
 
   componentDidMount = async () => {
     const navigation = this.props.navigation;
-    this.setState({pageIndex: navigation.state.params.pageIndex, itemIndex: navigation.state.params.itemIndex});
+    if(navigation.state.params.hasOwnProperty('pageIndex') && navigation.state.params.hasOwnProperty('itemIndex')){
+      this.setState({pageIndex: navigation.state.params.pageIndex, itemIndex: navigation.state.params.itemIndex});
+    }
     // let item = await Storage.getItem(navigation.state.params.page, navigation.state.params.item);
     // this.setState({ item: item });
     this.setState({ item: navigation.state.params.item });
@@ -50,9 +52,11 @@ export class ItemView extends React.Component<ItemViewProps, ItemViewState> {
 
   //review: make setting define a method in format? probably a good idea.
   editItem = () => {
-    Storage.storeDefineProps(true, this.state.pageIndex, this.state.itemIndex, this.state.item.photoURI, () => {
-      this.props.navigation.navigate('Edit');
-    });
+    if(!!this.state.itemIndex && !!this.state.pageIndex){
+      Storage.storeDefineProps(true, this.state.pageIndex, this.state.itemIndex, this.state.item.photoURI, () => {
+        this.props.navigation.navigate('Edit');
+      });
+    }
   }
 
   render() {

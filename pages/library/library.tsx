@@ -224,12 +224,10 @@ export class Library extends React.Component<LibraryProps, LibraryState> {
                     }
                       }}
                 >
-                  <React.Fragment>
                     <Image
                       source={{ uri: item.photoURI }}
                       style={styles.tileImage as any}
                     />
-                  </React.Fragment>
                 </TouchableHighlight>
                 <Text style={[commonStyles.pb, commonStyles.centerText, { width: width * 0.4, }]}>
                   {item.name}

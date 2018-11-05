@@ -37,6 +37,12 @@ export const commonStyles = StyleSheet.create({
   },
   rightText: {
     textAlign: "right"
-  }
+  },
+  button: {
+    borderWidth: 2,
+    borderColor: '#000',
+    borderRadius: 10,
+    padding: 5
+  },
 });
 

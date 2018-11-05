@@ -553,6 +553,7 @@ const styles = StyleSheet.create({
     width: '100%',
     marginVertical: width * 0.025
   },
+  //review: move this to common styles?
   button: {
     borderWidth: 2,
     borderColor: '#000',
