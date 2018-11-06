@@ -15,7 +15,7 @@ interface ManualProps {
 
 interface ManualState {
   outfit: Item[];
-  disallowedTypes: Array<{class?: string, type?: string, cover?: number}>;
+  disallowedTypes: Array<{ class?: string, type?: string, cover?: number, date?: number }>;
 }
 
 export class Manual extends React.Component<ManualProps, ManualState> {
@@ -23,6 +23,8 @@ export class Manual extends React.Component<ManualProps, ManualState> {
     super(props);
     this.state = { outfit: [], disallowedTypes: [] }
   }
+
+  _modal = React.createRef<PageLayout>();
 
   static navigationOptions = {
     title: 'Create Manually'
@@ -42,22 +44,23 @@ export class Manual extends React.Component<ManualProps, ManualState> {
 
   render() {
     return (
-      <PageLayout scroll padding>
+      <PageLayout scroll padding modal={<Text style={commonStyles.pb}>hi</Text>} ref={this._modal}>
         <View style={{ flex: 1, alignItems: "center" }}>
 
           <TouchableHighlight
             onPress={() => {
-              this.props.navigation.navigate("LibrarySelector",
-                {
-                  selectionMode: "one",
-                  filters: this.state.disallowedTypes,
-                  greyMode: true,
-                  return: (item) => {
-                    this.props.navigation.navigate('Manual');
-                    this.addItem(item);
+              // this.props.navigation.navigate("LibrarySelector",
+              //   {
+              //     selectionMode: "one",
+              //     filters: this.state.disallowedTypes,
+              //     greyMode: true,
+              //     return: (item) => {
+              //       this.props.navigation.navigate('Manual');
+              //       this.addItem(item);
 
-                  }
-                })
+              //     }
+              //   })
+              this._modal.current.openModal();
             }}
             style={commonStyles.button}
           >
@@ -67,7 +70,7 @@ export class Manual extends React.Component<ManualProps, ManualState> {
             {this.state.outfit.map((item, index) => {
               return (
                 <View style={styles.itemContainer} key={index}>
-                  <TouchableHighlight onPress={() => this.props.navigation.navigate('CreateItemView', {item: item})}><Image
+                  <TouchableHighlight onPress={() => this.props.navigation.navigate('CreateItemView', { item: item })}><Image
                     source={{ uri: item.photoURI }}
                     style={styles.tileImage as any}
                   /></TouchableHighlight>]
