@@ -24,8 +24,6 @@ export class Manual extends React.Component<ManualProps, ManualState> {
     this.state = { outfit: [], disallowedTypes: [] }
   }
 
-  _modal = React.createRef<PageLayout>();
-
   static navigationOptions = {
     title: 'Create Manually'
   };
@@ -44,23 +42,22 @@ export class Manual extends React.Component<ManualProps, ManualState> {
 
   render() {
     return (
-      <PageLayout scroll padding modal={<Text style={commonStyles.pb}>hi</Text>} ref={this._modal}>
+      <PageLayout scroll padding>
         <View style={{ flex: 1, alignItems: "center" }}>
 
           <TouchableHighlight
             onPress={() => {
-              // this.props.navigation.navigate("LibrarySelector",
-              //   {
-              //     selectionMode: "one",
-              //     filters: this.state.disallowedTypes,
-              //     greyMode: true,
-              //     return: (item) => {
-              //       this.props.navigation.navigate('Manual');
-              //       this.addItem(item);
+              this.props.navigation.navigate("LibrarySelector",
+                {
+                  selectionMode: "one",
+                  filters: this.state.disallowedTypes,
+                  greyMode: true,
+                  return: (item) => {
+                    this.props.navigation.navigate('Manual');
+                    this.addItem(item);
 
-              //     }
-              //   })
-              this._modal.current.openModal();
+                  }
+                })
             }}
             style={commonStyles.button}
           >
