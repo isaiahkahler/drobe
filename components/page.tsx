@@ -45,7 +45,7 @@ export class PageLayout extends React.Component<PageProps, PageState>{
     Animated.spring(this.state.modalSlideUpAnimation, {
       toValue: -50
     }).start(() => {
-      this.setState({showModal: false})
+      this.setState({ showModal: false })
     });
   }
 
@@ -65,7 +65,12 @@ export class PageLayout extends React.Component<PageProps, PageState>{
       <Animated.View style={[styles.modalAnimatedView, { opacity: this.state.modalFadeInAnimation }]}>
         <TouchableHighlight style={styles.modalContainer} onPress={this.closeModal} underlayColor='rgba(0,0,0,0)'>
           <Animated.View style={[styles.modal, { bottom: this.state.modalSlideUpAnimation }]}>
-            {this.props.modal}
+            <TouchableHighlight>
+              <View>
+                {this.props.modal}
+                <TouchableHighlight style={commonStyles.button} onPress={this.closeModal} underlayColor='rgba(0,0,0,0.1)'><Text style={[commonStyles.pb, commonStyles.centerText]}>close</Text></TouchableHighlight>
+              </View>
+            </TouchableHighlight>
           </Animated.View>
         </TouchableHighlight>
       </Animated.View>;
@@ -103,9 +108,11 @@ export const styles = StyleSheet.create({
     width: width,
     height: height,
     flex: 1,
-    zIndex: 5
+    zIndex: 5,
+    backgroundColor: 'rgba(0,0,0,0.1)'
   },
   modalContainer: {
+    position: 'absolute',
     flex: 1,
     width: '100%',
     height: '100%',
@@ -114,10 +121,11 @@ export const styles = StyleSheet.create({
     padding: '10%'
   },
   modal: {
+    // position: "absolute",
     width: '100%',
     borderWidth: 2,
     borderRadius: 10,
-    backgroundColor: '#fff', //'rgba(255,255,255,0.75)',
-    padding: '5%'
-  },
+    backgroundColor: '#fff',
+    padding: width * 0.05,
+  }
 })
