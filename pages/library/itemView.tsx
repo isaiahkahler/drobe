@@ -3,11 +3,11 @@ import { StyleSheet, View, Text, Image, Dimensions, TouchableHighlight } from 'r
 import { PageLayout } from '../../components/page';
 import { commonStyles } from '../../components/styles';
 import { Item, Page } from '../../components/formats';
-import { roundColor} from '../../components/helpers';
+import { roundColor } from '../../components/helpers';
 import { Storage } from '../../components/storage';
 import Color from 'color';
 import moment from 'moment';
-// import moment = require('moment');
+import { MaterialIcons } from '@expo/vector-icons';
 
 const width = Dimensions.get('screen').width;
 const height = Dimensions.get('screen').height;
@@ -31,8 +31,10 @@ export class ItemView extends React.Component<ItemViewProps, ItemViewState> {
     return {
       title: navigation.getParam('title', 'Item'),
       headerRight: (
-        <TouchableHighlight onPress={navigation.getParam('edit', () => {})}>
-          <Text>Edit</Text>
+        //review: is the second param the default value?
+        navigation.getParam('editMode', undefined) && <TouchableHighlight onPress={navigation.getParam('edit', () => { })}>
+          {/* <Text>Edit</Text> */}
+          <MaterialIcons name="edit" size={30} style={{marginRight: width * 0.05}}/>
         </TouchableHighlight>
       )
     };
@@ -40,20 +42,19 @@ export class ItemView extends React.Component<ItemViewProps, ItemViewState> {
 
   componentDidMount = async () => {
     const navigation = this.props.navigation;
-    if(navigation.state.params.hasOwnProperty('pageIndex') && navigation.state.params.hasOwnProperty('itemIndex')){
-      this.setState({pageIndex: navigation.state.params.pageIndex, itemIndex: navigation.state.params.itemIndex});
+    if (navigation.state.params.hasOwnProperty('pageIndex') && navigation.state.params.hasOwnProperty('itemIndex')) {
+      this.setState({ pageIndex: navigation.state.params.pageIndex, itemIndex: navigation.state.params.itemIndex });
     }
-    // let item = await Storage.getItem(navigation.state.params.page, navigation.state.params.item);
-    // this.setState({ item: item });
+    //review: is this ok? should if (editMode) ?
+    this.setState({editMode: navigation.state.params.hasOwnProperty('editMode')})
     this.setState({ item: navigation.state.params.item });
-    // console.log("navigation item", navigation.state.params.item)
-    navigation.setParams({edit: this.editItem})
+    navigation.setParams({ edit: this.editItem })
   };
 
   //review: make setting define a method in format? probably a good idea.
   //review: dont use asnyc store! use navigation props you butt
   editItem = () => {
-    if(this.state.itemIndex !== null && this.state.pageIndex !== null){
+    if (this.state.itemIndex !== null && this.state.pageIndex !== null) {
       Storage.storeDefineProps(true, this.state.pageIndex, this.state.itemIndex, this.state.item.photoURI, () => {
         this.props.navigation.navigate('Edit');
       });
@@ -85,6 +86,16 @@ export class ItemView extends React.Component<ItemViewProps, ItemViewState> {
             value={this.state.item.laundry}
           />
           {/* <ShowValue name="date added:" type="date" value={moment(this.state.item.date).calendar()} /> */}
+          {this.state.editMode && <TouchableHighlight onPress={
+            async () => {
+              await Storage.DeleteItem(this.state.pageIndex, this.state.itemIndex)
+              this.props.navigation.navigate("Library");
+            }}
+            style={[commonStyles.button, { backgroundColor: "#ff0000", marginTop: 5 }]}>
+            <Text style={[commonStyles.pb, commonStyles.centerText, { color: "#fff" }]}>
+              Delete Item
+            </Text>
+          </TouchableHighlight>}
         </PageLayout>
       );
     } else {

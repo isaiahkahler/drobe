@@ -93,18 +93,18 @@ export class Library extends React.Component<LibraryProps, LibraryState> {
   };
 
   //review: do you need to reload on every focus?
-  // willFocusSubscription = this.props.navigation.addListener(
-  //   'willFocus',
-  //   payload => {
-  //     console.debug('willFocus');
-  //     this.loadLibrary()
-  //   }
-  // );
+  willFocusSubscription = this.props.navigation.addListener(
+    'willFocus',
+    payload => {
+      // console.log('willFocus');
+      this.loadLibrary()
+    }
+  );
 
-  // componentWillUnmount = () => {
-  //     console.log("unmount library")
-  //     this.willFocusSubscription.remove();
-  // }
+  componentWillUnmount = () => {
+      // console.log("unmount library")
+      this.willFocusSubscription.remove();
+  }
 
   loadMore = () => {
     if (this.state.pages.length > this.state.pagesShown) {
@@ -256,7 +256,8 @@ export class Library extends React.Component<LibraryProps, LibraryState> {
                         title: this.state.pages[pageIndex].items[itemIndex].name,
                         pageIndex: pageIndex,
                         itemIndex: itemIndex,
-                        item: this.state.pages[pageIndex].items[itemIndex]
+                        item: this.state.pages[pageIndex].items[itemIndex],
+                        editMode: true
                       });
                     }
                   }}
