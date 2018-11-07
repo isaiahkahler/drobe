@@ -201,20 +201,20 @@ export class ItemManager {
 
 
   static getDisallowedItems(items: Item[]) {
-    let disallowed: Array<{ class?: string, type?: string, cover?: number, date?: number }> = [];
+    let disallowed: Array<{ class?: string, type?: string, cover?: number, date?: number, id?: number }> = [];
     for (let item of items) {
       disallowed.push({date: item.date})
       if (ItemDefinitions.getCover(item.type) === 1) {
-        disallowed.push({ class: item.class });
+        disallowed.push({ class: item.class, id: item.date });
       }
       if (item.class === "full") {
-        disallowed.push({ class: "bottom" })
+        disallowed.push({ class: "bottom", id: item.date })
       }
       if(item.class === "bottom"){
-        disallowed.push({class: "full"})
+        disallowed.push({class: "full", id: item.date })
       }
       if (item.class === 'accessory') {
-        disallowed.push({ type: item.type })
+        disallowed.push({ type: item.type, id: item.date })
       }
     }
     return disallowed;

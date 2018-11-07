@@ -5,6 +5,8 @@ import { commonStyles } from '../../components/styles';
 import { Item, ItemDefinitions, SortFilter } from '../../components/formats';
 import { ItemManager } from '../../components/itemManager';
 import { filter } from 'minimatch';
+import { NativeIcon } from '../../components/nativeIcons';
+import { MaterialIcons } from '@expo/vector-icons';
 
 const width = Dimensions.get('screen').width;
 const height = Dimensions.get('screen').height;
@@ -15,7 +17,7 @@ interface ManualProps {
 
 interface ManualState {
   outfit: Item[];
-  disallowedTypes: Array<{ class?: string, type?: string, cover?: number, date?: number }>;
+  disallowedTypes: Array<{ class?: string, type?: string, cover?: number, date?: number, id?: number }>;
 }
 
 export class Manual extends React.Component<ManualProps, ManualState> {
@@ -28,15 +30,51 @@ export class Manual extends React.Component<ManualProps, ManualState> {
     title: 'Create Manually'
   };
 
+  componentDidUpdate = () => {
+    console.log(ItemManager.isValidOutfit(this.state.outfit))
+  }
+
   addItem = (item: Item) => {
     //review: set state like this or use the callback?
     this.setState(previousState => ({
       ...previousState,
-      outfit: [...previousState.outfit, item],
-      disallowedTypes: ItemManager.getDisallowedItems([...previousState.outfit, item])
+      outfit: [...previousState.outfit, item]
     }), () => {
-      // console.log(this.state.disallowedTypes)
-      // console.log("is valid", ItemManager.isValidOutfit(this.state.outfit))
+      this.setState(previousState => ({
+        disallowedTypes: ItemManager.getDisallowedItems([...previousState.outfit])
+      }))
+    })
+  }
+
+  removeItem = (id: number) => {
+    this.setState(previousState => ({
+      ...previousState,
+      outfit: [...previousState.outfit.slice(0, previousState.outfit.findIndex(e => e.date === id)), ...previousState.outfit.slice(previousState.outfit.findIndex(e => e.date === id) + 1, previousState.outfit.length)]
+    }), () => {
+      //review: do you want it to return to manual after removing item? 
+      this.setState(previousState => ({
+        disallowedTypes: ItemManager.getDisallowedItems([...previousState.outfit])
+      }), () => {
+        this.props.navigation.navigate('Manual')
+      })
+
+    })
+  }
+
+  replaceItem = (id: number, item: Item) => {
+    console.log("fjdsfklds", this.state.outfit.slice(0, 0))
+    console.log(this.state.outfit.findIndex(e => e.date === id))
+    this.setState(previousState => ({
+      ...previousState,
+      outfit: [...previousState.outfit.slice(0, previousState.outfit.findIndex(e => e.date === id)), item, ...previousState.outfit.slice(previousState.outfit.findIndex(e => e.date === id) + 1, previousState.outfit.length)]
+    }), () => {
+      //review: do you want it to return to manual after removing item? 
+      this.setState(previousState => ({
+        disallowedTypes: ItemManager.getDisallowedItems([...previousState.outfit])
+      }), () => {
+        this.props.navigation.navigate('Manual')
+      })
+
     })
   }
 
@@ -52,10 +90,17 @@ export class Manual extends React.Component<ManualProps, ManualState> {
                   selectionMode: "one",
                   filters: this.state.disallowedTypes,
                   greyMode: true,
-                  return: (item) => {
-                    this.props.navigation.navigate('Manual');
-                    this.addItem(item);
-
+                  return: {
+                    addItem: (item) => {
+                      this.props.navigation.navigate('Manual');
+                      this.addItem(item);
+                    },
+                    removeItem: (date) => {
+                      this.removeItem(date);
+                    },
+                    replaceItem: (date, item) => {
+                      this.replaceItem(date, item);
+                    }
                   }
                 })
             }}
@@ -63,15 +108,19 @@ export class Manual extends React.Component<ManualProps, ManualState> {
           >
             <Text style={commonStyles.pb}>add item</Text>
           </TouchableHighlight>
-          <View style={styles.outfitContainer}>
+          <View style={styles.outfitsContainer}>
             {this.state.outfit.map((item, index) => {
               return (
-                <View style={styles.itemContainer} key={index}>
-                  <TouchableHighlight onPress={() => this.props.navigation.navigate('CreateItemView', { item: item })}><Image
-                    source={{ uri: item.photoURI }}
-                    style={styles.tileImage as any}
-                  /></TouchableHighlight>]
+                <View style={styles.outfitContainer} key={index}>
+                  <TouchableHighlight onPress={() => this.removeItem(item.date)} style={[styles.icon, {backgroundColor: "#ff0000"}]}><MaterialIcons name="close" size={40} color="#000"/></TouchableHighlight>
+                  {/* <TouchableHighlight style={[styles.icon, {backgroundColor: "#E9E9E9"}]}><MaterialIcons name="edit" size={35} color="#000"/></TouchableHighlight> */}
+                  <View style={styles.itemContainer}>
+                    <TouchableHighlight onPress={() => this.props.navigation.navigate('CreateItemView', { item: item })}><Image
+                      source={{ uri: item.photoURI }}
+                      style={styles.tileImage as any}
+                    /></TouchableHighlight>]
                     <Text style={[commonStyles.pb, commonStyles.centerText]}>{item.name}</Text>
+                  </View>
                 </View>
               );
             })}
@@ -83,15 +132,25 @@ export class Manual extends React.Component<ManualProps, ManualState> {
 }
 
 const styles = StyleSheet.create({
-  outfitContainer: {
+  outfitsContainer: {
     paddingVertical: width * 0.05,
     flexDirection: "column"
   },
+  outfitContainer: {
+    width: "100%",
+    flexDirection: "row",
+    justifyContent: "space-around",
+    alignItems: "center"
+  },
+  icon: {
+    width: 50,
+    height: 50,
+    borderRadius: 100,
+    justifyContent: "center",
+    alignItems: 'center'
+  },
   itemContainer: {
     flexDirection: "column",
-    // width: "100%",
-    // justifyContent: "space-around",
-    // alignContent: "space-between"
   },
   textContainer: {
     justifyContent: "center"

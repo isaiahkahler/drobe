@@ -14,7 +14,8 @@ import {
   TouchableNativeFeedback,
   Image,
   Animated,
-  NativeScrollEvent
+  NativeScrollEvent,
+  Alert
 } from 'react-native';
 import { PageLayout } from '../../components/page';
 import { commonStyles } from '../../components/styles';
@@ -40,11 +41,9 @@ interface LibraryState {
   pagesShown: number;
   selectionMode: "one" | "many" | "none";
   greyMode: boolean;
-  greyItems: Array<{ class?: string, type?: string, cover?: number }>;
+  greyItems: Array<{ class?: string, type?: string, cover?: number, date?: number, id?: number }>;
   drawerOpen: boolean;
-  return: Function;
-  // showModal: boolean;
-  // modalFadeInAnimation: Animated.Value;
+  return: { addItem: (item: Item) => void, removeItem: (date: number) => void, replaceItem: (date: number, item: Item) => void };
   sortFilters: Array<{ type: "hide" | "order", name: string, value: any }>;
   searchValue: string;
 }
@@ -61,8 +60,6 @@ export class Library extends React.Component<LibraryProps, LibraryState> {
       greyItems: [],
       return: null,
       drawerOpen: false,
-      // showModal: false,
-      // modalFadeInAnimation: new Animated.Value(0),
       sortFilters: [],
       searchValue: ''
     };
@@ -108,22 +105,6 @@ export class Library extends React.Component<LibraryProps, LibraryState> {
   //     console.log("unmount library")
   //     this.willFocusSubscription.remove();
   // }
-
-
-  // showModal = () => {
-  //   this.setState({ showModal: true });
-  //   Animated.spring(this.state.modalFadeInAnimation, {
-  //     toValue: 1
-  //   }).start();
-  // };
-
-  // hideModal = () => {
-  //   Animated.spring(this.state.modalFadeInAnimation, {
-  //     toValue: 0
-  //   }).start(() => {
-  //     this.setState({ showModal: false });
-  //   });
-  // };
 
   loadMore = () => {
     if (this.state.pages.length > this.state.pagesShown) {
@@ -203,6 +184,10 @@ export class Library extends React.Component<LibraryProps, LibraryState> {
       return (
         <View key={pageIndex} style={styles.container}>
           {page.items.map((item, itemIndex) => {
+            const isSameClass = this.state.greyItems.findIndex(e => e.class === item.class) !== -1;
+            const isSameType = this.state.greyItems.findIndex(e => e.type === item.type) !== -1;
+            const isSameItem = this.state.greyItems.findIndex(e => e.date === item.date) !== -1;
+            const isGreyItem = this.state.greyMode && (isSameClass || isSameType || isSameItem);
             return (
               <View style={{
                 marginHorizontal: '5%',
@@ -212,7 +197,59 @@ export class Library extends React.Component<LibraryProps, LibraryState> {
                   underlayColor="rgba(0,0,0,0)"
                   onPress={() => {
                     if (this.state.selectionMode === "one") {
-                      this.state.return(this.state.pages[pageIndex].items[itemIndex]);
+                      if (isGreyItem) {
+                        if (isSameItem) {
+                          //say the user has already picked this item. ask to remove it?
+                          Alert.alert(
+                            'This item is already in your outfit',
+                            'Would you like to remove it?',
+                            [
+                              { text: 'remove', onPress: () => this.state.return.removeItem(item.date) },
+                              { text: 'cancel', onPress: () => console.log('Cancel Pressed'), style: 'cancel' }
+                            ],
+                            { cancelable: false }
+                          )
+                        } else if (isSameClass || isSameType) {
+                          //the user has already picked an item for that class. replace?
+
+                          /*
+                          ok what do we know?
+                          if its an item of the same class or type...?
+                          the ID of the matching thing.... ???????
+
+                          */
+
+
+                          //   if(isSameClass) {
+                          //   let itemToReplace = 
+                          //   this.state.greyItems[this.state.greyItems.findIndex(e => e.class === item.class)].id;
+                          // } else {
+                          //   let itemToReplace = this.state.greyItems[this.state.greyItems.findIndex(e => e.type === item.type)].id;
+                          //   }
+                          let greyID = this.state.greyItems.find(e => e.class === item.class || e.type === item.type).id;
+                          let greyItem: Item;
+                          this.state.library.forEach((value, index) => {
+                            value.items.forEach(value => {
+                              if (value.date === greyID) {
+                                greyItem = value;
+                              }
+                            })
+                          })
+
+                          Alert.alert(
+                            'This item overlaps',
+                            `Would you like to replace ${greyItem.name} with ${item.name}?`,
+                            [
+                              //item.date of item to REMOVE
+                              { text: 'replace', onPress: () => this.state.return.replaceItem(greyItem.date, item) },
+                              { text: 'cancel', onPress: () => console.log('Cancel Pressed'), style: 'cancel' }
+                            ],
+                            { cancelable: false }
+                          )
+                        }
+                      } else {
+                        this.state.return.addItem(this.state.pages[pageIndex].items[itemIndex]);
+                      }
                     } else if (this.state.selectionMode === "many") {
                     } else {
                       this.props.navigation.navigate('ItemView', {
@@ -229,20 +266,17 @@ export class Library extends React.Component<LibraryProps, LibraryState> {
 
 
 
-                    { this.state.greyMode && 
-                      (this.state.greyItems.findIndex(e => e.class === item.class) !== -1 ||
-                      this.state.greyItems.findIndex(e => e.type === item.type) !== -1
-                      ) ? (
+                    {isGreyItem ? (
 
-                    <React.Fragment>
-                      <Image source={{ uri: item.photoURI }} style={[styles.tileImage as any, { tintColor: 'gray' }]} />
-                      <Image source={{ uri: item.photoURI }} style={[styles.tileImage as any, { position: 'absolute', opacity: 0.3 }]} />
-                    </React.Fragment>
-                      ) : (
+                      <React.Fragment>
+                        <Image source={{ uri: item.photoURI }} style={[styles.tileImage as any, { tintColor: 'gray', borderColor: "#ff0000" }]} />
+                        <Image source={{ uri: item.photoURI }} style={[styles.tileImage as any, { position: 'absolute', opacity: 0.3, borderColor: "#ff0000" }]} />
+                      </React.Fragment>
+                    ) : (
                         <Image
-                        source={{ uri: item.photoURI }}
-                        style={[styles.tileImage as any]}
-                      /> 
+                          source={{ uri: item.photoURI }}
+                          style={[styles.tileImage as any]}
+                        />
                       )
                     }
                   </View>
@@ -287,9 +321,6 @@ export class Library extends React.Component<LibraryProps, LibraryState> {
             <ScrollView onScroll={({ nativeEvent }) => this.hasScrolledToEnd(nativeEvent, this.loadMore)} scrollEventThrottle={400}>
               <View style={styles.topContainerSpacer} />
               {this.getTiles()}
-              {/* <View style={styles.button}>
-                <Button onPress={this.loadMore} title="reload" />
-              </View> */}
             </ScrollView>
             <View style={styles.fixedTopContainer}>
               <View style={styles.searchAndSortContainer}>
@@ -373,9 +404,6 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(0,0,0,0.5)",
     borderRadius: 25
   },
-  button: {
-    width: '50%'
-  },
   fixedTopContainer: {
     position: 'absolute',
     width: '100%',
@@ -414,53 +442,20 @@ const styles = StyleSheet.create({
     flex: 1,
     flexDirection: "row",
     justifyContent: "center",
-    // backgroundColor: "#ff0000",
-    // height: 50,
     paddingLeft: 5,
     paddingRight: 5,
     marginHorizontal: 5,
   },
   pill: {
-    // flex: 1,
     borderRadius: 25,
     borderWidth: 2,
     padding: 3,
     marginHorizontal: 5,
     backgroundColor: "#fff"
-    // height: 50,
-    // backgroundColor: "#00ff00"
   },
   topContainerSpacer: {
     height: 20,
     width: '100%',
     margin: 15
-  },
-  listItem: {},
-  listSectionHeader: {},
-  modalView: {
-    position: 'absolute',
-    width: width,
-    height: height - 150, //review: subtract the height of the navbar! (and then some)
-    flex: 1,
-    zIndex: 5
-  },
-  modalTouchable: {
-    flex: 1,
-    width: '100%',
-    // height: "100%",
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: '5%'
-  },
-  modal: {
-    width: '100%',
-    borderRadius: 25,
-    borderWidth: 2,
-    borderColor: '#000',
-    backgroundColor: '#fff',
-    padding: '5%',
-    flex: 1
-    // flexDirection: 'row',
-    // justifyContent: 'center'
   }
 });
