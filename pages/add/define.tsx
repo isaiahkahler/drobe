@@ -45,12 +45,11 @@ interface DefineState {
   uri: string;
   showTypeList: boolean;
   modal: {
-    show: boolean;
+    // show: boolean;
     index: number;
     action: 'new' | 'add' | 'change';
   };
   showRequired: boolean;
-  modalFadeInAnimation: Animated.Value;
   showRequiredShakeAnimation: Animated.ValueXY;
 }
 
@@ -79,12 +78,11 @@ export class Define extends React.Component<DefineProps, DefineState> {
       uri: null,
       showTypeList: false,
       modal: {
-        show: false,
+        // show: false,
         index: -1,
         action: null
       },
       showRequired: false,
-      modalFadeInAnimation: new Animated.Value(0),
       showRequiredShakeAnimation: new Animated.ValueXY({ x: 0, y: 0 })
     };
   }
@@ -92,6 +90,8 @@ export class Define extends React.Component<DefineProps, DefineState> {
   static navigationOptions = {
     title: 'Define Attributes'
   };
+  
+  _modal = React.createRef<PageLayout>();
 
   componentDidMount = async () => {
     let data = await Storage._retrieveData('define');
@@ -126,21 +126,20 @@ export class Define extends React.Component<DefineProps, DefineState> {
   };
 
   componentDidUpdate = () => {
-    if (this.state.modal.show) {
-      Animated.spring(this.state.modalFadeInAnimation, {
-        toValue: 1
-        // duration: 100
-      }).start();
-    }
+    // if(this.state.modal.show) {
+    //   this._modal.current.openModal();
+    // }
 
   };
 
   hideModal = () => {
-    Animated.spring(this.state.modalFadeInAnimation, {
-      toValue: 0
-      // duration: 100
-    }).start(() => this.setState({ modal: { show: false, index: -1, action: null } }));
-  };
+    this._modal.current.closeModal();
+    this.setState({modal: {index: -1, action: null}})
+  }
+
+  openModal = () => {
+    this._modal.current.openModal();
+  }
 
   shakeRequired = () => {
     Animated.sequence([
@@ -218,9 +217,95 @@ export class Define extends React.Component<DefineProps, DefineState> {
   };
 
   render() {
+    let modal = this.state.modal.action === 'change' ? (
+      <React.Fragment>
+        <TriangleColorPicker
+          oldColor={this.state.options.colors[this.state.modal.index]}
+          onColorSelected={color => {
+            let hexColor = fromHsv(color);
+            this.setState(previousState => ({
+              ...previousState,
+              options: {
+                ...previousState.options,
+                colors: [
+                  ...previousState.options.colors.slice(0, previousState.modal.index),
+                  hexColor,
+                  ...previousState.options.colors.splice(
+                    previousState.modal.index + 1,
+                    previousState.options.colors.length
+                  )
+                ]
+              }
+            }));
+            this.hideModal();
+          }}
+          style={{ width: '100%', aspectRatio: 1 }}
+        />
+        <View style={styles.verticalPadding}>
+
+        <TouchableHighlight
+          style={commonStyles.button}
+          onPress={() => {
+            this.setState(previousState => ({
+              ...previousState,
+              options: {
+                ...previousState.options,
+                colors: [
+                  ...previousState.options.colors.slice(0, previousState.modal.index),
+                  ...previousState.options.colors.slice(
+                    previousState.modal.index + 1,
+                    previousState.options.colors.length
+                  )
+                ]
+              }
+            }), () => {
+              if(this.state.options.colors.length === 0){
+                this.setState(previousState => ({
+                  ...previousState,
+                  options: {...previousState.options, colors: null}
+                }))
+              }
+            });
+            this.hideModal();
+          }}
+        >
+          <Text style={[commonStyles.buttonText, commonStyles.centerText]}>remove color</Text>
+        </TouchableHighlight>
+        </View>
+      </React.Fragment>
+    ) : (
+      <TriangleColorPicker
+        //on selected color = round color to name, set in state,
+        //choose color button set in state (w index),  add color to state
+
+        onColorSelected={color => {
+          let hexColor = fromHsv(color);
+          if (this.state.modal.action === 'new') {
+            this.setState(previousState => ({
+              ...previousState,
+              options: { ...previousState.options, colors: [hexColor] },
+              modal: { index: -1, action: null }
+            }));
+            this.hideModal();
+          } else if (this.state.modal.action === 'add') {
+            this.setState(previousState => ({
+              ...previousState,
+              options: {
+                ...previousState.options,
+                colors: [...previousState.options.colors, hexColor]
+              }
+            }));
+            this.hideModal();
+          }
+        }}
+        style={{ width: '100%', aspectRatio: 1 }}
+      />
+    );
+
+
     return (
       <React.Fragment>
-        <PageLayout scroll padding>
+        <PageLayout scroll padding modal={modal} ref={this._modal}>
           <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
             <React.Fragment>
               {/* image preview */}
@@ -293,7 +378,7 @@ export class Define extends React.Component<DefineProps, DefineState> {
                 </Label>
                 <View
                   style={[
-                    styles.button,
+                    commonStyles.button,
                     !!(this.state.showRequired && !this.state.options.type) && {
                       borderColor: '#e6194B'
                     }
@@ -355,12 +440,14 @@ export class Define extends React.Component<DefineProps, DefineState> {
                         >
                           <TouchableHighlight
                             style={[
-                              styles.button,
+                              commonStyles.button,
                               { backgroundColor: this.state.options.colors[index] }
                             ]}
                             onPress={() => {
                               this.setState({
-                                modal: { show: true, index: index, action: 'change' }
+                                modal: { index: index, action: 'change' }
+                              }, () => {
+                                this.openModal();
                               });
                             }}
                           >
@@ -382,14 +469,15 @@ export class Define extends React.Component<DefineProps, DefineState> {
                     })}
                     <View style={styles.verticalPadding}>
                       <TouchableHighlight
-                        style={styles.button}
+                        style={commonStyles.button}
                         onPress={() => {
                           this.setState({
                             modal: {
-                              show: true,
                               index: this.state.options.colors.length,
                               action: 'add'
                             }
+                          }, () => {
+                            this.openModal()
                           });
                         }}
                       >
@@ -400,13 +488,15 @@ export class Define extends React.Component<DefineProps, DefineState> {
                 ) : (
                   <TouchableHighlight
                     style={[
-                      styles.button,
+                      commonStyles.button,
                       !!(this.state.showRequired && !this.state.options.colors) && {
                         borderColor: '#e6194B'
                       }
                     ]}
                     onPress={() => {
-                      this.setState({ modal: { show: true, index: 0, action: 'new' } });
+                      this.setState({ modal: { index: 0, action: 'new' } }, () => {
+                        this.openModal();
+                      });
                     }}
                   >
                     <Text style={commonStyles.pb}>choose color</Text>
@@ -416,112 +506,17 @@ export class Define extends React.Component<DefineProps, DefineState> {
 
               {/* add button */}
               <View style={styles.verticalPadding}>
-                <TouchableHighlight style={styles.button} onPress={this.addItem}>
+                <TouchableHighlight style={commonStyles.button} onPress={this.addItem}>
                   {this.state.editMode ? (
-                    <Text style={[commonStyles.pb, commonStyles.centerText]}>store edits</Text>
+                    <Text style={[commonStyles.buttonText, commonStyles.centerText]}>store edits</Text>
                   ) : (
-                  <Text style={[commonStyles.pb, commonStyles.centerText]}>add item</Text>
+                  <Text style={[commonStyles.buttonText, commonStyles.centerText]}>add item</Text>
                   )}
                 </TouchableHighlight>
               </View>
             </React.Fragment>
           </TouchableWithoutFeedback>
         </PageLayout>
-
-        {/* color picker modal */}
-        {this.state.modal.show && (
-          <Animated.View
-            style={[styles.modalAnimatedView, { opacity: this.state.modalFadeInAnimation }]}
-          >
-            <View style={styles.modalContainer}>
-              <View style={styles.modal}>
-                {this.state.modal.action === 'change' ? (
-                  <React.Fragment>
-                    <TriangleColorPicker
-                      oldColor={this.state.options.colors[this.state.modal.index]}
-                      onColorSelected={color => {
-                        let hexColor = fromHsv(color);
-                        this.setState(previousState => ({
-                          ...previousState,
-                          options: {
-                            ...previousState.options,
-                            colors: [
-                              ...previousState.options.colors.slice(0, previousState.modal.index),
-                              hexColor,
-                              ...previousState.options.colors.splice(
-                                previousState.modal.index + 1,
-                                previousState.options.colors.length
-                              )
-                            ]
-                          }
-                        }));
-                        this.hideModal();
-                      }}
-                      style={{ width: '100%', aspectRatio: 1 }}
-                    />
-                    <View style={styles.verticalPadding}>
-
-                    <TouchableHighlight
-                      style={styles.button}
-                      onPress={() => {
-                        this.hideModal();
-                        this.setState(previousState => ({
-                          ...previousState,
-                          options: {
-                            ...previousState.options,
-                            colors: [
-                              ...previousState.options.colors.slice(0, previousState.modal.index),
-                              ...previousState.options.colors.slice(
-                                previousState.modal.index + 1,
-                                previousState.options.colors.length
-                              )
-                            ]
-                          }
-                        }), () => {
-                          if(this.state.options.colors.length === 0){
-                            this.setState(previousState => ({
-                              ...previousState,
-                              options: {...previousState.options, colors: null}
-                            }))
-                          }
-                        });
-                      }}
-                    >
-                      <Text style={commonStyles.pb}>remove color</Text>
-                    </TouchableHighlight>
-                    </View>
-                  </React.Fragment>
-                ) : (
-                  <TriangleColorPicker
-                    //on selected color = round color to name, set in state,
-                    //choose color button set in state (w index),  add color to state
-
-                    onColorSelected={color => {
-                      let hexColor = fromHsv(color);
-                      if (this.state.modal.action === 'new') {
-                        this.setState(previousState => ({
-                          ...previousState,
-                          options: { ...previousState.options, colors: [hexColor] },
-                          modal: { show: false, index: -1, action: null }
-                        }));
-                      } else if (this.state.modal.action === 'add') {
-                        this.setState(previousState => ({
-                          ...previousState,
-                          options: {
-                            ...previousState.options,
-                            colors: [...previousState.options.colors, hexColor]
-                          }
-                        }));
-                        this.hideModal();
-                      }
-                    }}
-                    style={{ width: '100%', aspectRatio: 1 }}
-                  />
-                )}
-              </View>
-            </View>
-          </Animated.View>
-        )}
       </React.Fragment>
     );
   }
@@ -553,49 +548,19 @@ const styles = StyleSheet.create({
     width: '100%',
     marginVertical: width * 0.025
   },
-  //review: move this to common styles?
-  button: {
-    borderWidth: 2,
-    borderColor: '#000',
-    borderRadius: 10,
-    padding: 5
-  },
   inputLine: {
     width: '100%',
     padding: 5,
-    borderWidth: 2,
-    borderColor: '#000',
-    borderRadius: 10
+    backgroundColor: "#e9e9e9"
   },
   label: {
     marginBottom: 5
   },
-  modalAnimatedView: {
-    position: 'absolute',
-    width: width,
-    height: height,
-    flex: 1,
-    zIndex: 5
-  },
-  modalContainer: {
-    flex: 1,
-    width: '100%',
-    height: '100%',
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: '10%'
-  },
-  modal: {
-    width: '100%',
-    borderWidth: 2,
-    borderRadius: 10,
-    backgroundColor: '#fff', //'rgba(255,255,255,0.75)',
-    padding: '5%'
-  },
   androidPicker: {
-    borderWidth: 2,
-    borderColor: '#000',
-    borderRadius: 10
+    // borderWidth: 2,
+    // borderColor: '#000',
+    // borderRadius: 10
+    backgroundColor: "#e9e9e9"
   },
   typeList: {
     marginHorizontal: 5
