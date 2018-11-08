@@ -39,10 +39,18 @@ export const commonStyles = StyleSheet.create({
     textAlign: "right"
   },
   button: {
-    borderWidth: 2,
-    borderColor: '#000',
-    borderRadius: 10,
+    // borderWidth: 2,
+    // borderColor: '#000',
+    // borderRadius: 10,
+    backgroundColor: "#e9e9e9",
     padding: 5
+  },
+  buttonText: {
+    fontSize: 20,
+    color: "#007aff"
   },
 });
 
+export const StyleConstants = {
+  accentColor: "#8C64FF"
+}

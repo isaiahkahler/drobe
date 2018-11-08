@@ -54,9 +54,9 @@ const styles = StyleSheet.create({
     width: '50%',
     aspectRatio: 1,
     backgroundColor: '#fff',
-    borderWidth: 3,
+    borderWidth: 2,
     borderColor: '#000',
-    borderRadius: 25,
+    // borderRadius: 25,
   },
   tile: {
     flex: 1,

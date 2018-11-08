@@ -30,9 +30,9 @@ export class Manual extends React.Component<ManualProps, ManualState> {
     title: 'Create Manually'
   };
 
-  componentDidUpdate = () => {
-    console.log(ItemManager.isValidOutfit(this.state.outfit))
-  }
+  // componentDidUpdate = () => {
+  //   console.log(ItemManager.isValidOutfit(this.state.outfit))
+  // }
 
   addItem = (item: Item) => {
     //review: set state like this or use the callback?
@@ -62,8 +62,6 @@ export class Manual extends React.Component<ManualProps, ManualState> {
   }
 
   replaceItem = (id: number, item: Item) => {
-    console.log("fjdsfklds", this.state.outfit.slice(0, 0))
-    console.log(this.state.outfit.findIndex(e => e.date === id))
     this.setState(previousState => ({
       ...previousState,
       outfit: [...previousState.outfit.slice(0, previousState.outfit.findIndex(e => e.date === id)), item, ...previousState.outfit.slice(previousState.outfit.findIndex(e => e.date === id) + 1, previousState.outfit.length)]
@@ -106,7 +104,7 @@ export class Manual extends React.Component<ManualProps, ManualState> {
             }}
             style={commonStyles.button}
           >
-            <Text style={commonStyles.pb}>add item</Text>
+            <Text style={commonStyles.buttonText}>add item</Text>
           </TouchableHighlight>
           <View style={styles.outfitsContainer}>
             {this.state.outfit.map((item, index) => {
@@ -119,7 +117,7 @@ export class Manual extends React.Component<ManualProps, ManualState> {
                       source={{ uri: item.photoURI }}
                       style={styles.tileImage as any}
                     /></TouchableHighlight>]
-                    <Text style={[commonStyles.pb, commonStyles.centerText]}>{item.name}</Text>
+                    <Text style={[commonStyles.pb, commonStyles.centerText, styles.textContainer]}>{item.name}</Text>
                   </View>
                 </View>
               );
@@ -145,7 +143,7 @@ const styles = StyleSheet.create({
   icon: {
     width: 50,
     height: 50,
-    borderRadius: 100,
+    borderRadius: 25,
     justifyContent: "center",
     alignItems: 'center'
   },
@@ -153,12 +151,12 @@ const styles = StyleSheet.create({
     flexDirection: "column",
   },
   textContainer: {
-    justifyContent: "center"
+    width: width * 0.35,
   },
   tileImage: {
     width: width * 0.35,
     height: width * 0.35,
-    borderRadius: 25,
+    // borderRadius: 25,
     borderWidth: 2,
     borderColor: '#000'
   },

@@ -258,17 +258,17 @@ export class TriangleColorPicker extends React.PureComponent {
         <View style={[styles.colorPreviews, computed.colorPreviews]}>
           {oldColor &&
           <TouchableOpacity
-            style={[styles.colorPreview, { backgroundColor: oldColor, borderWidth: 2, borderRadius: 10, borderColor: "#000" }]}
+            style={[styles.colorPreview, commonStyles.button, { backgroundColor: oldColor }]}
             onPress={this._onOldColorSelected}
             activeOpacity={0.7}
-          ><Text style={[commonStyles.pb, {margin: 5, color: Color((this.props.oldColor)).isDark() ? "#fff" : "#000"}]}>revert color</Text>
+          ><Text style={[commonStyles.pb, { color: Color((this.props.oldColor)).isDark() ? "#fff" : "#000"}]}>revert color</Text>
           </TouchableOpacity>
           }
           <TouchableOpacity
-            style={[styles.colorPreview, { backgroundColor: selectedColor, borderWidth: 2, borderRadius: 10, borderColor: "#000" }]}
+            style={[styles.colorPreview, commonStyles.button, { backgroundColor: selectedColor}]}
             onPress={this._onColorSelected}
             activeOpacity={0.7}
-          ><Text style={[commonStyles.pb, {margin: 5, color: Color(fromHsv(this.state.color)).isDark() ? "#fff" : "#000"}]}>select</Text>
+          ><Text style={[commonStyles.pb, { color: Color(fromHsv(this.state.color)).isDark() ? "#fff" : "#000"}]}>select</Text>
           </TouchableOpacity>
         </View>
       </View>

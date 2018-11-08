@@ -3,31 +3,23 @@ import {
   StyleSheet,
   Text,
   View,
-  Button,
-  AsyncStorage,
   TouchableHighlight,
   ScrollView,
   TextInput,
-  SectionList,
   Dimensions,
-  Platform,
-  TouchableNativeFeedback,
   Image,
-  Animated,
   NativeScrollEvent,
   Alert
 } from 'react-native';
 import { PageLayout } from '../../components/page';
-import { commonStyles } from '../../components/styles';
+import { commonStyles, StyleConstants } from '../../components/styles';
 import { createStackNavigator } from 'react-navigation';
 import { Item, Page } from '../../components/formats';
-import { Storage } from '../../components/storage';
 import { ItemManager } from '../../components/itemManager';
 import { ItemView } from './itemView';
 import { Define } from '../add/define';
 import { SortSidebar } from './sortSidebar';
-import { unwatchFile } from 'fs';
-import { string } from 'prop-types';
+import { MaterialIcons } from '@expo/vector-icons';
 
 const width = Dimensions.get('screen').width;
 const height = Dimensions.get('screen').height;
@@ -180,6 +172,7 @@ export class Library extends React.Component<LibraryProps, LibraryState> {
   }
 
   getTiles() {
+    console.log(this.state.library)
     return this.state.pages.slice(0, this.state.pagesShown).map((page, pageIndex) => {
       return (
         <View key={pageIndex} style={styles.container}>
@@ -205,27 +198,12 @@ export class Library extends React.Component<LibraryProps, LibraryState> {
                             'Would you like to remove it?',
                             [
                               { text: 'remove', onPress: () => this.state.return.removeItem(item.date) },
-                              { text: 'cancel', onPress: () => console.log('Cancel Pressed'), style: 'cancel' }
+                              { text: 'cancel' }
                             ],
                             { cancelable: false }
                           )
                         } else if (isSameClass || isSameType) {
                           //the user has already picked an item for that class. replace?
-
-                          /*
-                          ok what do we know?
-                          if its an item of the same class or type...?
-                          the ID of the matching thing.... ???????
-
-                          */
-
-
-                          //   if(isSameClass) {
-                          //   let itemToReplace = 
-                          //   this.state.greyItems[this.state.greyItems.findIndex(e => e.class === item.class)].id;
-                          // } else {
-                          //   let itemToReplace = this.state.greyItems[this.state.greyItems.findIndex(e => e.type === item.type)].id;
-                          //   }
                           let greyID = this.state.greyItems.find(e => e.class === item.class || e.type === item.type).id;
                           let greyItem: Item;
                           this.state.library.forEach((value, index) => {
@@ -242,7 +220,7 @@ export class Library extends React.Component<LibraryProps, LibraryState> {
                             [
                               //item.date of item to REMOVE
                               { text: 'replace', onPress: () => this.state.return.replaceItem(greyItem.date, item) },
-                              { text: 'cancel', onPress: () => console.log('Cancel Pressed'), style: 'cancel' }
+                              { text: 'cancel' }
                             ],
                             { cancelable: false }
                           )
@@ -326,14 +304,16 @@ export class Library extends React.Component<LibraryProps, LibraryState> {
             <View style={styles.fixedTopContainer}>
               <View style={styles.searchAndSortContainer}>
                 <View style={styles.searchContainer}>
+                  <MaterialIcons name="search" size={30} color={StyleConstants.accentColor}/>
                   <TextInput style={[styles.search, commonStyles.h2]} placeholder="search" onChangeText={text => this.search(text)} value={this.state.searchValue} />
+                  {this.state.searchValue && <TouchableHighlight onPress={() => {this.search('')}}><MaterialIcons name="close" size={30} color={StyleConstants.accentColor} /></TouchableHighlight>}
                 </View>
                 <TouchableHighlight
                   onPress={() => this.toggleSidebar()}
                   underlayColor="rgba(0,0,0,0.1)"
-                  style={styles.sortButton}
+                  style={commonStyles.button}
                 >
-                  <Text style={commonStyles.h2}>sort</Text>
+                  <Text style={[styles.sortButton, commonStyles.buttonText]}>sort</Text>
                 </TouchableHighlight>
               </View>
               <View style={styles.pillContainer}>
@@ -394,7 +374,8 @@ const styles = StyleSheet.create({
   tileImage: {
     width: width * 0.4,
     height: width * 0.4,
-    borderRadius: 25,
+    // borderRadius: 25,
+    // borderRadius: 5,
     borderWidth: 2,
     borderColor: '#000'
   },
@@ -413,31 +394,25 @@ const styles = StyleSheet.create({
     zIndex: 5
   },
   searchAndSortContainer: {
-    flexDirection: "row"
+    flexDirection: "row",
+    paddingHorizontal: "5%",
+    marginTop: width * 0.05
   },
   searchContainer: {
     flex: 1,
-    width: '60%',
-    borderWidth: 2,
-    borderColor: '#000',
-    borderRadius: 10,
+    flexDirection: "row",
+    alignItems: "center",
     paddingLeft: 5,
     paddingRight: 5,
-    margin: 10,
-    backgroundColor: '#fff'
+    marginRight: 10,
+    backgroundColor: '#e9e9e9',
   },
   search: {
     flex: 1,
-    height: 20
+    width: "100%"
   },
   sortButton: {
-    backgroundColor: '#fff',
-    borderWidth: 2,
-    borderColor: '#000',
-    borderRadius: 10,
-    padding: 5,
-    marginLeft: 0,
-    margin: 10
+    flex: 1
   },
   pillContainer: {
     flex: 1,

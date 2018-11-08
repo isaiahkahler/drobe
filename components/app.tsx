@@ -30,6 +30,7 @@ let App = createBottomTabNavigator(
     }),
     tabBarPosition: 'bottom',
     tabBarOptions: {
+      //review: change this to use accent color const in styles
       activeTintColor: '#8C64FF',
       inactiveTintColor: 'gray',
       activeBackgroundColor: '#ccc',

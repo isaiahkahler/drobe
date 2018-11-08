@@ -68,7 +68,7 @@ export class PageLayout extends React.Component<PageProps, PageState>{
             <TouchableHighlight>
               <View>
                 {this.props.modal}
-                <TouchableHighlight style={commonStyles.button} onPress={this.closeModal} underlayColor='rgba(0,0,0,0.1)'><Text style={[commonStyles.pb, commonStyles.centerText]}>close</Text></TouchableHighlight>
+                <TouchableHighlight style={[commonStyles.button, {marginTop: 5}]} onPress={this.closeModal} underlayColor='rgba(0,0,0,0.1)'><Text style={[commonStyles.buttonText, commonStyles.centerText]}>close</Text></TouchableHighlight>
               </View>
             </TouchableHighlight>
           </Animated.View>
@@ -109,7 +109,7 @@ export const styles = StyleSheet.create({
     height: height,
     flex: 1,
     zIndex: 5,
-    backgroundColor: 'rgba(0,0,0,0.1)'
+    backgroundColor: 'rgba(0,0,0,0.2)'
   },
   modalContainer: {
     position: 'absolute',
@@ -121,10 +121,7 @@ export const styles = StyleSheet.create({
     padding: '10%'
   },
   modal: {
-    // position: "absolute",
     width: '100%',
-    borderWidth: 2,
-    borderRadius: 10,
     backgroundColor: '#fff',
     padding: width * 0.05,
   }

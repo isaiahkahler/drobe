@@ -12,13 +12,14 @@ import {
   Platform
 } from 'react-native';
 import { PageLayout } from '../../components/page';
-import { commonStyles } from '../../components/styles';
+import { commonStyles, StyleConstants } from '../../components/styles';
 import { createStackNavigator } from 'react-navigation';
 import { Camera, Permissions, FileSystem } from 'expo';
 import { Storage } from '../../components/storage';
 import { Item, ItemDefinitions } from '../../components/formats';
 import { Define } from './define';
 import { setTimeout } from 'timers';
+import { MaterialIcons } from '@expo/vector-icons';
 
 const width = Dimensions.get('screen').width;
 const isIos = Platform.OS === 'ios';
@@ -141,8 +142,12 @@ class Add extends React.Component<AddProps, AddState> {
                   <TouchableHighlight
                     style={styles.flashButton}
                     onPress={() => this.switchFlashMode()}
-                  >
-                    <Text>{this.state.flash}</Text>
+                  > 
+                    <View>
+                    {this.state.flash === "off" && <MaterialIcons name="flash-off" size={30} color={StyleConstants.accentColor}/>}
+                    {this.state.flash === "on" && <MaterialIcons name="flash-on" size={30} color={StyleConstants.accentColor}/>}
+                    {this.state.flash === "torch" && <MaterialIcons name="highlight" size={30} color={StyleConstants.accentColor}/>}
+                    </View>
                   </TouchableHighlight>
                 </View>
                 <View style={styles.pictureButtonContainer}>
@@ -202,10 +207,13 @@ const styles = StyleSheet.create({
     marginBottom: 20
   },
   flashButton: {
-    width: 40,
-    height: 40,
+    width: 50,
+    height: 50,
+    borderRadius: 25,
     backgroundColor: '#fff',
-    marginTop: 20
+    marginTop: 20,
+    justifyContent: "center",
+    alignItems: "center"
   },
   flashButtonContainer: {
     flex: 1,
