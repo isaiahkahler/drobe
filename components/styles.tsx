@@ -41,7 +41,7 @@ export const commonStyles = StyleSheet.create({
   button: {
     // borderWidth: 2,
     // borderColor: '#000',
-    // borderRadius: 10,
+    borderRadius: 7.5,
     backgroundColor: "#e9e9e9",
     padding: 5
   },
@@ -49,6 +49,12 @@ export const commonStyles = StyleSheet.create({
     fontSize: 20,
     color: "#007aff"
   },
+  textInput: {
+    backgroundColor: "#e9e9e9",
+    padding: 5,
+    borderRadius: 7.5,
+    fontSize: 20
+  }
 });
 
 export const StyleConstants = {

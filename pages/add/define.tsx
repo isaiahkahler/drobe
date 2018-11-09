@@ -90,14 +90,14 @@ export class Define extends React.Component<DefineProps, DefineState> {
   static navigationOptions = {
     title: 'Define Attributes'
   };
-  
+
   _modal = React.createRef<PageLayout>();
 
   componentDidMount = async () => {
     let data = await Storage._retrieveData('define');
-    if(data.editMode){
-      let item:Item = await ItemManager.getItem(data.pageIndex, data.itemIndex);
-      this.setState({options: item})
+    if (data.editMode) {
+      let item: Item = await ItemManager.getItem(data.pageIndex, data.itemIndex);
+      this.setState({ options: item })
     }
     this.setState(previousState => ({
       editMode: data.editMode,
@@ -134,7 +134,7 @@ export class Define extends React.Component<DefineProps, DefineState> {
 
   hideModal = () => {
     this._modal.current.closeModal();
-    this.setState({modal: {index: -1, action: null}})
+    this.setState({ modal: { index: -1, action: null } })
   }
 
   openModal = () => {
@@ -192,7 +192,7 @@ export class Define extends React.Component<DefineProps, DefineState> {
   };
 
   storeItem = () => {
-    if(!this.state.editMode) {
+    if (!this.state.editMode) {
       //async move photo from cache to filesystem storage .then store item
       Storage.MovePhotoFromCache(this.state.uri, newURI => {
         this.setState(
@@ -213,7 +213,7 @@ export class Define extends React.Component<DefineProps, DefineState> {
     }
 
     //for both
-   Storage._deleteData('define');
+    Storage._deleteData('define');
   };
 
   render() {
@@ -243,64 +243,65 @@ export class Define extends React.Component<DefineProps, DefineState> {
         />
         <View style={styles.verticalPadding}>
 
-        <TouchableHighlight
-          style={commonStyles.button}
-          onPress={() => {
-            this.setState(previousState => ({
-              ...previousState,
-              options: {
-                ...previousState.options,
-                colors: [
-                  ...previousState.options.colors.slice(0, previousState.modal.index),
-                  ...previousState.options.colors.slice(
-                    previousState.modal.index + 1,
-                    previousState.options.colors.length
-                  )
-                ]
-              }
-            }), () => {
-              if(this.state.options.colors.length === 0){
-                this.setState(previousState => ({
-                  ...previousState,
-                  options: {...previousState.options, colors: null}
-                }))
-              }
-            });
-            this.hideModal();
-          }}
-        >
-          <Text style={[commonStyles.buttonText, commonStyles.centerText]}>remove color</Text>
-        </TouchableHighlight>
+          <TouchableHighlight
+            style={commonStyles.button}
+            underlayColor="rgba(0,0,0,0.2)"
+            onPress={() => {
+              this.setState(previousState => ({
+                ...previousState,
+                options: {
+                  ...previousState.options,
+                  colors: [
+                    ...previousState.options.colors.slice(0, previousState.modal.index),
+                    ...previousState.options.colors.slice(
+                      previousState.modal.index + 1,
+                      previousState.options.colors.length
+                    )
+                  ]
+                }
+              }), () => {
+                if (this.state.options.colors.length === 0) {
+                  this.setState(previousState => ({
+                    ...previousState,
+                    options: { ...previousState.options, colors: null }
+                  }))
+                }
+              });
+              this.hideModal();
+            }}
+          >
+            <Text style={[commonStyles.buttonText, commonStyles.centerText]}>remove color</Text>
+          </TouchableHighlight>
         </View>
       </React.Fragment>
     ) : (
-      <TriangleColorPicker
-        //on selected color = round color to name, set in state,
-        //choose color button set in state (w index),  add color to state
+        <TriangleColorPicker
+          //on selected color = round color to name, set in state,
+          //choose color button set in state (w index),  add color to state
 
-        onColorSelected={color => {
-          let hexColor = fromHsv(color);
-          if (this.state.modal.action === 'new') {
-            this.setState(previousState => ({
-              ...previousState,
-              options: { ...previousState.options, colors: [hexColor] },
-              modal: { index: -1, action: null }
-            }));
-            this.hideModal();
-          } else if (this.state.modal.action === 'add') {
-            this.setState(previousState => ({
-              ...previousState,
-              options: {
-                ...previousState.options,
-                colors: [...previousState.options.colors, hexColor]
-              }
-            }));
-            this.hideModal();
-          }
-        }}
-        style={{ width: '100%', aspectRatio: 1 }}
-      />
-    );
+          onColorSelected={color => {
+            let hexColor = fromHsv(color);
+            if (this.state.modal.action === 'new') {
+              this.setState(previousState => ({
+                ...previousState,
+                options: { ...previousState.options, colors: [hexColor] },
+                modal: { index: -1, action: null }
+              }));
+              this.hideModal();
+            } else if (this.state.modal.action === 'add') {
+              this.setState(previousState => ({
+                ...previousState,
+                options: {
+                  ...previousState.options,
+                  colors: [...previousState.options.colors, hexColor]
+                }
+              }));
+              this.hideModal();
+            }
+          }}
+          style={{ width: '100%', aspectRatio: 1 }}
+        />
+      );
 
 
     return (
@@ -322,7 +323,7 @@ export class Define extends React.Component<DefineProps, DefineState> {
                 <Label>Clothing Item Name</Label>
                 <TextInput
                   placeholder="enter name (optional)"
-                  style={[styles.inputLine, commonStyles.pb]}
+                  style={[styles.inputLine, commonStyles.textInput]}
                   onChangeText={value => this.updateData('name', value)}
                   value={this.state.options.name}
                 />
@@ -346,23 +347,23 @@ export class Define extends React.Component<DefineProps, DefineState> {
                     />
                   </View>
                 ) : (
-                  //android
-                  <View style={styles.verticalPadding}>
-                    <Label>Clothing Item Type</Label>
-                    <View style={styles.androidPicker}>
-                      <Picker
-                        onValueChange={value => this.updateData('class', value)}
-                        selectedValue={this.state.options.class}
-                      >
-                        <Picker.Item label="top" value="top" />
-                        <Picker.Item label="bottom" value="bottom" />
-                        <Picker.Item label="full body" value="full body" />
-                        <Picker.Item label="shoes" value="shoes" />
-                        <Picker.Item label="accessory" value="accessory" />
-                      </Picker>
+                    //android
+                    <View style={styles.verticalPadding}>
+                      <Label>Clothing Item Type</Label>
+                      <View style={styles.androidPicker}>
+                        <Picker
+                          onValueChange={value => this.updateData('class', value)}
+                          selectedValue={this.state.options.class}
+                        >
+                          <Picker.Item label="top" value="top" />
+                          <Picker.Item label="bottom" value="bottom" />
+                          <Picker.Item label="full body" value="full body" />
+                          <Picker.Item label="shoes" value="shoes" />
+                          <Picker.Item label="accessory" value="accessory" />
+                        </Picker>
+                      </View>
                     </View>
-                  </View>
-                )}
+                  )}
               </View>
 
               {/* type picker */}
@@ -385,6 +386,7 @@ export class Define extends React.Component<DefineProps, DefineState> {
                   ]}
                 >
                   <TouchableHighlight
+                    underlayColor="rgba(0,0,0,0.2)"
                     onPress={() => {
                       this.setState({ showTypeList: true });
                     }}
@@ -399,6 +401,7 @@ export class Define extends React.Component<DefineProps, DefineState> {
                         (item: any, index: number) => {
                           return (
                             <TouchableHighlight
+                              underlayColor="rgba(0,0,0,0.2)"
                               key={index}
                               onPress={() => {
                                 this.updateData('type', item);
@@ -439,6 +442,7 @@ export class Define extends React.Component<DefineProps, DefineState> {
                           style={index === 0 ? undefined : { marginTop: width * 0.025 }}
                         >
                           <TouchableHighlight
+                            underlayColor="rgba(0,0,0,0.2)"
                             style={[
                               commonStyles.button,
                               { backgroundColor: this.state.options.colors[index] }
@@ -470,6 +474,7 @@ export class Define extends React.Component<DefineProps, DefineState> {
                     <View style={styles.verticalPadding}>
                       <TouchableHighlight
                         style={commonStyles.button}
+                        underlayColor="rgba(0,0,0,0.2)"
                         onPress={() => {
                           this.setState({
                             modal: {
@@ -486,32 +491,33 @@ export class Define extends React.Component<DefineProps, DefineState> {
                     </View>
                   </React.Fragment>
                 ) : (
-                  <TouchableHighlight
-                    style={[
-                      commonStyles.button,
-                      !!(this.state.showRequired && !this.state.options.colors) && {
-                        borderColor: '#e6194B'
-                      }
-                    ]}
-                    onPress={() => {
-                      this.setState({ modal: { index: 0, action: 'new' } }, () => {
-                        this.openModal();
-                      });
-                    }}
-                  >
-                    <Text style={commonStyles.pb}>choose color</Text>
-                  </TouchableHighlight>
-                )}
+                    <TouchableHighlight
+                    underlayColor="rgba(0,0,0,0.2)"
+                      style={[
+                        commonStyles.button,
+                        !!(this.state.showRequired && !this.state.options.colors) && {
+                          borderColor: '#e6194B'
+                        }
+                      ]}
+                      onPress={() => {
+                        this.setState({ modal: { index: 0, action: 'new' } }, () => {
+                          this.openModal();
+                        });
+                      }}
+                    >
+                      <Text style={commonStyles.pb}>choose color</Text>
+                    </TouchableHighlight>
+                  )}
               </Animated.View>
 
               {/* add button */}
               <View style={styles.verticalPadding}>
-                <TouchableHighlight style={commonStyles.button} onPress={this.addItem}>
+                <TouchableHighlight style={commonStyles.button} onPress={this.addItem} underlayColor="rgba(0,0,0,0.2)">
                   {this.state.editMode ? (
                     <Text style={[commonStyles.buttonText, commonStyles.centerText]}>store edits</Text>
                   ) : (
-                  <Text style={[commonStyles.buttonText, commonStyles.centerText]}>add item</Text>
-                  )}
+                      <Text style={[commonStyles.buttonText, commonStyles.centerText]}>add item</Text>
+                    )}
                 </TouchableHighlight>
               </View>
             </React.Fragment>
@@ -550,8 +556,6 @@ const styles = StyleSheet.create({
   },
   inputLine: {
     width: '100%',
-    padding: 5,
-    backgroundColor: "#e9e9e9"
   },
   label: {
     marginBottom: 5

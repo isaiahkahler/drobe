@@ -83,7 +83,7 @@ class Section extends React.Component<SectionProps, SectionState> {
   render() {
     return (
       <View style={styles.section} >
-        <TouchableHighlight onPress={this.toggleList} underlayColor='rgba(0,0,0,0.1)' >
+        <TouchableHighlight onPress={this.toggleList} underlayColor='rgba(0,0,0,0.2)' >
           <View style={{ flexDirection: "row" }}>
             <MaterialIcons name="arrow-drop-down" size={30} style={this.state.show && { transform: [{ rotate: "-90deg" }] }} />
             <Text style={[commonStyles.h2, commonStyles.bold]}>{this.props.label}</Text>
@@ -97,7 +97,7 @@ class Section extends React.Component<SectionProps, SectionState> {
                 this.props.options.map((item, index) => {
                   if (typeof item === "string") {
                     return (
-                      <TouchableHighlight onPress={() => this.props.action(this.props.options[index])} key={index} underlayColor='rgba(0,0,0,0.1)' >
+                      <TouchableHighlight onPress={() => this.props.action(this.props.options[index])} key={index} underlayColor='rgba(0,0,0,0.2)' >
                         <Text style={commonStyles.h2}>{item}</Text>
                       </TouchableHighlight>
                     );
@@ -140,7 +140,7 @@ class Subsection extends React.Component<SubsectionProps, SubsectionState> {
   render() {
     return (
       <View style={styles.subsection}>
-        <TouchableHighlight onPress={this.toggleList} underlayColor='rgba(0,0,0,0.1)' >
+        <TouchableHighlight onPress={this.toggleList} underlayColor='rgba(0,0,0,0.2)' >
           <View style={{ flexDirection: "row" }}>
             <MaterialIcons name="arrow-drop-down" size={30} style={this.state.show && { transform: [{ rotate: "-90deg" }] }} />
             <Text style={[commonStyles.h2, commonStyles.bold]}>{this.props.label}</Text>
@@ -150,7 +150,7 @@ class Subsection extends React.Component<SubsectionProps, SubsectionState> {
           <View style={styles.optionLabel}>
             {this.props.options.map((item, index) => {
               return (
-                <TouchableHighlight key={index} onPress={() => this.props.action(this.props.options[index])} underlayColor='rgba(0,0,0,0.1)' >
+                <TouchableHighlight key={index} onPress={() => this.props.action(this.props.options[index])} underlayColor='rgba(0,0,0,0.2)' >
                   <Text style={commonStyles.pb}>{item}</Text>
                 </TouchableHighlight>);
             })}

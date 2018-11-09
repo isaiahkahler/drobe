@@ -56,14 +56,14 @@ class Add extends React.Component<AddProps, AddState> {
     const willBlurSubscription = this.props.navigation.addListener(
       'willBlur',
       payload => {
-        this.setState({showCamera: false})
+        this.setState({ showCamera: false })
       }
     );
 
     const willFocusSubscription = this.props.navigation.addListener(
       'willFocus',
       payload => {
-        this.setState({showCamera: true})
+        this.setState({ showCamera: true })
       }
     );
 
@@ -85,7 +85,7 @@ class Add extends React.Component<AddProps, AddState> {
     try {
       //review: should this be passed as a navigaiton prop instead of storing and grabbing?
       let photo = await this._camera.takePictureAsync().then((photo) => {
-        this.setState({flash: "off"})
+        this.setState({ flash: "off" })
         // Storage._storeData('define', { editMode: false, uri: photo.uri, width: photo.width, height: photo.height });
         Storage.storeDefineProps(false, -1, -1, photo.uri, () => {
           this.props.navigation.navigate('Define');
@@ -140,28 +140,29 @@ class Add extends React.Component<AddProps, AddState> {
               >
                 <View style={styles.flashButtonContainer}>
                   <TouchableHighlight
+                    underlayColor="rgba(0,0,0,0.2)"
                     style={styles.flashButton}
                     onPress={() => this.switchFlashMode()}
-                  > 
+                  >
                     <View>
-                    {this.state.flash === "off" && <MaterialIcons name="flash-off" size={30} color={StyleConstants.accentColor}/>}
-                    {this.state.flash === "on" && <MaterialIcons name="flash-on" size={30} color={StyleConstants.accentColor}/>}
-                    {this.state.flash === "torch" && <MaterialIcons name="highlight" size={30} color={StyleConstants.accentColor}/>}
+                      {this.state.flash === "off" && <MaterialIcons name="flash-off" size={30} color={StyleConstants.accentColor} />}
+                      {this.state.flash === "on" && <MaterialIcons name="flash-on" size={30} color={StyleConstants.accentColor} />}
+                      {this.state.flash === "torch" && <MaterialIcons name="highlight" size={30} color={StyleConstants.accentColor} />}
                     </View>
                   </TouchableHighlight>
                 </View>
                 <View style={styles.pictureButtonContainer}>
-                  <TouchableHighlight onPress={this.takePicture} style={styles.pictureButton}>
+                  <TouchableHighlight onPress={this.takePicture} style={styles.pictureButton} underlayColor="rgba(0,0,0,0.2)">
                     <View />
                   </TouchableHighlight>
                 </View>
               </Camera>
             </View>
           ) : (
-            <View style={{ flex: 1, justifyContent: 'center' }}>
-              {/* <ActivityIndicator size="large" color="#000" /> */}
-            </View>
-          )}
+              <View style={{ flex: 1, justifyContent: 'center' }}>
+                {/* <ActivityIndicator size="large" color="#000" /> */}
+              </View>
+            )}
         </View>
       );
     }

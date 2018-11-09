@@ -172,7 +172,6 @@ export class Library extends React.Component<LibraryProps, LibraryState> {
   }
 
   getTiles() {
-    console.log(this.state.library)
     return this.state.pages.slice(0, this.state.pagesShown).map((page, pageIndex) => {
       return (
         <View key={pageIndex} style={styles.container}>
@@ -305,12 +304,12 @@ export class Library extends React.Component<LibraryProps, LibraryState> {
               <View style={styles.searchAndSortContainer}>
                 <View style={styles.searchContainer}>
                   <MaterialIcons name="search" size={30} color={StyleConstants.accentColor}/>
-                  <TextInput style={[styles.search, commonStyles.h2]} placeholder="search" onChangeText={text => this.search(text)} value={this.state.searchValue} />
+                  <TextInput style={[styles.search, commonStyles.textInput]} placeholder="search" onChangeText={text => this.search(text)} value={this.state.searchValue} />
                   {this.state.searchValue && <TouchableHighlight onPress={() => {this.search('')}}><MaterialIcons name="close" size={30} color={StyleConstants.accentColor} /></TouchableHighlight>}
                 </View>
                 <TouchableHighlight
                   onPress={() => this.toggleSidebar()}
-                  underlayColor="rgba(0,0,0,0.1)"
+                  underlayColor="rgba(0,0,0,0.2)"
                   style={commonStyles.button}
                 >
                   <Text style={[styles.sortButton, commonStyles.buttonText]}>sort</Text>
@@ -318,7 +317,7 @@ export class Library extends React.Component<LibraryProps, LibraryState> {
               </View>
               <View style={styles.pillContainer}>
                 {this.state.sortFilters.map((item, index) => {
-                  return (<TouchableHighlight style={styles.pill} key={index} onPress={() => this.removePill(index)}>
+                  return (<TouchableHighlight style={styles.pill} key={index} onPress={() => this.removePill(index)} underlayColor="#e9e9e9">
                     <Text style={commonStyles.pb}>{item.value}</Text>
                   </TouchableHighlight>);
                 })}
@@ -374,10 +373,10 @@ const styles = StyleSheet.create({
   tileImage: {
     width: width * 0.4,
     height: width * 0.4,
-    // borderRadius: 25,
     // borderRadius: 5,
-    borderWidth: 2,
-    borderColor: '#000'
+    borderRadius: 25,
+    // borderWidth: 2,
+    // borderColor: '#000'
   },
   greyOverlay: {
     position: "absolute",
@@ -406,10 +405,10 @@ const styles = StyleSheet.create({
     paddingRight: 5,
     marginRight: 10,
     backgroundColor: '#e9e9e9',
+    borderRadius: 7.5
   },
   search: {
     flex: 1,
-    width: "100%"
   },
   sortButton: {
     flex: 1
@@ -425,7 +424,7 @@ const styles = StyleSheet.create({
   pill: {
     borderRadius: 25,
     borderWidth: 2,
-    padding: 3,
+    padding: 5,
     marginHorizontal: 5,
     backgroundColor: "#fff"
   },

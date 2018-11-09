@@ -55,10 +55,10 @@ class Stats extends React.Component<StatsProps, StatsState> {
     return (
       <View style={commonStyles.body}>
         <View style={styles.underHeader}>
-          <TouchableHighlight onPress={() => this.scrollToStart()} underlayColor='rgba(0,0,0,0.1)' style={styles.underHeaderButton}>
+          <TouchableHighlight onPress={() => this.scrollToStart()} underlayColor='rgba(0,0,0,0.2)' style={styles.underHeaderButton}>
             <Text style={commonStyles.h2}>history</Text>
           </TouchableHighlight>
-          <TouchableHighlight onPress={() => this.scrollToEnd()} underlayColor='rgba(0,0,0,0.1)' style={styles.underHeaderButton}>
+          <TouchableHighlight onPress={() => this.scrollToEnd()} underlayColor='rgba(0,0,0,0.2)' style={styles.underHeaderButton}>
             <Text style={commonStyles.h2}>favorites</Text>
           </TouchableHighlight>
         </View>

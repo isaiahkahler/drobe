@@ -32,7 +32,7 @@ export class ItemView extends React.Component<ItemViewProps, ItemViewState> {
       title: navigation.getParam('title', 'Item'),
       headerRight: (
         //review: is the second param the default value?
-        navigation.getParam('editMode', undefined) && <TouchableHighlight onPress={navigation.getParam('edit', () => { })}>
+        navigation.getParam('editMode', undefined) && <TouchableHighlight onPress={navigation.getParam('edit', () => { })} underlayColor='rgba(0,0,0,0)'>
           {/* <Text>Edit</Text> */}
           <MaterialIcons name="edit" size={30} style={{marginRight: width * 0.05}}/>
         </TouchableHighlight>
@@ -91,7 +91,8 @@ export class ItemView extends React.Component<ItemViewProps, ItemViewState> {
               await Storage.DeleteItem(this.state.pageIndex, this.state.itemIndex)
               this.props.navigation.navigate("Library");
             }}
-            style={[commonStyles.button, { backgroundColor: "#ff0000", marginTop: 5 }]}>
+            style={[commonStyles.button, { backgroundColor: "#ff0000", marginTop: 5 }]}
+            underlayColor="rgba(0,0,0,0.2)">
             <Text style={[commonStyles.pb, commonStyles.centerText, { color: "#fff" }]}>
               Delete Item
             </Text>

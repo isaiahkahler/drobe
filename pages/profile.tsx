@@ -21,7 +21,7 @@ class Profile extends React.Component<ProfileProps, ProfileState> {
     return {
       headerTitle: 'Profile',
       headerRight: (
-        <TouchableHighlight onPress={() => navigation.navigate('Settings')}>
+        <TouchableHighlight onPress={() => navigation.navigate('Settings')} underlayColor='rgba(0,0,0,0.2)'>
           <View style={styles.settingsButton}>
           <Icon icon="Settings"></Icon>
           </View>
@@ -60,7 +60,7 @@ class Profile extends React.Component<ProfileProps, ProfileState> {
                   console.log(item.class)
                 }
               }
-            }}>
+            }} underlayColor='rgba(0,0,0,0.2)'>
               <Text>Clear AsyncStorage</Text>
             </TouchableHighlight>
           

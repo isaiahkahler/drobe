@@ -82,6 +82,7 @@ export class Manual extends React.Component<ManualProps, ManualState> {
         <View style={{ flex: 1, alignItems: "center" }}>
 
           <TouchableHighlight
+            underlayColor="rgba(0,0,0,0.2)"
             onPress={() => {
               this.props.navigation.navigate("LibrarySelector",
                 {
@@ -110,10 +111,10 @@ export class Manual extends React.Component<ManualProps, ManualState> {
             {this.state.outfit.map((item, index) => {
               return (
                 <View style={styles.outfitContainer} key={index}>
-                  <TouchableHighlight onPress={() => this.removeItem(item.date)} style={[styles.icon, {backgroundColor: "#ff0000"}]}><MaterialIcons name="close" size={40} color="#000"/></TouchableHighlight>
+                  <TouchableHighlight onPress={() => this.removeItem(item.date)} style={[styles.icon, {backgroundColor: "#ff0000"}]} underlayColor="rgba(0,0,0,0.2)"><MaterialIcons name="close" size={40} color="#000"/></TouchableHighlight>
                   {/* <TouchableHighlight style={[styles.icon, {backgroundColor: "#E9E9E9"}]}><MaterialIcons name="edit" size={35} color="#000"/></TouchableHighlight> */}
                   <View style={styles.itemContainer}>
-                    <TouchableHighlight onPress={() => this.props.navigation.navigate('CreateItemView', { item: item })}><Image
+                    <TouchableHighlight onPress={() => this.props.navigation.navigate('CreateItemView', { item: item })} underlayColor="rgba(0,0,0,0.2)"><Image
                       source={{ uri: item.photoURI }}
                       style={styles.tileImage as any}
                     /></TouchableHighlight>]
@@ -156,8 +157,8 @@ const styles = StyleSheet.create({
   tileImage: {
     width: width * 0.35,
     height: width * 0.35,
-    // borderRadius: 25,
-    borderWidth: 2,
-    borderColor: '#000'
+    borderRadius: 20,
+    // borderWidth: 2,
+    // borderColor: '#000'
   },
 });

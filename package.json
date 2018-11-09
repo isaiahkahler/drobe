@@ -59,6 +59,7 @@
     "react-native": "~0.55.2",
     "react-native-color-picker": "^0.4.0",
     "react-native-progress-circle": "^2.0.1",
-    "react-navigation": "^2.17.0"
+    "react-navigation": "^2.17.0",
+    "svg-to-react-native-cli": "0.0.3"
   }
 }
