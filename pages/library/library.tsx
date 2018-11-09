@@ -20,6 +20,7 @@ import { ItemView } from './itemView';
 import { Define } from '../add/define';
 import { SortSidebar } from './sortSidebar';
 import { MaterialIcons, Ionicons } from '@expo/vector-icons';
+import { roundColor } from '../../components/helpers';
 
 const width = Dimensions.get('screen').width;
 const height = Dimensions.get('screen').height;
@@ -324,7 +325,7 @@ export class Library extends React.Component<LibraryProps, LibraryState> {
                   return (<TouchableHighlight style={styles.pill} key={index} onPress={() => this.removePill(index)} underlayColor="#e9e9e9">
                     <View style={{flexDirection: "row", alignItems: "center"}}>
 
-                      <Text style={[commonStyles.pb, {paddingLeft: 5}]}>{item.value}</Text>
+                      <Text style={[commonStyles.pb, {paddingLeft: 5}]}>{item.name === "color" ?  roundColor(item.value) : item.value}</Text>
                       <Ionicons name="md-close-circle" size={25} style={{paddingLeft: 5}} />
                     </View>
                   </TouchableHighlight>);
@@ -425,16 +426,18 @@ const styles = StyleSheet.create({
     flex: 1,
     flexDirection: "row",
     justifyContent: "center",
+    flexWrap: "wrap",
     paddingLeft: 5,
     paddingRight: 5,
     marginHorizontal: 5,
-    marginTop: 10
+    marginTop: 5
   },
   pill: {
     borderRadius: 25,
     // borderWidth: 2,
     padding: 5,
     marginHorizontal: 5,
+    marginTop: 5,
     backgroundColor: "#e9e9e9"
   },
 });
