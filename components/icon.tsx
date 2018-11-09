@@ -118,7 +118,7 @@ function CreateIcon(props: {accent?: boolean}) {
 function LibraryIcon(props: {accent?: boolean}) {
   if(props.accent){
     return (
-      <Svg height="30" width="21.4992" viewBox="416.393 92.984 28.677 40.016">
+      <Svg height="30" width="21.4992" viewBox="414.893 91.484 28.677 40.016">
         <G>
           <Rect height="34.016" width="22.677" fill="none" stroke="rgb(140,100,255)" strokeLinecap="square" strokeWidth="3" transform="matrix(1,0,0,1,0,0)" x="419.393" y="95.984"/>
           <Circle x="424.81420538094324" y="112.99212598425194" fill="rgb(235,235,235)" r="1.417322834645688" stroke="rgb(140,100,255)" strokeLinecap="square" strokeWidth="3"/>
@@ -129,10 +129,10 @@ function LibraryIcon(props: {accent?: boolean}) {
   } 
 
     return (
-      <Svg height="30" width="21.4992" viewBox="416.393 92.984 28.677 40.016">
+      <Svg height="30" width="21.4992" viewBox="414.893 91.484 28.677 40.016"> 
         <G>
-          <Rect height="34.016" width="22.677" fill="none" stroke="rgb(0,0,0)" strokeLinecap="square" strokeWidth="3" transform="matrix(1,0,0,1,0,0)" x="419.393" y="95.984"/>
-          <Circle x="424.81420538094324" y="112.99212598425194" fill="rgb(235,235,235)" r="1.417322834645688" stroke="rgb(0,0,0)" strokeLinecap="square" strokeWidth="3"/>
+          <Rect height="34.016" width="22.677" fill="none" stroke="rgb(0,0,0)" strokeLinecap="square" strokeWidth="3" transform="matrix(1,0,0,1,0,0)" x="419.393" y="95.984" vectorEffect="non-scaling-stroke"/>
+          <Circle x="424.81420538094324" y="112.99212598425194" fill="rgb(235,235,235)" r="1.417322834645688" stroke="rgb(0,0,0)" strokeLinecap="square" strokeWidth="3" vectorEffect="non-scaling-stroke"/>
         </G>
       </Svg>
     );
@@ -143,7 +143,7 @@ function StatsIcon(props: {accent?: boolean}) {
   if(props.accent){
 
     return (
-      <Svg height="30" width="26.0457" viewBox="502.732 91.484 37.346 43.016">
+      <Svg height="30" width="26.0457" viewBox="499.732 89.984 37.346 43.016">
         <G>
           <Path d=" M 507.232 95.984 L 507.232 130 L 535.578 130" fill="none" stroke="rgb(140,100,255)" strokeLinecap="square" strokeWidth="3"/>
           <Path d=" M 508.988 129.452 L 515.286 112.893 L 523.713 116.603 L 528.473 102.349" fill="none" stroke="rgb(140,100,255)" strokeLinecap="square" strokeWidth="3"/>
@@ -153,7 +153,7 @@ function StatsIcon(props: {accent?: boolean}) {
     );
   } 
   return (
-    <Svg height="30" width="26.0457" viewBox="502.732 91.484 37.346 43.016">
+    <Svg height="30" width="26.0457" viewBox="499.732 89.984 37.346 43.016">
     	<G>
     		<Path d=" M 507.232 95.984 L 507.232 130 L 535.578 130" fill="none" stroke="rgb(0,0,0)" strokeLinecap="square" strokeWidth="3"/>
     		<Path d=" M 508.988 129.452 L 515.286 112.893 L 523.713 116.603 L 528.473 102.349" fill="none" stroke="rgb(0,0,0)" strokeLinecap="square" strokeWidth="3"/>
