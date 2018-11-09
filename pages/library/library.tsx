@@ -19,7 +19,7 @@ import { ItemManager } from '../../components/itemManager';
 import { ItemView } from './itemView';
 import { Define } from '../add/define';
 import { SortSidebar } from './sortSidebar';
-import { MaterialIcons } from '@expo/vector-icons';
+import { MaterialIcons, Ionicons } from '@expo/vector-icons';
 
 const width = Dimensions.get('screen').width;
 const height = Dimensions.get('screen').height;
@@ -38,6 +38,7 @@ interface LibraryState {
   return: { addItem: (item: Item) => void, removeItem: (date: number) => void, replaceItem: (date: number, item: Item) => void };
   sortFilters: Array<{ type: "hide" | "order", name: string, value: any }>;
   searchValue: string;
+  topSpacerHeight: number;
 }
 
 export class Library extends React.Component<LibraryProps, LibraryState> {
@@ -53,7 +54,8 @@ export class Library extends React.Component<LibraryProps, LibraryState> {
       return: null,
       drawerOpen: false,
       sortFilters: [],
-      searchValue: ''
+      searchValue: '',
+      topSpacerHeight: 0
     };
   }
 
@@ -94,8 +96,8 @@ export class Library extends React.Component<LibraryProps, LibraryState> {
   );
 
   componentWillUnmount = () => {
-      // console.log("unmount library")
-      this.willFocusSubscription.remove();
+    // console.log("unmount library")
+    this.willFocusSubscription.remove();
   }
 
   loadMore = () => {
@@ -297,15 +299,17 @@ export class Library extends React.Component<LibraryProps, LibraryState> {
         <ScrollView horizontal pagingEnabled ref={this._drawer}>
           <View style={styles.page}>
             <ScrollView onScroll={({ nativeEvent }) => this.hasScrolledToEnd(nativeEvent, this.loadMore)} scrollEventThrottle={400}>
-              <View style={styles.topContainerSpacer} />
+              <View style={{height: this.state.topSpacerHeight - 10}} />
               {this.getTiles()}
             </ScrollView>
-            <View style={styles.fixedTopContainer}>
+            <View style={styles.fixedTopContainer} onLayout={(event) => {
+              var {height} = event.nativeEvent.layout;
+              this.setState({topSpacerHeight: height})}}>
               <View style={styles.searchAndSortContainer}>
                 <View style={styles.searchContainer}>
-                  <MaterialIcons name="search" size={30} color={StyleConstants.accentColor}/>
+                  <MaterialIcons name="search" size={30} color={StyleConstants.accentColor} />
                   <TextInput style={[styles.search, commonStyles.textInput]} placeholder="search" onChangeText={text => this.search(text)} value={this.state.searchValue} />
-                  {this.state.searchValue && <TouchableHighlight onPress={() => {this.search('')}}><MaterialIcons name="close" size={30} color={StyleConstants.accentColor} /></TouchableHighlight>}
+                  {this.state.searchValue && <TouchableHighlight onPress={() => { this.search('') }}><MaterialIcons name="close" size={30} color={StyleConstants.accentColor} /></TouchableHighlight>}
                 </View>
                 <TouchableHighlight
                   onPress={() => this.toggleSidebar()}
@@ -318,7 +322,11 @@ export class Library extends React.Component<LibraryProps, LibraryState> {
               <View style={styles.pillContainer}>
                 {this.state.sortFilters.map((item, index) => {
                   return (<TouchableHighlight style={styles.pill} key={index} onPress={() => this.removePill(index)} underlayColor="#e9e9e9">
-                    <Text style={commonStyles.pb}>{item.value}</Text>
+                    <View style={{flexDirection: "row", alignItems: "center"}}>
+
+                      <Text style={[commonStyles.pb, {paddingLeft: 5}]}>{item.value}</Text>
+                      <Ionicons name="md-close-circle" size={25} style={{paddingLeft: 5}} />
+                    </View>
                   </TouchableHighlight>);
                 })}
               </View>
@@ -420,17 +428,13 @@ const styles = StyleSheet.create({
     paddingLeft: 5,
     paddingRight: 5,
     marginHorizontal: 5,
+    marginTop: 10
   },
   pill: {
     borderRadius: 25,
-    borderWidth: 2,
+    // borderWidth: 2,
     padding: 5,
     marginHorizontal: 5,
-    backgroundColor: "#fff"
+    backgroundColor: "#e9e9e9"
   },
-  topContainerSpacer: {
-    height: 20,
-    width: '100%',
-    margin: 15
-  }
 });
