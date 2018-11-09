@@ -33,7 +33,7 @@ let App = createBottomTabNavigator(
       //review: change this to use accent color const in styles
       activeTintColor: '#8C64FF',
       inactiveTintColor: 'gray',
-      activeBackgroundColor: '#ccc',
+      activeBackgroundColor: '#e9e9e9',
       inactiveBackgroundColor: '#fff',
       showLabel: false
     },
