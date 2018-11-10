@@ -11,6 +11,7 @@ interface PageProps {
   scroll?: boolean;
   padding?: boolean;
   modal?: React.ReactNode;
+  style?: any;
 }
 interface PageState {
   showModal: boolean;
@@ -78,7 +79,7 @@ export class PageLayout extends React.Component<PageProps, PageState>{
       return (
         <React.Fragment>
 
-          <ScrollView style={[commonStyles.body, (this.props.padding && commonStyles.paddingFive)]}>
+          <ScrollView style={[commonStyles.body, this.props.style, (this.props.padding && commonStyles.paddingFive)]}>
             <View style={this.props.padding && { marginVertical: 5 }} />
             {this.props.children}
             <View style={this.props.padding && { marginVertical: 5 }} />
@@ -90,7 +91,7 @@ export class PageLayout extends React.Component<PageProps, PageState>{
     return (
       <React.Fragment>
 
-        <View style={[commonStyles.body, (this.props.padding && commonStyles.paddingFive)]}>
+        <View style={[commonStyles.body, this.props.style, (this.props.padding && commonStyles.paddingFive)]}>
           <View style={this.props.padding && { marginVertical: 5 }} />
           {this.props.children}
           <View style={this.props.padding && { marginVertical: 5 }} />
@@ -124,5 +125,6 @@ export const styles = StyleSheet.create({
     width: '100%',
     backgroundColor: '#fff',
     padding: width * 0.05,
+    borderRadius: 7.5
   }
 })

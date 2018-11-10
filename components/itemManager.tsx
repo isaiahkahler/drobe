@@ -37,6 +37,13 @@ export class ItemManager {
     return pages;
   }
 
+  static async getAllItems() {
+    let library = await this.getAllPages();
+    let items:Item[] = [];
+    library.forEach(e => {e.items.forEach(i => items.push(i))});
+    return items;
+  }
+
   static itemListToPages(itemList: Item[]) {
     let pages: Page[] = [];
     for (let item of itemList) {
@@ -150,37 +157,6 @@ export class ItemManager {
     callback(newPages);
 
   }
-
-  // static outfitRequirements(items: Item[]){ //needs to take COVER into consideration
-  //   let itemType:string[] = [];
-  //   let required:string[] = [];
-  //   for(let item of items){
-  //     if(item.class === 'full'){
-  //       if(ItemDefinitions.getCover(item.type) === 3){ //if full body needs top, it can be called a bottom
-  //         itemType.push('bottom')
-  //       }
-  //     } else {
-  //       if(ItemDefinitions.getCover(item.type) === 3){ //item needs to be worn with item of same type
-
-  //       }
-  //       itemType.push(item.class);
-  //     }
-  //   }
-  //   if(itemType.indexOf('top') === -1 ){
-  //     required.push('top')
-  //   }
-  //   if(itemType.indexOf('bottom') === -1 ){
-  //     required.push('bottom');
-  //   }
-  //   if(itemType.indexOf('shoes') === -1 ){
-  //     required.push('shoes');
-  //   }
-  //   return required;
-  // }
-
-  // static getOutfitRequirements(items: Item[]){
-  // not exactly logically sound! outfits can either be TOP + BOTTOM + SHOES or TOP + FULL3 + SHOES or FULL1/2 + SHOES
-  // }
 
   static isValidOutfit(items: Item[]) {
     let isTopBottomShoes =

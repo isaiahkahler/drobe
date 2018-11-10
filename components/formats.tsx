@@ -153,6 +153,13 @@ export const ItemDefinitions:
     getFormality: function(type) {
       return this.items.find((e) => e.type === type).formality;
     },
+    /**
+     * 1 - worn in hot weather
+     * 2 - worn in warm weather
+     * 3 - worn in chilly weather
+     * 4 - worn in cold weather
+     * @param type 
+     */
     getTemperature: function(type) {
       return this.items.find((e) => e.type === type).temperature;
 
@@ -229,3 +236,13 @@ export interface SortFilter {
   name: "date" | "type" | "color" | "formality" | "temperature",
   value: string
 }
+
+//review: change the question marks to {evenrything working} | {working: false}
+export interface Weather {
+  working: boolean, 
+  f?: number, 
+  c?: number, 
+  isUS?: boolean, 
+  city?: string, 
+  temp?: "hot" | "warm" | "chilly" | "cold" 
+} 

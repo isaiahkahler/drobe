@@ -1,76 +1,124 @@
 import Color from 'color';
+import { Permissions, Location } from 'expo';
+import { Weather } from './formats';
 
 const colorSpace: Array<{ name: string; color: { r: number; g: number; b: number } }> = [
-    { name: 'black', color: { r: 0, g: 0, b: 0 } },
-    { name: 'gray', color: { r: 128, g: 128, b: 128 } },
-    { name: 'white', color: { r: 255, g: 255, b: 255 } },
-    { name: 'maroon', color: { r: 128, g: 0, b: 0 } },
-    { name: 'red', color: { r: 230, g: 25, b: 75 } },
-    { name: 'pink', color: { r: 250, g: 190, b: 190 } },
-    { name: 'brown', color: { r: 170, g: 110, b: 40 } },
-    { name: 'orange', color: { r: 245, g: 130, b: 48 } },
-    { name: 'apricot', color: { r: 255, g: 215, b: 180 } },
-    { name: 'olive', color: { r: 128, g: 128, b: 0 } },
-    { name: 'yellow', color: { r: 255, g: 255, b: 25 } },
-    { name: 'beige', color: { r: 255, g: 250, b: 200 } },
-    { name: 'lime', color: { r: 210, g: 245, b: 60 } },
-    { name: 'green', color: { r: 60, g: 180, b: 75 } },
-    { name: 'mint', color: { r: 170, g: 255, b: 195 } },
-    { name: 'teal', color: { r: 0, g: 128, b: 128 } },
-    { name: 'cyan', color: { r: 70, g: 240, b: 240 } },
-    { name: 'navy', color: { r: 0, g: 0, b: 128 } },
-    { name: 'blue', color: { r: 0, g: 130, b: 200 } },
-    { name: 'purple', color: { r: 145, g: 30, b: 180 } },
-    { name: 'lavender', color: { r: 230, g: 190, b: 255 } },
-    { name: 'magenta', color: { r: 240, g: 50, b: 230 } }
-    // {name: "", color: {r: , g: , b: }},
-  ];
-  
-  export function colorDistance(color1: string, color2: string) {
-    let color1obj = Color(color1).object();
-    let color2obj = Color(color2).object();
-    return Math.sqrt(
-      Math.pow(color1obj.r - color2obj.r, 2) +
-      Math.pow(color1obj.g - color2obj.g, 2) +
-      Math.pow(color1obj.b - color2obj.b, 2)
+  { name: 'black', color: { r: 0, g: 0, b: 0 } },
+  { name: 'gray', color: { r: 128, g: 128, b: 128 } },
+  { name: 'white', color: { r: 255, g: 255, b: 255 } },
+  { name: 'maroon', color: { r: 128, g: 0, b: 0 } },
+  { name: 'red', color: { r: 230, g: 25, b: 75 } },
+  { name: 'pink', color: { r: 250, g: 190, b: 190 } },
+  { name: 'brown', color: { r: 170, g: 110, b: 40 } },
+  { name: 'orange', color: { r: 245, g: 130, b: 48 } },
+  { name: 'apricot', color: { r: 255, g: 215, b: 180 } },
+  { name: 'olive', color: { r: 128, g: 128, b: 0 } },
+  { name: 'yellow', color: { r: 255, g: 255, b: 25 } },
+  { name: 'beige', color: { r: 255, g: 250, b: 200 } },
+  { name: 'lime', color: { r: 210, g: 245, b: 60 } },
+  { name: 'green', color: { r: 60, g: 180, b: 75 } },
+  { name: 'mint', color: { r: 170, g: 255, b: 195 } },
+  { name: 'teal', color: { r: 0, g: 128, b: 128 } },
+  { name: 'cyan', color: { r: 70, g: 240, b: 240 } },
+  { name: 'navy', color: { r: 0, g: 0, b: 128 } },
+  { name: 'blue', color: { r: 0, g: 130, b: 200 } },
+  { name: 'purple', color: { r: 145, g: 30, b: 180 } },
+  { name: 'lavender', color: { r: 230, g: 190, b: 255 } },
+  { name: 'magenta', color: { r: 240, g: 50, b: 230 } }
+  // {name: "", color: {r: , g: , b: }},
+];
+
+export function colorDistance(color1: string, color2: string) {
+  let color1obj = Color(color1).object();
+  let color2obj = Color(color2).object();
+  return Math.sqrt(
+    Math.pow(color1obj.r - color2obj.r, 2) +
+    Math.pow(color1obj.g - color2obj.g, 2) +
+    Math.pow(color1obj.b - color2obj.b, 2)
+  );
+}
+
+export function roundColor(color: string): string {
+  let colorRGB = Color(color).object();
+
+  let smallestIndex = 0;
+  let smallest = 10000;
+  let index = 0;
+  for (let color of colorSpace) {
+    let distance = Math.sqrt(
+      Math.pow(colorRGB.r - color.color.r, 2) +
+      Math.pow(colorRGB.g - color.color.g, 2) +
+      Math.pow(colorRGB.b - color.color.b, 2)
     );
-  }
-  
-  export function roundColor(color: string): string {
-    let colorRGB = Color(color).object();
-  
-    let smallestIndex = 0;
-    let smallest = 10000;
-    let index = 0;
-    for (let color of colorSpace) {
-      let distance = Math.sqrt(
-        Math.pow(colorRGB.r - color.color.r, 2) +
-        Math.pow(colorRGB.g - color.color.g, 2) +
-        Math.pow(colorRGB.b - color.color.b, 2)
-      );
-      if (distance < smallest) {
-        smallest = distance;
-        smallestIndex = index;
-      }
-      index++;
+    if (distance < smallest) {
+      smallest = distance;
+      smallestIndex = index;
     }
-    return colorSpace[smallestIndex].name;
+    index++;
   }
-  
-  export function roundColors(colors: string[]) {
-    let allColors = '';
-    let index = 0;
-    for (let color of colors) {
-      if (index === 0) {
-        allColors += roundColor(color);
+  return colorSpace[smallestIndex].name;
+}
+
+export function roundColors(colors: string[]) {
+  let allColors = '';
+  let index = 0;
+  for (let color of colors) {
+    if (index === 0) {
+      allColors += roundColor(color);
+    } else {
+      if (index === colors.length - 1) {
+        allColors = allColors + " and " + roundColor(color);
       } else {
-        if (index === colors.length - 1) {
-          allColors = allColors + " and " + roundColor(color);
-        } else {
-          allColors = allColors + ', ' + roundColor(color);
-        }
+        allColors = allColors + ', ' + roundColor(color);
       }
-      index++;
     }
-    return allColors;
+    index++;
   }
+  return allColors;
+}
+
+export async function getWeather() : Promise<Weather> {
+  let permission = await Permissions.getAsync(Permissions.LOCATION);
+  if (permission.status === "undetermined") {
+    await Permissions.askAsync("location");
+    //to do : this
+    //asked now try again
+    let newPermissionState = await Permissions.getAsync(Permissions.LOCATION);
+    if (newPermissionState.status === "denied") {
+      return { working: false };
+    } else {
+      return getTemperaturePermissionGranted();
+    }
+  } else if (permission.status === "granted") {
+    return getTemperaturePermissionGranted();
+  } else {
+    return { working: false };
+  }
+}
+
+async function getTemperaturePermissionGranted() : Promise<Weather> {
+  try {
+    let location = await Location.getCurrentPositionAsync({ enableHighAccuracy: false });
+    let response = await fetch(`https://api.openweathermap.org/data/2.5/weather?lat=${location.coords.latitude}&lon=${location.coords.longitude}&APPID=f5d6ef4e8483e37868b945b9c390e6cb`, { method: "GET" });
+    let json = await response.json();
+    let temp = json["main"]["temp"];
+    let isUS = json["sys"]["country"] === "US"; 
+    let city = json["name"];
+    let f = (temp - 273.15) * 9/5 + 32;
+    let c = temp - 273.15;
+    let tempString;
+    if(f > 75){
+      tempString = "hot";
+    } else if(f > 65){
+      tempString = "warm";
+    } else if(f > 50){
+      tempString = "chilly";
+    } else {
+      tempString = "cold";
+    }
+    return {working: true, f: f, c: c, isUS: isUS, city: city, temp: tempString};
+  } catch (error) {
+    alert("there was an error getting the weather." + error)
+    return { working: false };
+  }
+}
