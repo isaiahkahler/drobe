@@ -1,10 +1,22 @@
 {
   "expo": {
     "name": "drobe",
+    "description": "A smart closet organization app.",
     "sdkVersion": "27.0.0",
     "packagerOpts": {
-      "sourceExts": ["ts", "tsx"],
+      "sourceExts": [
+        "ts",
+        "tsx"
+      ],
       "transformer": "node_modules/react-native-typescript-transformer/index.js"
+    },
+    "orientation": "portrait",
+    "primaryColor": "#8C64FF",
+    "icon": "media/icon.png",
+    "splash": {
+      "backgroundColor": "#FFFFFF",
+      "resizeMode": "contain",
+      "image": "media/loading.png"
     }
   }
 }
