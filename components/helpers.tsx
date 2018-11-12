@@ -87,16 +87,16 @@ export async function getWeather() : Promise<Weather> {
     if (newPermissionState.status === "denied") {
       return { working: false };
     } else {
-      return getTemperaturePermissionGranted();
+      return fetchWeather();
     }
   } else if (permission.status === "granted") {
-    return getTemperaturePermissionGranted();
+    return fetchWeather();
   } else {
     return { working: false };
   }
 }
 
-async function getTemperaturePermissionGranted() : Promise<Weather> {
+async function fetchWeather() : Promise<Weather> {
   try {
     let location = await Location.getCurrentPositionAsync({ enableHighAccuracy: false });
     let response = await fetch(`https://api.openweathermap.org/data/2.5/weather?lat=${location.coords.latitude}&lon=${location.coords.longitude}&APPID=f5d6ef4e8483e37868b945b9c390e6cb`, { method: "GET" });
@@ -121,4 +121,8 @@ async function getTemperaturePermissionGranted() : Promise<Weather> {
     alert("there was an error getting the weather." + error)
     return { working: false };
   }
+}
+
+export function clipRange(value: number, initialRange: number, finalRange: number){
+  return finalRange * value / initialRange;
 }

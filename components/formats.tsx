@@ -22,6 +22,21 @@ export interface Item {
   photoURI: string;
 }
 
+export interface Score {
+  overall: number,
+  colors: number,
+}
+
+export interface Outfit {
+  items: {
+    baseRegular: {top: Item, bottom: Item} | undefined, 
+    baseFull: Item | undefined,
+    layers: Item[] | undefined, 
+    accessories: Item[] | undefined,
+  };
+  score: Score;
+}
+
 //review: INCONTINUITY! is it FULL or FULL BODY?
 export const ItemDefinitions: 
 { 
