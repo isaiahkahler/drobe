@@ -200,9 +200,8 @@ export class Library extends React.Component<LibraryProps, LibraryState> {
                             'Would you like to remove it?',
                             [
                               { text: 'remove', onPress: () => this.state.return.removeItem(item.date) },
-                              { text: 'cancel' }
+                              { text: 'cancel', style: 'cancel'  }
                             ],
-                            { cancelable: false }
                           )
                         } else if (isSameClass || isSameType) {
                           //the user has already picked an item for that class. replace?
@@ -222,9 +221,8 @@ export class Library extends React.Component<LibraryProps, LibraryState> {
                             [
                               //item.date of item to REMOVE
                               { text: 'replace', onPress: () => this.state.return.replaceItem(greyItem.date, item) },
-                              { text: 'cancel' }
+                              { text: 'cancel', style: 'cancel'  }
                             ],
-                            { cancelable: false }
                           )
                         }
                       } else {

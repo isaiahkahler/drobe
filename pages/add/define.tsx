@@ -357,7 +357,7 @@ export class Define extends React.Component<DefineProps, DefineState> {
                         >
                           <Picker.Item label="top" value="top" />
                           <Picker.Item label="bottom" value="bottom" />
-                          <Picker.Item label="full body" value="full body" />
+                          <Picker.Item label="full body" value="full" />
                           <Picker.Item label="shoes" value="shoes" />
                           <Picker.Item label="accessory" value="accessory" />
                         </Picker>
@@ -563,7 +563,7 @@ const styles = StyleSheet.create({
   androidPicker: {
     // borderWidth: 2,
     // borderColor: '#000',
-    // borderRadius: 10
+    borderRadius: 7.5,
     backgroundColor: "#e9e9e9"
   },
   typeList: {

@@ -39,8 +39,7 @@ export class Automatic extends React.Component<AutomaticProps, AutomaticState> {
   }
 
   getWeather = async () => {
-    let weather = await getWeather();
-    this.setState({ weather: weather });
+    getWeather().then(weather => this.setState({ weather: weather }));
   }
 
   async getRecommendedOutfits() {

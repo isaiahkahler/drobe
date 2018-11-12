@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { StyleSheet, View, Text, Image, Dimensions, TouchableHighlight } from 'react-native';
+import { StyleSheet, View, Text, Image, Dimensions, TouchableHighlight, Alert } from 'react-native';
 import { PageLayout } from '../../components/page';
 import { commonStyles } from '../../components/styles';
 import { Item, Page } from '../../components/formats';
@@ -27,14 +27,13 @@ export class ItemView extends React.Component<ItemViewProps, ItemViewState> {
     super(props);
     this.state = { pageIndex: null, itemIndex: null, item: null, editMode: false };
   }
+  //review: is the second param of 'get param' the default value?
   static navigationOptions = ({ navigation }) => {
     return {
       title: navigation.getParam('title', 'Item'),
       headerRight: (
-        //review: is the second param the default value?
         navigation.getParam('editMode', undefined) && <TouchableHighlight onPress={navigation.getParam('edit', () => { })} underlayColor='rgba(0,0,0,0)'>
-          {/* <Text>Edit</Text> */}
-          <MaterialIcons name="edit" size={30} style={{marginRight: width * 0.05}}/>
+          <MaterialIcons name="edit" size={30} style={{ marginRight: width * 0.05 }} />
         </TouchableHighlight>
       )
     };
@@ -46,7 +45,7 @@ export class ItemView extends React.Component<ItemViewProps, ItemViewState> {
       this.setState({ pageIndex: navigation.state.params.pageIndex, itemIndex: navigation.state.params.itemIndex });
     }
     //review: is this ok? should if (editMode) ?
-    this.setState({editMode: navigation.state.params.hasOwnProperty('editMode')})
+    this.setState({ editMode: navigation.state.params.hasOwnProperty('editMode') })
     this.setState({ item: navigation.state.params.item });
     navigation.setParams({ edit: this.editItem })
   };
@@ -59,6 +58,22 @@ export class ItemView extends React.Component<ItemViewProps, ItemViewState> {
         this.props.navigation.navigate('Edit');
       });
     }
+  }
+
+  deleteItem = async () => {
+    Alert.alert(
+      'Delete Item',
+      'Are you sure you want to delete this from your library? You cannot undo this action.',
+      [
+        {
+          text: 'yes', onPress: async () => {
+            await Storage.DeleteItem(this.state.pageIndex, this.state.itemIndex)
+            this.props.navigation.navigate("Library");
+          }
+        },
+        { text: 'cancel', style: 'cancel' },
+      ],
+    )
   }
 
   render() {
@@ -86,11 +101,7 @@ export class ItemView extends React.Component<ItemViewProps, ItemViewState> {
             value={this.state.item.laundry}
           />
           {/* <ShowValue name="date added:" type="date" value={moment(this.state.item.date).calendar()} /> */}
-          {this.state.editMode && <TouchableHighlight onPress={
-            async () => {
-              await Storage.DeleteItem(this.state.pageIndex, this.state.itemIndex)
-              this.props.navigation.navigate("Library");
-            }}
+          {this.state.editMode && <TouchableHighlight onPress={() => this.deleteItem()}
             style={[commonStyles.button, { backgroundColor: "#ff0000", marginTop: 5 }]}
             underlayColor="rgba(0,0,0,0.2)">
             <Text style={[commonStyles.pb, commonStyles.centerText, { color: "#fff" }]}>

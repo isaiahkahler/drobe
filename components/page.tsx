@@ -42,9 +42,11 @@ export class PageLayout extends React.Component<PageProps, PageState>{
   closeModal = () => {
     Animated.spring(this.state.modalFadeInAnimation, {
       toValue: 0,
+      overshootClamping: true
     }).start();
     Animated.spring(this.state.modalSlideUpAnimation, {
-      toValue: -50
+      toValue: -50,
+      overshootClamping: true
     }).start(() => {
       this.setState({ showModal: false })
     });
@@ -54,9 +56,11 @@ export class PageLayout extends React.Component<PageProps, PageState>{
     this.setState({ showModal: true }, () => {
       Animated.spring(this.state.modalFadeInAnimation, {
         toValue: 1,
+        overshootClamping: true
       }).start();
       Animated.spring(this.state.modalSlideUpAnimation, {
-        toValue: 0
+        toValue: 0,
+        overshootClamping: true
       }).start();
     })
   }
