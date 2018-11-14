@@ -35,8 +35,9 @@ interface LibraryState {
   selectionMode: "one" | "many" | "none";
   greyMode: boolean;
   greyItems: Array<{ class?: string, type?: string, cover?: number, date?: number, id?: number }>;
+  allowed: Array<{ class?: string, type?: string, cover?: number, date?: number, id?: number }>;
   drawerOpen: boolean;
-  return: { addItem: (item: Item) => void, removeItem: (date: number) => void, replaceItem: (date: number, item: Item) => void };
+  return: { putItem: (item: Item) => void, removeItem: (date: number) => void };
   sortFilters: Array<{ type: "hide" | "order", name: string, value: any }>;
   searchValue: string;
   topSpacerHeight: number;
@@ -52,6 +53,7 @@ export class Library extends React.Component<LibraryProps, LibraryState> {
       selectionMode: "none",
       greyMode: false,
       greyItems: [],
+      allowed: null,
       return: null,
       drawerOpen: false,
       sortFilters: [],
@@ -70,7 +72,7 @@ export class Library extends React.Component<LibraryProps, LibraryState> {
     if (navigation.state.params.hasOwnProperty('selectionMode')) {
       this.setState({ selectionMode: navigation.state.params.selectionMode });
     }
-    if (navigation.state.params.hasOwnProperty('filters')) {
+    if (navigation.state.params.hasOwnProperty('greyFilters')) {
       this.setState({ greyItems: navigation.state.params.filters });
     }
     if (navigation.state.params.hasOwnProperty('greyMode')) {
@@ -78,6 +80,9 @@ export class Library extends React.Component<LibraryProps, LibraryState> {
     }
     if (navigation.state.params.hasOwnProperty('return')) {
       this.setState({ return: navigation.state.params.return })
+    }
+    if (navigation.state.params.hasOwnProperty('allowed')) {
+      this.setState({ allowed: navigation.state.params.allowed })
     }
   }
 
@@ -125,6 +130,12 @@ export class Library extends React.Component<LibraryProps, LibraryState> {
   }
 
   setPages = (pages: Page[]) => {
+    let 
+    pages.forEach(page => {
+      page.items.forEach(item => {
+        
+      })
+    })
     this.setState({ pages: pages, pagesShown: 1 })
   }
 
@@ -174,6 +185,8 @@ export class Library extends React.Component<LibraryProps, LibraryState> {
     this.setState({ sortFilters: [] });
   }
 
+  //review: i did not double check any of the grey item stuff after i rewrote manual.
+  //delete unncessary code.
   getTiles() {
     return this.state.pages.slice(0, this.state.pagesShown).map((page, pageIndex) => {
       return (
@@ -220,13 +233,13 @@ export class Library extends React.Component<LibraryProps, LibraryState> {
                             `Would you like to replace ${greyItem.name} with ${item.name}?`,
                             [
                               //item.date of item to REMOVE
-                              { text: 'replace', onPress: () => this.state.return.replaceItem(greyItem.date, item) },
+                              { text: 'replace', onPress: () => this.state.return.putItem(item) },
                               { text: 'cancel', style: 'cancel'  }
                             ],
                           )
                         }
                       } else {
-                        this.state.return.addItem(this.state.pages[pageIndex].items[itemIndex]);
+                        this.state.return.putItem(this.state.pages[pageIndex].items[itemIndex]);
                       }
                     } else if (this.state.selectionMode === "many") {
                     } else {
