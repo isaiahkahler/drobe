@@ -2,6 +2,8 @@ import { ItemManager } from './itemManager';
 import { Page, Item, ItemDefinitions, Outfit, Score } from './formats';
 import { getWeather, colorDistance, clipRange } from './helpers';
 
+const colorSpaceMaxDistance = 441.6729559300637;
+
 export class Algorithms {
 
     /*review / thoughts: this returns an array which removes items with temp too far from the weather.
@@ -17,14 +19,14 @@ export class Algorithms {
         let weather = await getWeather();
         let filteredItems: Item[] = [];
         //review: should these be hand picked?
-        if(weather.temp === "hot") {
+        if (weather.temp === "hot") {
             filteredItems = items.filter(e => ItemDefinitions.getTemperature(e.type) === 1 || ItemDefinitions.getTemperature(e.type) === 2);
-        } else if(weather.temp === "warm"){
+        } else if (weather.temp === "warm") {
             filteredItems = items.filter(e => ItemDefinitions.getTemperature(e.type) === 1 || ItemDefinitions.getTemperature(e.type) === 2 || ItemDefinitions.getTemperature(e.type) === 3);
-        } else if(weather.temp === "chilly"){
-            filteredItems = items.filter(e => ItemDefinitions.getTemperature(e.type) === 2 || ItemDefinitions.getTemperature(e.type) === 3);            
+        } else if (weather.temp === "chilly") {
+            filteredItems = items.filter(e => ItemDefinitions.getTemperature(e.type) === 2 || ItemDefinitions.getTemperature(e.type) === 3);
         } else {
-            filteredItems = items.filter(e => ItemDefinitions.getTemperature(e.type) === 3 || ItemDefinitions.getTemperature(e.type) === 4);            
+            filteredItems = items.filter(e => ItemDefinitions.getTemperature(e.type) === 3 || ItemDefinitions.getTemperature(e.type) === 4);
         }
         return filteredItems;
     }
@@ -39,18 +41,18 @@ export class Algorithms {
         let outfits: Outfit[] = [];
         // library = await this.narrowByWeather(library);
         //create bases
-        let bases: Array<{top: Item, bottom: Item} | {full: Item}> = [];
+        let bases: Array<{ top: Item, bottom: Item } | { full: Item }> = [];
         let bottoms = library.filter(e => e.class === "bottom");
         let tops = library.filter(e => e.class === "top");
         let fulls = library.filter(e => e.class === "full");
-        for(let top of tops) {
-            for(let bottom of bottoms){
+        for (let top of tops) {
+            for (let bottom of bottoms) {
                 //review: limit to like 20 bases at a time? how would you load more?
-                bases.push({top: top, bottom: bottom});
+                bases.push({ top: top, bottom: bottom });
             }
         }
-        for(let full of fulls){
-            bases.push({full: full});
+        for (let full of fulls) {
+            bases.push({ full: full });
         }
         //add layers (add top)
         //based on temperature?
@@ -62,51 +64,145 @@ export class Algorithms {
 
     static scoreOutfit(outfit: Outfit): Score {
         // let library = await ItemManager.getAllItems();
-        let colorScore;
+        let colorScore = this.scoreColors(outfit);
         let personalityScore;
         let styleScore;
+        console.log(colorScore)
+        return {colors: -1, overall: -1}
+
+    }
+
+    static scoreColors(outfit: Outfit) {
         // calculate color score
-            //set array of base colors and layer colors
-        let baseColors:string[] = [];
-        if(!!outfit.items.baseRegular){
+
+        let baseColors: string[] = [];
+        let layerColors: string[] = [];
+        let colorDistances: number[] = [];
+
+        //push base colors
+        if (!!outfit.items.baseRegular) {
             outfit.items.baseRegular.top.colors.forEach(color => baseColors.push(color));
             outfit.items.baseRegular.bottom.colors.forEach(color => baseColors.push(color));
         } else {
             outfit.items.baseFull.colors.forEach(color => baseColors.push(color))
         }
 
-        let layerColors: string[] = [];
-        if(!!outfit.items.layers){
+        //push layer colors
+        if (!!outfit.items.layers) { //if outfit has layers
             outfit.items.layers.forEach(item => {
                 item.colors.forEach(color => {
                     layerColors.push(color);
                 })
             })
+
         }
 
+
+        if (!!outfit.items.layers) {
             //compare base colors to layer colors
             //you probably want to change this in the future to pick complimentary colors
-        let colorDistances: number[] = [];
-        for(let baseColor of baseColors){
-            for(let layerColor of layerColors){
-                colorDistances.push(colorDistance(baseColor, layerColor));
+            for (let baseColor of baseColors) {
+                for (let layerColor of layerColors) {
+                    colorDistances.push(colorDistance(baseColor, layerColor));
+                }
+            }
+        } else {
+            //no layers, just compare base colors to itself
+            let topColors: string[] = [];
+            outfit.items.baseRegular.top.colors.forEach(color => topColors.push(color));
+            let bottomColors: string[] = [];
+            outfit.items.baseRegular.bottom.colors.forEach(color => bottomColors.push(color));
+            console.log('top colors', topColors, 'bottom colors', bottomColors)
+            for(let topColor of topColors){
+                for(let bottomColor of bottomColors){
+                    colorDistances.push(colorDistance(topColor, bottomColor));
+                }
             }
         }
-        
-        let smallestDistance = 300;
+
+
+        let smallestDistance = 500;
         let largestDistance = 0;
-        for(let distance of colorDistances) {
-            if(distance < smallestDistance){
+        for (let distance of colorDistances) {
+            if (distance < smallestDistance) {
                 smallestDistance = distance;
             }
-            if(distance > largestDistance) {
+            if (distance > largestDistance) {
                 largestDistance = distance
             }
-        } 
-        colorScore = 
-         (100 - clipRange(smallestDistance, 441.6729559300637, 100))
+        }
+        let colorScore =
+            (100 - clipRange(smallestDistance, colorSpaceMaxDistance, 100))
         //  +
-        //  clipRange(largestDistance, 441.6729559300637, 100) - 100 //largest distance should be ??
-        return {colors: colorScore, overall: colorScore}
+        //  clipRange(largestDistance, colorSpaceMaxDistance, 100) - 100 //largest distance should be ??
+        return {smallest: clipRange(smallestDistance, colorSpaceMaxDistance, 100), largest: clipRange(largestDistance, colorSpaceMaxDistance, 100)};
     }
+
+
+    //if a two part base
+        //find color distance of top and bottom
+        //if above 50, 110-distance = base score //idea: abstact the 110 value by dividing to generalize the number then size it up again
+        //else + 85 = base score
+        //if above 100, do 100-(score - 100)
+
+        //if has layers
+            //for each layer
+            //count layers
+
+            //if dist from layer to top is below 50
+            // 130 - distance = layer score
+            //else 15 + distance *to bottom* = layer score
+            //if above 100, do 100-(score - 100)
+            //add score to layer score
+            //average layer score
+
+        //else 
+            //dont calculate for layer score?
+
+        //if has shoes // bad idea?
+            //find smallest distance to top or bottom
+            // if above 50, (middle of the 2 values)
+            // 90 (ideally range btwn 0-20) + smallest dist
+            //if above 100, cut off
+            // = shoe score
+
+            //return all 3 scores back, 
+            //average score
+
+    //else (if a full)
+        //dont have a base score?
+        //compare base colors against themselves?
+
+        //if has layers
+            //for each layer
+            //count layers
+
+            //if dist from layer to base is below 50
+            // 130 - distance = layer score
+            //else 15 + distance  = layer score
+            //if above 100, do 100-(score - 100)
+            //add score to layer score
+            //average layer score
+
+        //else 
+            //dont calculate for layer score?
+
+        //if has shoes // bad idea?
+            //find smallest distance to a color of base
+            // if above 50, (middle of the 2 values)
+            // 90 (ideally range btwn 0-20) + smallest dist
+            //if above 100, cut off
+            // = shoe score
+
+            //return all 3 scores back, 
+            //average score
+
+
+        //oof::: how to deal with MANY colors? on one item
+        
+        //INVESTIGATE: how does adding / subtracting effect score?
+        //also!!!!! i dont think any of these individual scoring equations give on a range from 0-100, clip range?
+
+        //how would the generalizing function work?
+        //before doing calculations, you could multiply things by a number, like 10, do the calculations, then divide by the number, so things are shifted by a factor of 10
 }
