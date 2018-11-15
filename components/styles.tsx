@@ -58,5 +58,7 @@ export const commonStyles = StyleSheet.create({
 });
 
 export const StyleConstants = {
-  accentColor: "#8C64FF"
+  accentColor: "#8C64FF",
+  successColor: "#23D160",
+  warningColor: "#FF3860"
 }

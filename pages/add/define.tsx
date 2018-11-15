@@ -18,7 +18,7 @@ import {
   Easing
 } from 'react-native';
 import { PageLayout } from '../../components/page';
-import { commonStyles } from '../../components/styles';
+import { commonStyles, StyleConstants } from '../../components/styles';
 import { Item, ItemDefinitions } from '../../components/formats';
 import { Storage } from '../../components/storage';
 import { ItemManager } from '../../components/itemManager';
@@ -381,7 +381,8 @@ export class Define extends React.Component<DefineProps, DefineState> {
                   style={[
                     commonStyles.button,
                     !!(this.state.showRequired && !this.state.options.type) && {
-                      borderColor: '#e6194B'
+                      borderColor: StyleConstants.warningColor,
+                      borderWidth: 2
                     }
                   ]}
                 >
@@ -496,7 +497,8 @@ export class Define extends React.Component<DefineProps, DefineState> {
                       style={[
                         commonStyles.button,
                         !!(this.state.showRequired && !this.state.options.colors) && {
-                          borderColor: '#e6194B'
+                          borderColor: StyleConstants.warningColor,
+                          borderWidth: 2
                         }
                       ]}
                       onPress={() => {
@@ -534,7 +536,7 @@ function Label(props: { children: any; isFilledIn?: any; showRequired?: boolean 
     return (
       <View style={[styles.label]}>
         <Text
-          style={[commonStyles.pb, !props.isFilledIn && props.showRequired && { color: '#e6194B' }]}
+          style={[commonStyles.pb, !props.isFilledIn && props.showRequired && { color: StyleConstants.warningColor }]}
         >
           {props.children}
         </Text>
