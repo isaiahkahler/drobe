@@ -14,7 +14,7 @@ import {
 import { PageLayout } from '../../components/page';
 import { commonStyles, StyleConstants } from '../../components/styles';
 import { createStackNavigator } from 'react-navigation';
-import { Item, Page } from '../../components/formats';
+import { Item, Page, ItemDefinitions } from '../../components/formats';
 import { ItemManager } from '../../components/itemManager';
 import { ItemView } from './itemView';
 import { Define } from '../add/define';
@@ -34,10 +34,12 @@ interface LibraryState {
   pagesShown: number;
   selectionMode: "one" | "many" | "none";
   greyMode: boolean;
-  greyItems: Array<{ class?: string, type?: string, cover?: number, date?: number, id?: number }>;
-  allowed: Array<{ class?: string, type?: string, cover?: number, date?: number, id?: number }>;
+  greyFilters: {
+    allowed: Array<{ class?: string, type?: string, cover?: number, date?: number }>,
+    disallowed: Array<{ class?: string, type?: string, cover?: number, date?: number }>
+  };
   drawerOpen: boolean;
-  return: { putItem: (item: Item) => void, removeItem: (date: number) => void };
+  return: { setItem: (item: Item) => void, removeItem: (date: number) => void };
   sortFilters: Array<{ type: "hide" | "order", name: string, value: any }>;
   searchValue: string;
   topSpacerHeight: number;
@@ -52,8 +54,7 @@ export class Library extends React.Component<LibraryProps, LibraryState> {
       pagesShown: 1,
       selectionMode: "none",
       greyMode: false,
-      greyItems: [],
-      allowed: null,
+      greyFilters: { allowed: [], disallowed: [] },
       return: null,
       drawerOpen: false,
       sortFilters: [],
@@ -73,16 +74,13 @@ export class Library extends React.Component<LibraryProps, LibraryState> {
       this.setState({ selectionMode: navigation.state.params.selectionMode });
     }
     if (navigation.state.params.hasOwnProperty('greyFilters')) {
-      this.setState({ greyItems: navigation.state.params.filters });
+      this.setState({ greyFilters: navigation.state.params.greyFilters });
     }
     if (navigation.state.params.hasOwnProperty('greyMode')) {
       this.setState({ greyMode: navigation.state.params.greyMode });
     }
     if (navigation.state.params.hasOwnProperty('return')) {
       this.setState({ return: navigation.state.params.return })
-    }
-    if (navigation.state.params.hasOwnProperty('allowed')) {
-      this.setState({ allowed: navigation.state.params.allowed })
     }
   }
 
@@ -93,18 +91,18 @@ export class Library extends React.Component<LibraryProps, LibraryState> {
   };
 
   //review: do you need to reload on every focus?
-  willFocusSubscription = this.props.navigation.addListener(
-    'willFocus',
-    payload => {
-      // console.log('willFocus');
-      this.loadLibrary()
-    }
-  );
+  // willFocusSubscription = this.props.navigation.addListener(
+  //   'willFocus',
+  //   payload => {
+  //     // console.log('willFocus');
+  //     this.loadLibrary()
+  //   }
+  // );
 
-  componentWillUnmount = () => {
-    // console.log("unmount library")
-    this.willFocusSubscription.remove();
-  }
+  // componentWillUnmount = () => {
+  //   // console.log("unmount library")
+  //   this.willFocusSubscription.remove();
+  // }
 
   loadMore = () => {
     if (this.state.pages.length > this.state.pagesShown) {
@@ -130,12 +128,6 @@ export class Library extends React.Component<LibraryProps, LibraryState> {
   }
 
   setPages = (pages: Page[]) => {
-    let 
-    pages.forEach(page => {
-      page.items.forEach(item => {
-        
-      })
-    })
     this.setState({ pages: pages, pagesShown: 1 })
   }
 
@@ -185,6 +177,53 @@ export class Library extends React.Component<LibraryProps, LibraryState> {
     this.setState({ sortFilters: [] });
   }
 
+  getAllowedItems = (item:Item) => {
+    let itemIsAllowed = false;
+    this.state.greyFilters.allowed.forEach(filter => {
+      //for each allowed filter
+      let itemEqualsAllKeys = true;
+      Object.keys(filter).forEach(key => {
+        //for each key of filter like CLASS, TYPE
+        if (key === "cover") {
+          if (ItemDefinitions.getCover(item.type) !== filter[key]) {
+            itemEqualsAllKeys = false;
+          }
+        } else {
+          if (item[key] !== filter[key]) { //if item value not same as filter value
+            itemEqualsAllKeys = false;
+          }
+        }
+      })
+      if (itemEqualsAllKeys) {
+        itemIsAllowed = true;
+      }
+    });
+    return itemIsAllowed;
+  }
+
+  //review: BROKEN
+  getDisallowedItems = (item:Item) => {
+    let itemIsDisallowed = false;
+    this.state.greyFilters.disallowed.forEach(filter => {
+      let itemEqualsAllKeys = true;
+      Object.keys(filter).forEach(key => {
+        if (key === "cover") {
+          if (ItemDefinitions.getCover(item.type) !== filter[key]) {
+            itemEqualsAllKeys = false;
+          }
+        } else {
+          if (item[key] !== filter[key]) { //if item value not same as filter value
+            itemEqualsAllKeys = false;
+          }
+        }
+      })
+      if (itemEqualsAllKeys) {
+        itemIsDisallowed = true;
+      }
+    });
+    return itemIsDisallowed;
+  } 
+
   //review: i did not double check any of the grey item stuff after i rewrote manual.
   //delete unncessary code.
   getTiles() {
@@ -192,10 +231,7 @@ export class Library extends React.Component<LibraryProps, LibraryState> {
       return (
         <View key={pageIndex} style={styles.container}>
           {page.items.map((item, itemIndex) => {
-            const isSameClass = this.state.greyItems.findIndex(e => e.class === item.class) !== -1;
-            const isSameType = this.state.greyItems.findIndex(e => e.type === item.type) !== -1;
-            const isSameItem = this.state.greyItems.findIndex(e => e.date === item.date) !== -1;
-            const isGreyItem = this.state.greyMode && (isSameClass || isSameType || isSameItem);
+            let isGreyItem = this.state.greyMode && (!this.getAllowedItems(item) || this.getDisallowedItems(item));
             return (
               <View style={{
                 marginHorizontal: '5%',
@@ -205,41 +241,10 @@ export class Library extends React.Component<LibraryProps, LibraryState> {
                   underlayColor="rgba(0,0,0,0)"
                   onPress={() => {
                     if (this.state.selectionMode === "one") {
-                      if (isGreyItem) {
-                        if (isSameItem) {
-                          //say the user has already picked this item. ask to remove it?
-                          Alert.alert(
-                            'This item is already in your outfit',
-                            'Would you like to remove it?',
-                            [
-                              { text: 'remove', onPress: () => this.state.return.removeItem(item.date) },
-                              { text: 'cancel', style: 'cancel'  }
-                            ],
-                          )
-                        } else if (isSameClass || isSameType) {
-                          //the user has already picked an item for that class. replace?
-                          let greyID = this.state.greyItems.find(e => e.class === item.class || e.type === item.type).id;
-                          let greyItem: Item;
-                          this.state.library.forEach((value, index) => {
-                            value.items.forEach(value => {
-                              if (value.date === greyID) {
-                                greyItem = value;
-                              }
-                            })
-                          })
-
-                          Alert.alert(
-                            'This item overlaps',
-                            `Would you like to replace ${greyItem.name} with ${item.name}?`,
-                            [
-                              //item.date of item to REMOVE
-                              { text: 'replace', onPress: () => this.state.return.putItem(item) },
-                              { text: 'cancel', style: 'cancel'  }
-                            ],
-                          )
-                        }
+                      if(isGreyItem){
+                        alert("sorry you cannot pick this item.");
                       } else {
-                        this.state.return.putItem(this.state.pages[pageIndex].items[itemIndex]);
+                        this.state.return.setItem(this.state.pages[pageIndex].items[itemIndex]);
                       }
                     } else if (this.state.selectionMode === "many") {
                     } else {
@@ -255,9 +260,6 @@ export class Library extends React.Component<LibraryProps, LibraryState> {
                 >
                   <View>
 
-
-
-
                     {isGreyItem ? (
 
                       <React.Fragment>
@@ -265,12 +267,12 @@ export class Library extends React.Component<LibraryProps, LibraryState> {
                         <Image source={{ uri: item.photoURI }} style={[styles.tileImage as any, { position: 'absolute', opacity: 0.3, borderColor: "#ff0000" }]} />
                       </React.Fragment>
                     ) : (
-                        <Image
-                          source={{ uri: item.photoURI }}
-                          style={[styles.tileImage as any]}
-                        />
-                      )
-                    }
+                    <Image
+                      source={{ uri: item.photoURI }}
+                      style={[styles.tileImage as any]}
+                    />
+                     )
+                    } 
                   </View>
                 </TouchableHighlight>
                 <Text style={[commonStyles.pb, commonStyles.centerText, { width: width * 0.4, }]}>
@@ -311,12 +313,13 @@ export class Library extends React.Component<LibraryProps, LibraryState> {
         <ScrollView horizontal pagingEnabled ref={this._drawer}>
           <View style={styles.page}>
             <ScrollView onScroll={({ nativeEvent }) => this.hasScrolledToEnd(nativeEvent, this.loadMore)} scrollEventThrottle={400}>
-              <View style={{height: this.state.topSpacerHeight - 10}} />
+              <View style={{ height: this.state.topSpacerHeight - 10 }} />
               {this.getTiles()}
             </ScrollView>
             <View style={styles.fixedTopContainer} onLayout={(event) => {
-              var {height} = event.nativeEvent.layout;
-              this.setState({topSpacerHeight: height})}}>
+              var { height } = event.nativeEvent.layout;
+              this.setState({ topSpacerHeight: height })
+            }}>
               <View style={styles.searchAndSortContainer}>
                 <View style={styles.searchContainer}>
                   <MaterialIcons name="search" size={30} color={StyleConstants.accentColor} />
@@ -334,10 +337,10 @@ export class Library extends React.Component<LibraryProps, LibraryState> {
               <View style={styles.pillContainer}>
                 {this.state.sortFilters.map((item, index) => {
                   return (<TouchableHighlight style={styles.pill} key={index} onPress={() => this.removePill(index)} underlayColor="#e9e9e9">
-                    <View style={{flexDirection: "row", alignItems: "center"}}>
+                    <View style={{ flexDirection: "row", alignItems: "center" }}>
 
-                      <Text style={[commonStyles.pb, {paddingLeft: 5}]}>{item.name === "color" ?  roundColor(item.value) : item.value}</Text>
-                      <Ionicons name="md-close-circle" size={25} style={{paddingLeft: 5}} />
+                      <Text style={[commonStyles.pb, { paddingLeft: 5 }]}>{item.name === "color" ? roundColor(item.value) : item.value}</Text>
+                      <Ionicons name="md-close-circle" size={25} style={{ paddingLeft: 5 }} />
                     </View>
                   </TouchableHighlight>);
                 })}

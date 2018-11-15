@@ -29,8 +29,10 @@ export interface Score {
 
 export interface Outfit {
   items: {
-    baseRegular: {top: Item, bottom: Item} | undefined, 
-    baseFull: Item | undefined,
+    top: Item | undefined;
+    bottom: Item | undefined;
+    full: Item | undefined,
+    shoes: Item | undefined,
     layers: Item[] | undefined, 
     accessories: Item[] | undefined,
   };

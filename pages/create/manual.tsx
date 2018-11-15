@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { StyleSheet, View, Text, Button, TouchableHighlight, Image, Dimensions, Animated } from 'react-native';
 import { PageLayout } from '../../components/page';
-import { commonStyles } from '../../components/styles';
+import { commonStyles, StyleConstants } from '../../components/styles';
 import { Item, ItemDefinitions, SortFilter, Outfit } from '../../components/formats';
 import { ItemManager } from '../../components/itemManager';
 import { filter } from 'minimatch';
@@ -19,19 +19,17 @@ interface ManualProps {
 
 interface ManualState {
   outfit: Outfit;
-  disallowedTypes: Array<{ class?: string, type?: string, cover?: number, date?: number, id?: number }>;
   deleteItemAnimation: Animated.Value;
-  deleteItemId: number;
+  progress: number;
 }
 
 export class Manual extends React.Component<ManualProps, ManualState> {
   constructor(props: ManualProps) {
     super(props);
     this.state = {
-      outfit: { items: { top: null, bottom: null, full: null, layers: null, accessories: null, shoes: null }, score: null },
-      disallowedTypes: [],
+      outfit: { items: { top: null, bottom: null, full: null, layers: [], accessories: [], shoes: null }, score: null },
       deleteItemAnimation: new Animated.Value(0),
-      deleteItemId: -1
+      progress: 0
     }
   }
 
@@ -44,41 +42,49 @@ export class Manual extends React.Component<ManualProps, ManualState> {
     // if (ItemManager.isValidOutfit(this.state.outfit)) {
   }
 
-  setItem = (options: { type: "baseRegular" | "baseFull" | "shoes" | "layers" | "accessories", key?: "top" | "bottom", item: Item }) => {
+  setItem = (
+    options: {
+      type: "base" | "top" | "bottom" | "full" | "shoes" | "layers" | "accessories",
+      item: Item
+    }) => {
     let data;
+    let type = options.type;
     //review: use of this.state ? should use previous state
-    if (Array.isArray(this.state.outfit.items[options.type])) {
-      data = [this.state.outfit.items[options.type], options.item]
+    if (options.type === "base") {
+      type = options.item.class as any;
+      data = options.item;
+    } else if (Array.isArray(this.state.outfit.items[options.type])) {
+      data = [...this.state.outfit.items[options.type] as any, options.item];
     } else {
-      data = options.item
+      data = options.item;
     }
 
-    // switch (options.type) {
-    //   case "baseRegular":
-    //     if (!!this.state.outfit.items.baseRegular) {
-    //       data = { ...this.state.outfit.items.baseRegular };
-    //       data[options.key] = options.item;
-    //     } else {
-    //       data = { top: null, bottom: null };
-    //       data[options.key] = options.item;
-    //     }
-    //     break;
-    //   case "layers":
-    //   case "accessories":
-    //     data = [this.state.outfit.items[options.type], options.item];
-    //     break;
-    //   default:
-    //     data = options.item
-    //     break;
-    // }
 
     this.setState(previousState => ({
       ...previousState,
       outfit: {
         ...previousState.outfit,
-        items: { ...previousState.outfit.items, [options.type]: data }
+        items: { ...previousState.outfit.items, [type]: data }
       }
-    }))
+    }), () => {
+      if (this.state.progress < 1 && (
+        (
+          !!this.state.outfit.items.top && 
+          !!this.state.outfit.items.bottom
+        ) || 
+        (!!this.state.outfit.items.full))) { //review: i had this check to make sure that the full was not cover type 3, but i think that does nothing because you can't insert full of type 3 into the state anyways
+        this.setState({ progress: 1 });
+      }
+      if (this.state.progress < 2 && !!this.state.outfit.items.shoes) {
+        this.setState({ progress: 2 });
+      }
+      if (this.state.progress < 3 && !!this.state.outfit.items.layers && this.state.outfit.items.layers.length !== 0) {
+        this.setState({ progress: 3 });
+      }
+      if (this.state.progress < 4 && !!this.state.outfit.items.accessories && this.state.outfit.items.accessories.length !== 0) {
+        this.setState({ progress: 4 });
+      }
+    })
   }
 
   removeItem = (id: number) => {
@@ -105,33 +111,25 @@ export class Manual extends React.Component<ManualProps, ManualState> {
 
   getItemFromLibrary = (
     options: {
-      type: "baseRegular" | "baseFull" | "shoes" | "layers" | "accessories",
-      key?: "top" | "bottom",
-      item: Item
+      type: "base" | "top" | "bottom" | "full" | "shoes" | "layers" | "accessories",
     },
-    allowed: Array<{ class?: string, type?: string, cover?: number, date?: number, id?: number }>,
-    disallowed: Array<{ class?: string, type?: string, cover?: number, date?: number, id?: number }>
+    allowed: Array<{ class?: string, type?: string, cover?: number, date?: number }>,
+    disallowed: Array<{ class?: string, type?: string, cover?: number, date?: number }>
   ) => {
     this.props.navigation.navigate("LibrarySelector",
       {
         selectionMode: "one",
-        greyFilters: this.state.disallowedTypes,
+        greyFilters: { allowed: allowed, disallowed: disallowed },
         greyMode: true,
         return: {
           setItem: (item) => {
             this.props.navigation.navigate('Manual');
             // this.addItem(item);
-            this.setItem(item);
+            this.setItem({ ...options, item: item });
           },
           removeItem: (date) => {
             this.removeItem(date);
           },
-          allowed: {
-            allowed
-          }
-          // replaceItem: (date, item) => {
-          //   this.replaceItem(date, item);
-          // }
         }
       })
   }
@@ -139,7 +137,7 @@ export class Manual extends React.Component<ManualProps, ManualState> {
   getItemView(item: Item) {
     return (
       <View style={styles.itemViewContainer}>
-        <TouchableHighlight>
+        <TouchableHighlight underlayColor="rgba(0,0,0,0.2)">
           <Image source={{ uri: item.photoURI }} style={styles.tileImage as any} />
         </TouchableHighlight>
         <Text style={[styles.itemViewText, commonStyles.pb, commonStyles.centerText]}>{item.name}</Text>
@@ -153,80 +151,116 @@ export class Manual extends React.Component<ManualProps, ManualState> {
         <View style={{ flex: 1, alignItems: "center" }}>
 
 
-          <View style={styles.label}>
-            <View style={[styles.icon, { backgroundColor: "#e9e9e9", position: "absolute" }]}><Text style={[commonStyles.h2, commonStyles.bold]}>1</Text></View>
-            <Text style={[commonStyles.pb, commonStyles.centerText, { width: "100%" }]}>start with a base.</Text>
-          </View>
+          <Label title="start with a base" progress={this.state.progress} step={1} />
 
-          {!!this.state.outfit.items.baseFull || !!this.state.outfit.items.baseRegular ? (
+
+          {!!this.state.outfit.items.top || !!this.state.outfit.items.bottom || !!this.state.outfit.items.full ? (
             <View>
-              {!!this.state.outfit.items.baseFull && this.getItemView(this.state.outfit.items.baseFull)}
-              {!!this.state.outfit.items.baseRegular && (
-                <View>
-                  {!!this.state.outfit.items.baseRegular.top ? (
-                    this.getItemView(this.state.outfit.items.baseRegular.top)
-                  ) : (
-                      <TouchableHighlight style={styles.tileButton} onPress={this.getItemFromLibrary()}><Text>add a top</Text></TouchableHighlight>
-                    )};
-                    {!!this.state.outfit.items.baseRegular.bottom ? (
-                    this.getItemView(this.state.outfit.items.baseRegular.bottom)
-                  ) : (
-                      <TouchableHighlight style={styles.tileButton}><Text>add a bottom</Text></TouchableHighlight>
-                    )};
+              {!!this.state.outfit.items.full && ItemDefinitions.getCover(this.state.outfit.items.full.type) !== 3 && this.getItemView(this.state.outfit.items.full)}
+              {(
+                !!this.state.outfit.items.top ||
+                !!this.state.outfit.items.bottom ||
+                (!!this.state.outfit.items.full && ItemDefinitions.getCover(this.state.outfit.items.full.type) === 3))
+                && (
+                  <View>
+                    {!!this.state.outfit.items.top ? (
+                      this.getItemView(this.state.outfit.items.top)
+                    ) : (
+                        <TouchableHighlight style={styles.tileButton} underlayColor="rgba(0,0,0,0.2)" onPress={() => this.getItemFromLibrary(
+                          { type: "top" },
+                          [{ class: "top", cover: 1 }, { class: "top", cover: 2 }],
+                          [])}>
+                          <Text>add a top</Text>
+                        </TouchableHighlight>
+                      )};
+                    {!!this.state.outfit.items.bottom || !!(!!this.state.outfit.items.full && ItemDefinitions.getCover(this.state.outfit.items.full.type) === 3) ? (
+                      <React.Fragment>
+                        {!!this.state.outfit.items.bottom && this.getItemView(this.state.outfit.items.bottom)}
+                        {!!(!!this.state.outfit.items.full && ItemDefinitions.getCover(this.state.outfit.items.full.type) === 3) && this.getItemView(this.state.outfit.items.full)}
+                      </React.Fragment>
+                    ) : (
+                        <TouchableHighlight style={styles.tileButton} underlayColor="rgba(0,0,0,0.2)" onPress={() => this.getItemFromLibrary(
+                          { type: "base" },
+                          [{ class: "bottom" }, { class: "full", cover: 3 }],
+                          [])}>
+                          <Text>add a bottom</Text>
+                        </TouchableHighlight>
+                      )};
                   </View>
-              )};
+                )};
               </View>
           ) : (
-              <TouchableHighlight style={[styles.tileImage, { borderWidth: 2, alignItems: "center", justifyContent: "center", flexDirection: "row" }]}
-                onPress={() => this.getItemFromLibrary((item) => {
-                  if (item.class === "top") {
-                    this.setState(previousState => (
-                      {
-                        ...previousState,
-                        outfit: {
-                          ...previousState.outfit,
-                          items: {
-                            ...previousState.outfit.items,
-                            baseRegular: {
-                              ...previousState.outfit.items.baseRegular,
-                              top: item
-                            }
-                          }
-                        }
-                      }))
-                  } else if (item.class === "bottom") {
-                    this.setState(previousState => (
-                      {
-                        ...previousState,
-                        outfit: {
-                          ...previousState.outfit,
-                          items: {
-                            ...previousState.outfit.items,
-                            baseRegular: {
-                              ...previousState.outfit.items.baseRegular,
-                              bottom: item
-                            }
-                          }
-                        }
-                      }))
-                  } else {
-                    this.setState(previousState => (
-                      {
-                        ...previousState,
-                        outfit: {
-                          ...previousState.outfit,
-                          items: {
-                            ...previousState.outfit.items,
-                            baseFull: item
-                          }
-                        }
-                      }))
-                  }
-                },
-                  (date: number) => { //does nothing because you shouldnt be able to remove anyting when first picking
-                  },
-                  [{ class: "top" }, { class: "bottom" }, { class: "full" }], [/* no disallowed */])}>
+              <TouchableHighlight underlayColor="rgba(0,0,0,0.2)" style={styles.tileButton}
+                onPress={() => this.getItemFromLibrary(
+                  { type: "base" },
+                  [{ class: "top" }, { class: "bottom" }, { class: "full" }],
+                  [{class: "top", cover: 3}])}>
                 <Text style={commonStyles.pb}>icons here</Text>
+              </TouchableHighlight>
+            )}
+
+
+          <Label title="add shoes" progress={this.state.progress} step={2} />
+
+          {!!this.state.outfit.items.shoes ? (
+            this.getItemView(this.state.outfit.items.shoes)
+          ) : (
+              <TouchableHighlight underlayColor="rgba(0,0,0,0.2)" style={styles.tileButton}
+                onPress={() => {
+                  this.state.progress >= 1 ? this.getItemFromLibrary(
+                    { type: "shoes" },
+                    [{ class: "shoes" }],
+                    [])
+                    :
+                    alert("try picking your base first");
+                }}>
+                <Text style={commonStyles.pb}>shoe icon</Text>
+              </TouchableHighlight>
+            )}
+
+          <Label title="add layers" progress={this.state.progress} step={3} />
+
+          {this.state.outfit.items.layers.length !== 0 ? (
+            this.state.outfit.items.layers.map((item, index) => {
+              return(<View key={index}>
+                {this.getItemView(item)}
+              </View>);
+            })
+          ) : (
+              <TouchableHighlight underlayColor="rgba(0,0,0,0.2)" style={styles.tileButton}
+                onPress={() => {
+                  this.state.progress >= 2 ? this.getItemFromLibrary(
+                    { type: "layers" },
+                    [{ class: "top" }],
+                    [{ class: "top", cover: 1 }])
+                    :
+                    alert("try picking your base and shoes first");
+                }}>
+                <Text style={commonStyles.pb}>layer icon</Text>
+              </TouchableHighlight>
+            )}
+
+          <Label title="add accessories" progress={this.state.progress} step={4} />
+
+          {this.state.outfit.items.accessories.length !== 0 ? (
+            
+            this.state.outfit.items.accessories.map((item, index) => {
+              console.log(item, index)
+              return(<View key={index}>
+                {this.getItemView(item)}
+              </View>);
+            })
+          ) : (
+              <TouchableHighlight underlayColor="rgba(0,0,0,0.2)" style={styles.tileButton}
+                onPress={() => {
+                  this.state.progress >= 2 ? this.getItemFromLibrary(
+                    { type: "accessories" },
+                    [{ class: "accessory" }],
+                    [])
+                    :
+                    alert("try picking your base and shoes first");
+                }}>
+                <Text style={commonStyles.pb}>layer icon</Text>
               </TouchableHighlight>
             )}
 
@@ -237,17 +271,22 @@ export class Manual extends React.Component<ManualProps, ManualState> {
   }
 }
 
+function Label(props: { title: string, progress: number, step: number }) {
+  return (
+    <View style={styles.label}>
+      <View style={[styles.icon, { backgroundColor: props.progress >= props.step ? StyleConstants.successColor : "#e9e9e9", position: "absolute" }]}>
+        {props.progress >= props.step ? (
+          <MaterialIcons name="check" size={40} />
+        ) : (
+            <Text style={[commonStyles.h2, commonStyles.bold]}>{props.step.toString()}</Text>
+          )}
+      </View>
+      <Text style={[commonStyles.h2, commonStyles.bold, commonStyles.centerText, { width: "100%" }]}>{props.title}</Text>
+    </View>
+  );
+}
+
 const styles = StyleSheet.create({
-  // outfitsContainer: {
-  //   paddingVertical: width * 0.05,
-  //   flexDirection: "column"
-  // },
-  // outfitContainer: {
-  //   width: "100%",
-  //   flexDirection: "row",
-  //   justifyContent: "space-around",
-  //   alignItems: "center"
-  // },
   icon: {
     width: 50,
     height: 50,
@@ -255,18 +294,10 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: 'center'
   },
-  // itemContainer: {
-  //   flexDirection: "column",
-  // },
-  // textContainer: {
-  //   width: width * 0.35,
-  // },
   tileImage: {
     width: width * 0.35,
     height: width * 0.35,
     borderRadius: 20,
-    // borderWidth: 2,
-    // borderColor: '#000'
   },
   tileButton: {
     width: width * 0.35,
