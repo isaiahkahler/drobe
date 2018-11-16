@@ -246,7 +246,7 @@ export class Library extends React.Component<LibraryProps, LibraryState> {
                   onPress={() => {
                     if (this.state.selectionMode === "one") {
                       if (isGreyItem) {
-                        if(!!isAllowed.message){
+                        if(!!isAllowed.message && !isAllowed.allowed){
                           if(!!isAllowed.action){
                             Alert.alert(
                               "can't add to outfit",
@@ -265,7 +265,7 @@ export class Library extends React.Component<LibraryProps, LibraryState> {
                               ]
                             )
                           }
-                        } else if(!!isDisallowed.message){
+                        } else if(!!isDisallowed.message && isDisallowed.disallowed){
                           if(!!isDisallowed.action) {
                             Alert.alert(
                               "can't add to outfit",
@@ -363,7 +363,7 @@ export class Library extends React.Component<LibraryProps, LibraryState> {
         <ScrollView horizontal pagingEnabled ref={this._drawer}>
           <View style={styles.page}>
             <ScrollView onScroll={({ nativeEvent }) => this.hasScrolledToEnd(nativeEvent, this.loadMore)} scrollEventThrottle={400}>
-              <View style={{ height: this.state.topSpacerHeight - 10 }} />
+              <View style={{ height: this.state.topSpacerHeight }} />
               {this.getTiles()}
             </ScrollView>
             <View style={styles.fixedTopContainer} onLayout={(event) => {
