@@ -14,7 +14,7 @@ import {
 import { PageLayout } from '../../components/page';
 import { commonStyles, StyleConstants } from '../../components/styles';
 import { createStackNavigator } from 'react-navigation';
-import { Item, Page, ItemDefinitions } from '../../components/formats';
+import { Item, Page, ItemDefinitions, Filter } from '../../components/formats';
 import { ItemManager } from '../../components/itemManager';
 import { ItemView } from './itemView';
 import { Define } from '../add/define';
@@ -35,8 +35,8 @@ interface LibraryState {
   selectionMode: "one" | "many" | "none";
   greyMode: boolean;
   greyFilters: {
-    allowed: Array<{ class?: string, type?: string, cover?: number, date?: number }>,
-    disallowed: Array<{ class?: string, type?: string, cover?: number, date?: number }>
+    allowed: Filter,
+    disallowed: Filter
   };
   drawerOpen: boolean;
   return: { setItem: (item: Item) => void, removeItem: (date: number) => void };
@@ -54,7 +54,7 @@ export class Library extends React.Component<LibraryProps, LibraryState> {
       pagesShown: 1,
       selectionMode: "none",
       greyMode: false,
-      greyFilters: { allowed: [], disallowed: [] },
+      greyFilters: { allowed: { filter: [] }, disallowed: { filter: [] } },
       return: null,
       drawerOpen: false,
       sortFilters: [],
@@ -177,9 +177,9 @@ export class Library extends React.Component<LibraryProps, LibraryState> {
     this.setState({ sortFilters: [] });
   }
 
-  getAllowedItems = (item:Item) => {
+  getAllowedItems = (item: Item) => {
     let itemIsAllowed = false;
-    this.state.greyFilters.allowed.forEach(filter => {
+    this.state.greyFilters.allowed.filter.forEach(filter => {
       //for each allowed filter
       let itemEqualsAllKeys = true;
       Object.keys(filter).forEach(key => {
@@ -198,13 +198,15 @@ export class Library extends React.Component<LibraryProps, LibraryState> {
         itemIsAllowed = true;
       }
     });
-    return itemIsAllowed;
+    let message = this.state.greyFilters.allowed.message;
+    let action = this.state.greyFilters.allowed.action;
+    return { allowed: itemIsAllowed, message: message, action: action };
   }
 
   //review: BROKEN
-  getDisallowedItems = (item:Item) => {
+  getDisallowedItems = (item: Item) => {
     let itemIsDisallowed = false;
-    this.state.greyFilters.disallowed.forEach(filter => {
+    this.state.greyFilters.disallowed.filter.forEach(filter => {
       let itemEqualsAllKeys = true;
       Object.keys(filter).forEach(key => {
         if (key === "cover") {
@@ -221,17 +223,19 @@ export class Library extends React.Component<LibraryProps, LibraryState> {
         itemIsDisallowed = true;
       }
     });
-    return itemIsDisallowed;
-  } 
+    let message = this.state.greyFilters.disallowed.message;
+    let action = this.state.greyFilters.disallowed.action;
+    return { disallowed: itemIsDisallowed, message: message, action: action };
+  }
 
-  //review: i did not double check any of the grey item stuff after i rewrote manual.
-  //delete unncessary code.
   getTiles() {
     return this.state.pages.slice(0, this.state.pagesShown).map((page, pageIndex) => {
       return (
         <View key={pageIndex} style={styles.container}>
           {page.items.map((item, itemIndex) => {
-            let isGreyItem = this.state.greyMode && (!this.getAllowedItems(item) || this.getDisallowedItems(item));
+            let isAllowed = this.getAllowedItems(item);
+            let isDisallowed = this.getDisallowedItems(item);
+            let isGreyItem = this.state.greyMode && (!isAllowed.allowed || isDisallowed.disallowed);
             return (
               <View style={{
                 marginHorizontal: '5%',
@@ -241,8 +245,54 @@ export class Library extends React.Component<LibraryProps, LibraryState> {
                   underlayColor="rgba(0,0,0,0)"
                   onPress={() => {
                     if (this.state.selectionMode === "one") {
-                      if(isGreyItem){
-                        alert("sorry you cannot pick this item.");
+                      if (isGreyItem) {
+                        if(!!isAllowed.message){
+                          if(!!isAllowed.action){
+                            Alert.alert(
+                              "can't add to outfit",
+                              isAllowed.message,
+                              [
+                                {text: isAllowed.action.title, onPress: () => isAllowed.action.action},
+                                {text: "cancel", style: "cancel"}
+                              ]
+                            )
+                          } else {
+                            Alert.alert(
+                              "can't add to outfit",
+                              isAllowed.message,
+                              [
+                                {text: "OK", style: "cancel"}
+                              ]
+                            )
+                          }
+                        } else if(!!isDisallowed.message){
+                          if(!!isDisallowed.action) {
+                            Alert.alert(
+                              "can't add to outfit",
+                              isDisallowed.message,
+                              [
+                                {text: isDisallowed.action.title, onPress: () => isDisallowed.action.action},
+                                {text: "cancel", style: "cancel"}
+                              ]
+                            )
+                          } else {
+                            Alert.alert(
+                              "can't add to outfit",
+                              isDisallowed.message,
+                              [
+                                {text: "OK", style: "cancel"}
+                              ]
+                            )
+                          }
+                        } else {
+                          Alert.alert(
+                            "can't add to outfit",
+                            "",
+                            [
+                              {text: "OK", style: "cancel"}
+                            ]
+                          )
+                        }
                       } else {
                         this.state.return.setItem(this.state.pages[pageIndex].items[itemIndex]);
                       }
@@ -267,12 +317,12 @@ export class Library extends React.Component<LibraryProps, LibraryState> {
                         <Image source={{ uri: item.photoURI }} style={[styles.tileImage as any, { position: 'absolute', opacity: 0.3, borderColor: "#ff0000" }]} />
                       </React.Fragment>
                     ) : (
-                    <Image
-                      source={{ uri: item.photoURI }}
-                      style={[styles.tileImage as any]}
-                    />
-                     )
-                    } 
+                        <Image
+                          source={{ uri: item.photoURI }}
+                          style={[styles.tileImage as any]}
+                        />
+                      )
+                    }
                   </View>
                 </TouchableHighlight>
                 <Text style={[commonStyles.pb, commonStyles.centerText, { width: width * 0.4, }]}>

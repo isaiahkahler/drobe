@@ -39,6 +39,18 @@ export interface Outfit {
   score: Score;
 }
 
+export interface Filter {
+  filter: 
+  { 
+    class?: string, 
+    type?: string, 
+    cover?: number, 
+    date?: number,
+  }[];
+  message?: string,
+  action?: {title: string, action: Function},
+}
+
 //review: INCONTINUITY! is it FULL or FULL BODY?
 export const ItemDefinitions: 
 { 
