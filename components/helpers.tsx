@@ -1,6 +1,6 @@
 import Color from 'color';
 import { Permissions, Location } from 'expo';
-import { Weather } from './formats';
+import { Weather, HSV, RGB } from './formats';
 
 const colorSpace: Array<{ name: string; color: { r: number; g: number; b: number } }> = [
   { name: 'black', color: { r: 0, g: 0, b: 0 } },
@@ -125,4 +125,94 @@ async function fetchWeather() : Promise<Weather> {
 
 export function clipRange(value: number, initialRange: number, finalRange: number){
   return finalRange * value / initialRange;
+}
+
+
+export function getCompliment(color: {r: number, b: number, g: number} | string, shift: number) {
+
+  let hsv = Color(color).hsv().object();
+  hsv.h = HueShift(hsv.h, shift);
+  let compliment = Color(hsv);
+  return compliment.hex();
+}
+
+
+function HueShift(h: number,s: number) { 
+  h+=s; while (h>=360.0) h-=360.0; while (h<0.0) h+=360.0; return h; 
+}
+
+export function MiddleColorHSV(color1: any, color2: any){
+  let color1hsv: HSV = Color(color1).hsv().object() as any;
+  let color2hsv: HSV = Color(color2).hsv().object() as any;
+  let hDist = HueDistance(color1hsv, color2hsv) / 2;
+  let sDist = SaturationDistance(color1hsv, color2hsv) / 2;
+  let vDist = ValueDistance(color1hsv, color2hsv) / 2;
+  let h = color1hsv.h >= color2hsv.h ? color1hsv.h - hDist :  color2hsv.h - hDist;
+  let s = color1hsv.s >= color2hsv.s ? color1hsv.s - sDist :  color2hsv.s - sDist;
+  let v = color1hsv.v >= color2hsv.v ? color1hsv.v - vDist :  color2hsv.v - vDist;
+  console.log("middle", {h: h, s:s, v:v})
+  return Color({h: h, s: s, v: v}).hex();
+}
+
+export function LeftColorHSV(color1: any, color2: any) {
+  let color1hsv: HSV = Color(color1).hsv().object() as any;
+  let color2hsv: HSV = Color(color2).hsv().object() as any;
+  let hDist = HueDistance(color1hsv, color2hsv) / 2;
+  let sDist = SaturationDistance(color1hsv, color2hsv) / 2;
+  let vDist = ValueDistance(color1hsv, color2hsv) / 2;
+
+  let h = color1hsv.h >= color2hsv.h ? color1hsv.h + hDist :  color2hsv.h + hDist;
+  let s = color1hsv.s >= color2hsv.s ? color1hsv.s + sDist :  color2hsv.s + sDist;
+  let v = color1hsv.v >= color2hsv.v ? color1hsv.v + vDist :  color2hsv.v + vDist;
+  console.log("left", {h: h, s:s, v:v})
+
+  return Color({h: h, s: s, v: v}).hex();
+}
+
+export function RightColorHSV(color1: any, color2: any) {
+  let color1hsv: HSV = Color(color1).hsv().object() as any;
+  let color2hsv: HSV = Color(color2).hsv().object() as any;
+  let hDist = HueDistance(color1hsv, color2hsv) / 2;
+  let sDist = SaturationDistance(color1hsv, color2hsv) / 2;
+  let vDist = ValueDistance(color1hsv, color2hsv) / 2;
+
+  let h = color1hsv.h <= color2hsv.h ? color1hsv.h - hDist :  color2hsv.h - hDist;
+  let s = color1hsv.s <= color2hsv.s ? color1hsv.s - sDist :  color2hsv.s - sDist;
+  let v = color1hsv.v <= color2hsv.v ? color1hsv.v - vDist :  color2hsv.v - vDist;
+  console.log("right", {h: h, s:s, v:v})
+
+  return Color({h: h, s: s, v: v}).hex();
+}
+
+export function leftHueHSV(color1: any, color2: any) {
+  let color1hsv: HSV = Color(color1).hsv().object() as any;
+  let color2hsv: HSV = Color(color2).hsv().object() as any;
+  let hDist = HueDistance(color1hsv, color2hsv) / 2;
+
+  color1hsv.h += hDist;
+  while (color1hsv.h>=360.0) color1hsv.h-=360.0; while (color1hsv.h<0.0) color1hsv.h+=360.0; 
+  
+  return Color(color1hsv).hex();
+}
+export function rightHueHSV(color1: any, color2: any) {
+  let color1hsv: HSV = Color(color1).hsv().object() as any;
+  let color2hsv: HSV = Color(color2).hsv().object() as any;
+  let hDist = HueDistance(color1hsv, color2hsv) / 2;
+
+  color2hsv.h -= hDist;
+  while (color2hsv.h>=360.0) color2hsv.h-=360.0; while (color2hsv.h<0.0) color2hsv.h+=360.0; 
+  
+  return Color(color2hsv).hex();
+}
+
+export function HueDistance(color1: HSV, color2: HSV) {
+  return Math.abs(color1.h - color2.h);
+}
+
+function SaturationDistance(color1: HSV, color2: HSV) {
+  return Math.abs(color1.s - color2.s)
+}
+
+function ValueDistance(color1: HSV, color2: HSV) {
+  return Math.abs(color1.v - color2.v)
 }

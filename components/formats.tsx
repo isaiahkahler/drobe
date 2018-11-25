@@ -51,7 +51,7 @@ export interface Filter {
   action?: {title: string, action: Function},
 }
 
-//review: INCONTINUITY! is it FULL or FULL BODY?
+//review: DISCONTINUITY! is it FULL or FULL BODY?
 export const ItemDefinitions: 
 { 
   classes: string[], 
@@ -266,7 +266,7 @@ export interface SortFilter {
   value: string
 }
 
-//review: change the question marks to {evenrything working} | {working: false}
+//review: change the question marks to {everything working} | {working: false}
 export interface Weather {
   working: boolean, 
   f?: number, 
@@ -275,3 +275,15 @@ export interface Weather {
   city?: string, 
   temp?: "hot" | "warm" | "chilly" | "cold" 
 } 
+
+export interface HSV {
+  h: number;
+  s: number;
+  v: number;
+}
+
+export interface RGB {
+  r: number,
+  b: number,
+  g: number
+}

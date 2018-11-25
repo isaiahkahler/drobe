@@ -1,3 +1,5 @@
+ require('color');
+ 
  function hexToRgb(hex) {
     var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
     return result ? {
@@ -22,3 +24,16 @@ function colorDistance(color1, color2) {
   }
 
   const colorSpaceMaxDistance = 441.6729559300637;
+
+
+ function getCompliment(color ) {
+
+    // let c = Color(color);
+    // let hsv = c.hsv();
+    // console.log(hsv);
+    // hsv.h =HueShift(temphsv.hue,180.0);
+    // temprgb=HSV2RGB(temphsv);
+    return "h"
+  }
+
+  getCompliment("#ff0000")

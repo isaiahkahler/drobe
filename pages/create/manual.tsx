@@ -9,6 +9,7 @@ import { NativeIcon } from '../../components/nativeIcons';
 import { MaterialIcons } from '@expo/vector-icons';
 import { Algorithms } from '../../components/algorithms';
 import { throws } from 'assert';
+import { getCompliment, MiddleColorHSV, LeftColorHSV, RightColorHSV, leftHueHSV, rightHueHSV } from '../../components/helpers';
 
 const width = Dimensions.get('screen').width;
 const height = Dimensions.get('screen').height;
@@ -260,6 +261,15 @@ export class Manual extends React.Component<ManualProps, ManualState> {
     );
   }
 
+  getRecommendedColors(base: string, shift: number) {
+    let compliment = getCompliment(base, shift);
+    return (
+      <Text style={{backgroundColor: compliment}}>
+        {compliment}
+      </Text>
+    );
+  }
+
   render() {
     return (
       <View style={{ width: "100%", height: "100%" }}>
@@ -444,6 +454,34 @@ export class Manual extends React.Component<ManualProps, ManualState> {
                     }}>
                     <Text style={commonStyles.pb}>shoe icon</Text>
                   </TouchableHighlight>
+                  {/* <Text>Color</Text>
+                  {this.getRecommendedColors("#BDD6ED", 0)}
+                  <Text>Adjacent</Text>
+                  {this.getRecommendedColors("#BDD6ED", 45)}
+                  {this.getRecommendedColors("#BDD6ED", 315)}
+                  <Text>Compliment</Text>
+                  {this.getRecommendedColors("#BDD6ED", 180)}
+                  <Text>Compliment Adjacent</Text>
+                  {this.getRecommendedColors("#BDD6ED", 135)}
+                  {this.getRecommendedColors("#BDD6ED", 225)}
+                  <Text>uhhh the weird ones</Text>
+                  {this.getRecommendedColors("#BDD6ED", 90)}
+                  {this.getRecommendedColors("#BDD6ED", 270)} */}
+                  <Text>Color</Text>
+                  <Text style={{backgroundColor: "#BDD6ED"}}>color 1</Text>
+                  <Text style={{backgroundColor: "#BFADA3"}}>color 2</Text>
+                  <Text style={{backgroundColor: MiddleColorHSV("#BDD6ED", "#BFADA3")}}>middle color</Text>
+                  <Text style={{backgroundColor: LeftColorHSV("#BDD6ED", "#BFADA3")}}>left color</Text>
+                  <Text style={{backgroundColor: RightColorHSV("#BDD6ED", "#BFADA3")}}>right color</Text>
+                  <Text style={{backgroundColor: leftHueHSV("#BDD6ED", "#BFADA3")}}>left hue</Text>
+                  <Text style={{backgroundColor: rightHueHSV("#BDD6ED", "#BFADA3")}}>right hue</Text>
+                  
+                  {/* <Text>Color</Text>
+                  <Text style={{backgroundColor: "#15151D"}}>color 1</Text>
+                  <Text style={{backgroundColor: "#26354C"}}>color 2</Text>
+                  <Text style={{backgroundColor: MiddleColorHSV("#15151D", "#26354C")}}>middle color</Text>
+                  <Text style={{backgroundColor: MiddleColorHSV("#26354C", "#15151D")}}>middle color</Text> */}
+
                 </Animated.View>
               )}
 
