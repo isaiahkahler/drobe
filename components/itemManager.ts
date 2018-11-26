@@ -1,4 +1,4 @@
-import { Page, Item, ItemDefinitions } from './formats';
+import { Page, Item, ItemDefinitions, Filter } from './formats';
 import { Storage } from './storage';
 import { colorDistance } from './helpers';
 import { string } from 'prop-types';
@@ -158,6 +158,7 @@ export class ItemManager {
 
   }
 
+  //review: is being used?
   static isValidOutfit(items: Item[]) {
     let isTopBottomShoes =
       (items.findIndex(e => e.class === 'top') !== -1) &&
@@ -176,25 +177,71 @@ export class ItemManager {
   }
 
 
-  static getDisallowedItems(items: Item[]) {
-    let disallowed: Array<{ class?: string, type?: string, cover?: number, date?: number, id?: number }> = [];
-    for (let item of items) {
-      disallowed.push({date: item.date})
-      if (ItemDefinitions.getCover(item.type) === 1) {
-        disallowed.push({ class: item.class, id: item.date });
-      }
-      if (item.class === "full") {
-        disallowed.push({ class: "bottom", id: item.date })
-      }
-      if(item.class === "bottom"){
-        disallowed.push({class: "full", id: item.date })
-      }
-      if (item.class === 'accessory') {
-        disallowed.push({ type: item.type, id: item.date })
-      }
-    }
-    return disallowed;
+  // static getDisallowedItems(items: Item[]) {
+  //   let disallowed: Array<{ class?: string, type?: string, cover?: number, date?: number, id?: number }> = [];
+  //   for (let item of items) {
+  //     disallowed.push({date: item.date})
+  //     if (ItemDefinitions.getCover(item.type) === 1) {
+  //       disallowed.push({ class: item.class, id: item.date });
+  //     }
+  //     if (item.class === "full") {
+  //       disallowed.push({ class: "bottom", id: item.date })
+  //     }
+  //     if(item.class === "bottom"){
+  //       disallowed.push({class: "full", id: item.date })
+  //     }
+  //     if (item.class === 'accessory') {
+  //       disallowed.push({ type: item.type, id: item.date })
+  //     }
+  //   }
+  //   return disallowed;
+  // }
+
+
+  static arrangeItems(pages: Page[], filters: Filter[]) {
+    let items: Item[] = [];
+    pages.forEach(page => {
+      page.items.forEach(item => {
+        items.push(item);
+      })
+    })
+    //remove all hidden from list
+    filters.forEach(filter => {
+      filter.keys.forEach(key => {
+        Object.keys(key).forEach(name => {
+          if(filter.type === "hide"){
+            items.filter(item => item[name] === key[name])
+          }
+        })
+      })
+    })
+
+    //find priorities
+    let priorityFilters = filters.filter(filter => filter.type === 'priority');
+    let priorities = [];
+    items.forEach(item => {
+      priorities.push(this._findPriority(item, priorityFilters));
+    })
+
+    //items.sort((item1, item2) => this._findPriority(item1, item2, filters))
+
+    //arrange by priority
   }
 
+  static _findPriority (item: Item, filters: Filter[]): number {
+    let numberOfFilters = 0;
+    let score = 0;
+    filters.forEach(filter => {
+      Object.keys(filter.keys).forEach(name => {
+        // let value = 
+        switch(filter[name]){
+          case "class": 
+            // if(item.class === filter.keys[]){
 
+            // }
+        }
+      })
+    })
+    return -1;
+  }
 }

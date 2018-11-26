@@ -136,6 +136,19 @@ export function getCompliment(color: {r: number, b: number, g: number} | string,
   return compliment.hex();
 }
 
+export function isNeutral(color: any) {
+  let hsv = Color(color).hsv().object();
+  if(hsv.v < 30 && (hsv.s < 70 || (hsv.s > 200 && hsv.s < 270) || hsv.s > 330)){
+    return true;
+  } else {
+    return false
+  }
+}
+
+// export function isBasicallyWhite(color: any) {
+//   let hsv = Color(color).hsv().object();
+//   if(hsv.v)
+// }
 
 function HueShift(h: number,s: number) { 
   h+=s; while (h>=360.0) h-=360.0; while (h<0.0) h+=360.0; return h; 

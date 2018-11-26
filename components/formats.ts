@@ -39,16 +39,32 @@ export interface Outfit {
   score: Score;
 }
 
+// export interface Filter {
+//   filter: 
+//   { 
+//     class?: string, 
+//     type?: string, 
+//     cover?: number, 
+//     date?: number,
+//   }[];
+//   message?: string,
+//   action?: {title: string, action: Function},
+// }
+
 export interface Filter {
-  filter: 
-  { 
-    class?: string, 
-    type?: string, 
-    cover?: number, 
-    date?: number,
-  }[];
-  message?: string,
-  action?: {title: string, action: Function},
+  keys: Array<{
+    class?: 'top' | 'bottom' | 'full' | 'shoes' | 'accessory',
+    name?: string,
+    id?: number,
+    color?: string,
+    type?: string,
+    date?: 'ascending' | 'descending',
+    laundry?: 'ascending' | 'descending',
+    uses?: 'ascending' | 'descending'
+  }>;
+  type: 'priority' | 'hide' | 'allowed' | 'disallowed' ;
+  message?: string;
+  action?: {title: string, action: Function};
 }
 
 //review: DISCONTINUITY! is it FULL or FULL BODY?
