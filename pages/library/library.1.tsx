@@ -22,8 +22,6 @@ import { SortSidebar } from './sortSidebar';
 import { MaterialIcons, Ionicons } from '@expo/vector-icons';
 import { roundColor } from '../../components/helpers';
 
-import { Sort } from '../../components/filter';
-
 const width = Dimensions.get('screen').width;
 const height = Dimensions.get('screen').height;
 
@@ -35,16 +33,11 @@ interface LibraryState {
   pages: Array<Page>;
   pagesShown: number;
   selectionMode: "one" | "many" | "none";
-  greyMode: boolean;
-  greyFilters: {
-    allowed: Filter,
-    disallowed: Filter
-  };
   drawerOpen: boolean;
   return: { setItem: (item: Item) => void, removeItem: (date: number) => void };
-  sortFilters: Array<{ type: "hide" | "order", name: string, value: any }>;
   searchValue: string;
   topSpacerHeight: number;
+  filters: Filter[];
 }
 
 export class Library extends React.Component<LibraryProps, LibraryState> {
@@ -55,13 +48,11 @@ export class Library extends React.Component<LibraryProps, LibraryState> {
       pages: [],
       pagesShown: 1,
       selectionMode: "none",
-      greyMode: false,
-      greyFilters: { allowed: { filter: [] }, disallowed: { filter: [] } },
       return: null,
       drawerOpen: false,
-      sortFilters: [],
       searchValue: '',
-      topSpacerHeight: 0
+      topSpacerHeight: 0,
+      filters: []
     };
   }
 
@@ -75,11 +66,8 @@ export class Library extends React.Component<LibraryProps, LibraryState> {
     if (navigation.state.params.hasOwnProperty('selectionMode')) {
       this.setState({ selectionMode: navigation.state.params.selectionMode });
     }
-    if (navigation.state.params.hasOwnProperty('greyFilters')) {
-      this.setState({ greyFilters: navigation.state.params.greyFilters });
-    }
-    if (navigation.state.params.hasOwnProperty('greyMode')) {
-      this.setState({ greyMode: navigation.state.params.greyMode });
+    if (navigation.state.params.hasOwnProperty('filters')) {
+      this.setState({ filters: navigation.state.params.filters });
     }
     if (navigation.state.params.hasOwnProperty('return')) {
       this.setState({ return: navigation.state.params.return })
@@ -88,7 +76,6 @@ export class Library extends React.Component<LibraryProps, LibraryState> {
 
   loadLibrary = async () => {
     let allPages = await ItemManager.getAllPages();
-    allPages = Sort.arrangeItems(allPages, [{filterType: "allowed", class: "top"}, {filterType: 'disallowed', type: "cardigan"}]);
     this.setPages(allPages)
     this.setState({ library: allPages });
   };
@@ -97,7 +84,12 @@ export class Library extends React.Component<LibraryProps, LibraryState> {
     this.setState({ pages: pages, pagesShown: 1 })
   }
 
+  arrangeLibrary = () => {
+
+  }
+
   //review: do you need to reload on every focus?
+  //find some way to optimize image loading in library
   // willFocusSubscription = this.props.navigation.addListener(
   //   'willFocus',
   //   payload => {
@@ -130,38 +122,7 @@ export class Library extends React.Component<LibraryProps, LibraryState> {
     }
   }
 
-  sortByFilters = async () => {
-    this.setPages(await ItemManager.sortBy(this.state.sortFilters));
-  }
 
-
-  //review: rename to sort filters instead of select
-  onSelect = async (type: "hide" | "order", name: string, value: number) => {
-    this.hideSidebar();
-    // console.log(type, name, value)
-
-    let selectionIndex = this.state.sortFilters.findIndex((selection) => {
-      return selection.name === name;
-    });
-
-
-    if (selectionIndex === -1) { //if selection does not exist
-      await this.setState(previousState => ({
-        ...previousState,
-        sortFilters: [...previousState.sortFilters, { type: type, name: name, value: value }]
-      }), () => {
-        this.sortByFilters()
-      });
-    } else {
-      await this.setState(previousState => ({
-        ...previousState,
-        sortFilters: [...previousState.sortFilters.slice(0, selectionIndex), { type: type, name: name, value: value }, ...previousState.sortFilters.slice(selectionIndex + 1, previousState.sortFilters.length)]
-      }), () => {
-        this.sortByFilters();
-      })
-    }
-
-  }
 
   search = (text) => {
     this.setState({ searchValue: text }, async () => ItemManager.search(this.state.searchValue, this.state.library, (pages) => this.setPages(pages)))
@@ -169,67 +130,67 @@ export class Library extends React.Component<LibraryProps, LibraryState> {
   }
 
   removePill = (index) => {
-    this.setState(previousState => ({
-      ...previousState,
-      sortFilters: [...previousState.sortFilters.slice(0, index), ...previousState.sortFilters.slice(index + 1, previousState.sortFilters.length)]
-    }), () => {
-      this.sortByFilters();
-    })
+    // this.setState(previousState => ({
+    //   ...previousState,
+    //   sortFilters: [...previousState.sortFilters.slice(0, index), ...previousState.sortFilters.slice(index + 1, previousState.sortFilters.length)]
+    // }), () => {
+    //   this.sortByFilters();
+    // })
   }
 
   removeAllPills = () => {
-    this.setState({ sortFilters: [] });
+    // this.setState({ sortFilters: [] });
   }
 
   getAllowedItems = (item: Item) => {
-    let itemIsAllowed = false;
-    this.state.greyFilters.allowed.filter.forEach(filter => {
-      //for each allowed filter
-      let itemEqualsAllKeys = true;
-      Object.keys(filter).forEach(key => {
-        //for each key of filter like CLASS, TYPE
-        if (key === "cover") {
-          if (ItemDefinitions.getCover(item.type) !== filter[key]) {
-            itemEqualsAllKeys = false;
-          }
-        } else {
-          if (item[key] !== filter[key]) { //if item value not same as filter value
-            itemEqualsAllKeys = false;
-          }
-        }
-      })
-      if (itemEqualsAllKeys) {
-        itemIsAllowed = true;
-      }
-    });
-    let message = this.state.greyFilters.allowed.message;
-    let action = this.state.greyFilters.allowed.action;
-    return { allowed: itemIsAllowed, message: message, action: action };
+    // let itemIsAllowed = false;
+    // this.state.greyFilters.allowed.filter.forEach(filter => {
+    //   //for each allowed filter
+    //   let itemEqualsAllKeys = true;
+    //   Object.keys(filter).forEach(key => {
+    //     //for each key of filter like CLASS, TYPE
+    //     if (key === "cover") {
+    //       if (ItemDefinitions.getCover(item.type) !== filter[key]) {
+    //         itemEqualsAllKeys = false;
+    //       }
+    //     } else {
+    //       if (item[key] !== filter[key]) { //if item value not same as filter value
+    //         itemEqualsAllKeys = false;
+    //       }
+    //     }
+    //   })
+    //   if (itemEqualsAllKeys) {
+    //     itemIsAllowed = true;
+    //   }
+    // });
+    // let message = this.state.greyFilters.allowed.message;
+    // let action = this.state.greyFilters.allowed.action;
+    // return { allowed: itemIsAllowed, message: message, action: action };
   }
 
   //review: BROKEN
   getDisallowedItems = (item: Item) => {
-    let itemIsDisallowed = false;
-    this.state.greyFilters.disallowed.filter.forEach(filter => {
-      let itemEqualsAllKeys = true;
-      Object.keys(filter).forEach(key => {
-        if (key === "cover") {
-          if (ItemDefinitions.getCover(item.type) !== filter[key]) {
-            itemEqualsAllKeys = false;
-          }
-        } else {
-          if (item[key] !== filter[key]) { //if item value not same as filter value
-            itemEqualsAllKeys = false;
-          }
-        }
-      })
-      if (itemEqualsAllKeys) {
-        itemIsDisallowed = true;
-      }
-    });
-    let message = this.state.greyFilters.disallowed.message;
-    let action = this.state.greyFilters.disallowed.action;
-    return { disallowed: itemIsDisallowed, message: message, action: action };
+    // let itemIsDisallowed = false;
+    // this.state.greyFilters.disallowed.filter.forEach(filter => {
+    //   let itemEqualsAllKeys = true;
+    //   Object.keys(filter).forEach(key => {
+    //     if (key === "cover") {
+    //       if (ItemDefinitions.getCover(item.type) !== filter[key]) {
+    //         itemEqualsAllKeys = false;
+    //       }
+    //     } else {
+    //       if (item[key] !== filter[key]) { //if item value not same as filter value
+    //         itemEqualsAllKeys = false;
+    //       }
+    //     }
+    //   })
+    //   if (itemEqualsAllKeys) {
+    //     itemIsDisallowed = true;
+    //   }
+    // });
+    // let message = this.state.greyFilters.disallowed.message;
+    // let action = this.state.greyFilters.disallowed.action;
+    // return { disallowed: itemIsDisallowed, message: message, action: action };
   }
 
   getTiles() {
@@ -389,7 +350,7 @@ export class Library extends React.Component<LibraryProps, LibraryState> {
                 </TouchableHighlight>
               </View>
               <View style={styles.pillContainer}>
-                {this.state.sortFilters.map((item, index) => {
+                {/* {this.state.sortFilters.map((item, index) => {
                   return (<TouchableHighlight style={styles.pill} key={index} onPress={() => this.removePill(index)} underlayColor="#e9e9e9">
                     <View style={{ flexDirection: "row", alignItems: "center" }}>
 
@@ -397,13 +358,13 @@ export class Library extends React.Component<LibraryProps, LibraryState> {
                       <Ionicons name="md-close-circle" size={25} style={{ paddingLeft: 5 }} />
                     </View>
                   </TouchableHighlight>);
-                })}
+                })} */}
               </View>
             </View>
           </View>
 
           <View>
-            <SortSidebar onSelect={(type, name, value) => this.onSelect(type, name, value)} />
+            {/* <SortSidebar onSelect={(type, name, value) => this.onSelect(type, name, value)} /> */}
           </View>
         </ScrollView>
       </PageLayout>

@@ -1,6 +1,6 @@
 import { Page, Item, ItemDefinitions, Filter } from './formats';
 import { Storage } from './storage';
-import { colorDistance } from './helpers';
+import { colorDistance, clipRange } from './helpers';
 import { string } from 'prop-types';
 
 export class ItemManager {
@@ -39,8 +39,8 @@ export class ItemManager {
 
   static async getAllItems() {
     let library = await this.getAllPages();
-    let items:Item[] = [];
-    library.forEach(e => {e.items.forEach(i => items.push(i))});
+    let items: Item[] = [];
+    library.forEach(e => { e.items.forEach(i => items.push(i)) });
     return items;
   }
 
@@ -207,41 +207,116 @@ export class ItemManager {
     })
     //remove all hidden from list
     filters.forEach(filter => {
-      filter.keys.forEach(key => {
-        Object.keys(key).forEach(name => {
-          if(filter.type === "hide"){
-            items.filter(item => item[name] === key[name])
-          }
-        })
+      Object.keys(filter.keys).forEach(key => {
+        if (filter.type === "hide") {
+          items.filter(item => item[key] === filter.keys[key])
+        }
+      })
+    })
+
+    //grey out all disallowed
+    filters.forEach(filter => {
+      Object.keys(filter.keys).forEach(key => {
+        if (filter.type === "disallowed") {
+          items.filter(item => item[key] === filter.keys[key])
+        }
       })
     })
 
     //find priorities
     let priorityFilters = filters.filter(filter => filter.type === 'priority');
-    let priorities = [];
-    items.forEach(item => {
-      priorities.push(this._findPriority(item, priorityFilters));
-    })
+    let priorities = this._findPriorities(items, priorityFilters);
 
     //items.sort((item1, item2) => this._findPriority(item1, item2, filters))
 
     //arrange by priority
   }
 
-  static _findPriority (item: Item, filters: Filter[]): number {
-    let numberOfFilters = 0;
-    let score = 0;
-    filters.forEach(filter => {
-      Object.keys(filter.keys).forEach(name => {
-        // let value = 
-        switch(filter[name]){
-          case "class": 
-            // if(item.class === filter.keys[]){
 
-            // }
-        }
+  //review: how do i check these?
+  static _findPriorities(items: Item[], filters: Filter[]): number {
+    let priorities = [];
+
+    let lowestDate = Date.now();
+    items.forEach(item => {
+      if(item.date < lowestDate) {
+        lowestDate = item.date;
+      }
+    })
+
+    let highestLaundry = 0;
+    items.forEach(item => {
+      if(item.laundry > highestLaundry){
+        highestLaundry = item.laundry
+      }
+    })
+
+    items.forEach(item => {
+      let numberOfFilters = 0;
+      let score = 0;
+      filters.forEach(filter => {
+        Object.keys(filter.keys).forEach(key => {
+          numberOfFilters++;
+          let value = filter.keys[key];
+          switch (filter[key]) {
+            case "class":
+              if (item.class === value) {
+                score += 100
+              }
+              break;
+            case "name":
+              if(item.name.indexOf(value) !== -1){
+                score += 100
+              }
+              break;
+            case "id":
+              if(item.class === value){
+                score += 100;
+              }
+              break;
+            case "color":
+              let larger = 0;
+              item.colors.forEach(color => {
+                let dist = colorDistance(color, value);
+                if(dist > larger) {
+                  larger = dist;
+                }
+              })
+              score += larger;
+              break;
+            case "type":
+              if(item.type === value) {
+                score += 100;
+              }
+              break;
+            case "date":
+              if(value === "ascending"){
+                let dateValue = 100 - (Date.now() - item.date); //lets say 200 //close to new would be smaller
+                let range = Date.now() - lowestDate; //lets say 500
+                score += clipRange(dateValue, range, 100); //does newer = higher range?
+              } else {
+                //descending
+                let dateValue = Date.now() - item.date;
+                let range = Date.now() - lowestDate;
+                score += clipRange(dateValue, range, 100); //does newer = higher range?
+              }
+              break;
+            case "laundry":
+              if(value === "ascending") {
+                let laundryValue = item.laundry //lets say 3
+                //highest is 5, 
+                score += clipRange(item.laundry, highestLaundry, 100)
+              } else {
+
+              }
+              break;
+            case "uses":
+              break;
+          }
+        })
       })
     })
+
     return -1;
   }
 }

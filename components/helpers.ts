@@ -31,11 +31,11 @@ const colorSpace: Array<{ name: string; color: { r: number; g: number; b: number
 export function colorDistance(color1: string, color2: string) {
   let color1obj = Color(color1).object();
   let color2obj = Color(color2).object();
-  return Math.sqrt(
+  return clipRange(Math.sqrt(
     Math.pow(color1obj.r - color2obj.r, 2) +
     Math.pow(color1obj.g - color2obj.g, 2) +
     Math.pow(color1obj.b - color2obj.b, 2)
-  );
+  ), 441.6729559300637, 100);
 }
 
 export function roundColor(color: string): string {

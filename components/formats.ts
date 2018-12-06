@@ -20,6 +20,12 @@ export interface Item {
   uses: number;
   laundry: number;
   photoURI: string;
+  grey?: {
+    message: string, 
+    action?: {
+      label: string, action: Function
+    }
+  }
 }
 
 export interface Score {
@@ -39,20 +45,55 @@ export interface Outfit {
   score: Score;
 }
 
+export interface Filter {
+  filter: 
+  { 
+    class?: string, 
+    type?: string, 
+    cover?: number, 
+    date?: number,
+  }[];
+  message?: string,
+  action?: {title: string, action: Function},
+}
+
+//review: this doesn't work ! when you loop through each filter and key,
+//the values of the key doesn't correspond with item values... ? solution??
+//is this an issue? if you think about it will you ever need to grey out
+//items by laundry? 
+
+//thoughts: 
+//filter interface should be split? keep hide, allowed, disallowed but priority is something completely different?
 // export interface Filter {
-//   filter: 
-//   { 
-//     class?: string, 
-//     type?: string, 
-//     cover?: number, 
-//     date?: number,
-//   }[];
-//   message?: string,
-//   action?: {title: string, action: Function},
+//   keys: {
+//     class: 'top' | 'bottom' | 'full' | 'shoes' | 'accessory';
+//     type: string;
+//     name: string;
+//     colors: string[]; //review: want to ever filter by color combo?
+//     date: number;
+//     uses: number;
+//     laundry: number;
+//     photoURI: string;
+//   };
+//   type: 'priority' | 'hide' | 'allowed' | 'disallowed' ;
+//   message?: string;
+//   action?: {title: string, action: Function};
 // }
 
-export interface Filter {
-  keys: Array<{
+/* 
+example: 
+{
+  keys: {
+    class: "top",
+    id: 203493820432
+  },
+  type: "hide"
+}
+*/
+
+//perhaps make this a class with different functions for each key
+export interface Priority {
+  things: {
     class?: 'top' | 'bottom' | 'full' | 'shoes' | 'accessory',
     name?: string,
     id?: number,
@@ -61,10 +102,8 @@ export interface Filter {
     date?: 'ascending' | 'descending',
     laundry?: 'ascending' | 'descending',
     uses?: 'ascending' | 'descending'
-  }>;
-  type: 'priority' | 'hide' | 'allowed' | 'disallowed' ;
-  message?: string;
-  action?: {title: string, action: Function};
+  };
+  // compare: ;
 }
 
 //review: DISCONTINUITY! is it FULL or FULL BODY?
