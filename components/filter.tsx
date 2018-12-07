@@ -3,8 +3,8 @@ import { filter } from 'minimatch';
 import { ItemManager } from './itemManager';
 
 
-export interface Hidden {
-  filterType: "grey";
+export interface Greyed {
+  filterType: "greyed";
   class?: 'top' | 'bottom' | 'full' | 'shoes' | 'accessory';
   type?: string;
   name?: string;
@@ -12,6 +12,8 @@ export interface Hidden {
   date?: number;
   uses?: number;
   laundry?: number;
+  message: {title: string, body: string};
+  action?: Function;
 }
 
 /* 
@@ -32,7 +34,6 @@ export interface Allowed {
 //like if i said type: shirt and uses: 2 will it only
 //remove items with BOTH type shirt and 2 uses? or will
 //it remove all shirts and all 2 use items?
-
 export interface Disallowed {
   filterType: "disallowed";
   class?: 'top' | 'bottom' | 'full' | 'shoes' | 'accessory';
@@ -60,7 +61,7 @@ export interface Priority {
 
 export class Sort {
 
-  static arrangeItems(pages: Page[], filters: Array<Hidden | Allowed | Disallowed | Priority>) {
+  static arrangeItems(pages: Page[], filters: Array<Greyed | Allowed | Disallowed | Priority>) {
     let items: Item[] = [];
     pages.forEach(page => {
       page.items.forEach(item => {
@@ -70,18 +71,10 @@ export class Sort {
 
     const originalItems = [...items];
 
-
-    //review maybe / idea
-    /* 
-    how about you make removing disallowed basically just 
-    allowing everything that is not disallowed - that way
-    it would work with allowed easily !!! and it would
-    overcome logic thingies
-    */
     items = this._removeHidden(items, filters);;
     //find priorities
 
-    items = this._greyDisallowed(items, filters);
+    items = this._greyItems(items, filters);
 
     //move grey items to end
 
@@ -104,7 +97,7 @@ export class Sort {
   must have SAME exact values to allow / disallow. okay? i mean 
   you'd never use it that way but is it okay?
   */
-  static _removeHidden(itemList: Item[], filters: Array<Hidden | Allowed | Disallowed | Priority>) {
+  static _removeHidden(itemList: Item[], filters: Array<Greyed | Allowed | Disallowed | Priority>) {
     const originalItems = [...itemList];
     let items: Item[] = [];
 
@@ -165,8 +158,31 @@ export class Sort {
 
 
 
-  static _greyDisallowed(itemList: Item[], filters: Array<Hidden | Allowed | Disallowed | Priority>) {
+  static _greyItems(itemList: Item[], filters: Array<Greyed | Allowed | Disallowed | Priority>) {
     let items = [...itemList];
+
+    let greyed = [];
+    for (let filter of filters) {
+      if (filter.filterType === "greyed") {
+        for (let key of Object.keys(filter)) {
+          if (key !== 'filterType') {
+            greyed.push({[key]: filter[key], message: filter.message});
+          }
+        }
+      }
+    }
+
+    for (let item of items) {
+      for(let grey of greyed){
+        for (let key of Object.keys(grey)) {
+          if(key !== "message"){
+            if (item[key] === grey[key]) {
+              item.grey = {message: grey.message};
+            }
+          }
+        }
+      }
+    }
 
     return items;
   }

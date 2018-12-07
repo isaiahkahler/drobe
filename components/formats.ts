@@ -21,7 +21,7 @@ export interface Item {
   laundry: number;
   photoURI: string;
   grey?: {
-    message: string, 
+    message: {title: string, body: string}, 
     action?: {
       label: string, action: Function
     }

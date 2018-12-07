@@ -88,7 +88,11 @@ export class Library extends React.Component<LibraryProps, LibraryState> {
 
   loadLibrary = async () => {
     let allPages = await ItemManager.getAllPages();
-    allPages = Sort.arrangeItems(allPages, [{filterType: "disallowed", class: "top"}, {filterType: "disallowed", class: "accessory"}, {filterType: "allowed", type: "cardigan"}]);
+    // allPages = Sort.arrangeItems(allPages, [{filterType: "disallowed", class: "top"}, {filterType: "disallowed", class: "accessory"}, {filterType: "allowed", type: "cardigan"}]);
+    allPages = Sort.arrangeItems(allPages, [
+      {filterType: "greyed", class: "top", message: {title: "hello", body: "you cant do that"}},
+      {filterType: "greyed", class: "accessory", message: {title: "yeoo", body: "das an accessory man"}},
+    ]);
     this.setPages(allPages)
     this.setState({ library: allPages });
   };
