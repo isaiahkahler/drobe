@@ -14,6 +14,9 @@ export interface Hidden {
   laundry?: number;
 }
 
+/* 
+overrides disallowed - ex: disallowed tops, allowed cardigan - it will show up
+*/
 export interface Allowed {
   filterType: "allowed";
   class?: 'top' | 'bottom' | 'full' | 'shoes' | 'accessory';
@@ -24,6 +27,11 @@ export interface Allowed {
   uses?: number;
   laundry?: number;
 }
+
+//review: is it supposed to work in conjunction with keys?
+//like if i said type: shirt and uses: 2 will it only
+//remove items with BOTH type shirt and 2 uses? or will
+//it remove all shirts and all 2 use items?
 
 export interface Disallowed {
   filterType: "disallowed";
@@ -59,20 +67,30 @@ export class Sort {
         items.push(item);
       })
     });
-    items = this._removeHidden(items, filters);
-    
+
+    const originalItems = [...items];
+
+
+    //review maybe / idea
+    /* 
+    how about you make removing disallowed basically just 
+    allowing everything that is not disallowed - that way
+    it would work with allowed easily !!! and it would
+    overcome logic thingies
+    */
+    items = this._removeHidden(items, filters);;
     //find priorities
 
     items = this._greyDisallowed(items, filters);
-    
+
     //move grey items to end
 
     let newPages = ItemManager.itemListToPages(items);
-    // newPages.forEach(page => {
-    //   page.items.forEach(item => {
-    //     console.log(item.class)
-    //   })
-    // })
+    newPages.forEach(page => {
+      page.items.forEach(item => {
+        console.log(item.class)
+      })
+    })
     return newPages;
   }
 
@@ -80,47 +98,76 @@ export class Sort {
 
   }
 
+  /*
+  review: remove hidden does not really work as expected for type 
+  of colors? for the item to be allowed or disallowed, colors array
+  must have SAME exact values to allow / disallow. okay? i mean 
+  you'd never use it that way but is it okay?
+  */
   static _removeHidden(itemList: Item[], filters: Array<Hidden | Allowed | Disallowed | Priority>) {
-    let items = [...itemList];
-    items = items.filter(item => {
-      for(let filter of filters){
-        console.log("fidjsfld", filter.filterType)
-        if(filter.filterType === "disallowed"){
-          console.log('disallowed')
-          for(let key of Object.keys(filter)){
-            if(key !== "filterType"){
-              if(filter[key] === item[key]){
-                return false;
-              } else {
-                return true;
-              }
-            }
+    const originalItems = [...itemList];
+    let items: Item[] = [];
+
+    let disallowed = [];
+    for (let filter of filters) {
+      if (filter.filterType === "disallowed") {
+        for (let key of Object.keys(filter)) {
+          if (key !== 'filterType') {
+            disallowed.push({[key]: filter[key]});
           }
-        } else if(filter.filterType === "allowed"){
-          console.log('allowed')
-          for(let key of Object.keys(filter)){
-            if(key !== "filterType"){
-              if(filter[key] !== item[key]){
-                return false;
-              } else {
-                return true;
-              }
-            }
-          }
-        } else {
-          console.log('else')
-          return false;
         }
       }
-      return false;
-    })
+    }
+
+    let allowed = [];
+    for (let filter of filters) {
+      if (filter.filterType === "allowed") {
+        for (let key of Object.keys(filter)) {
+          if (key !== 'filterType') {
+            allowed.push({[key]: filter[key]});
+          }
+        }
+      }
+    }
+
+
+    for (let item of originalItems) {
+      let isDisallowed = false;
+      let isAllowed = false;
+      for(let dis of disallowed){
+        for (let key of Object.keys(dis)) {
+          if (item[key] === dis[key]) {
+            isDisallowed = true;
+          }
+        }
+      }
+      for(let all of allowed){
+        for(let key of Object.keys(all)){
+          if (item[key] === all[key]){
+            isAllowed = true;
+          }
+        }
+      }
+
+      if(isDisallowed){
+        if(isAllowed){
+          items.push(item);
+        }
+      } else {
+        items.push(item)
+      }
+      
+    }
 
     return items;
   }
+  
+
+
 
   static _greyDisallowed(itemList: Item[], filters: Array<Hidden | Allowed | Disallowed | Priority>) {
     let items = [...itemList];
-    
+
     return items;
   }
 
