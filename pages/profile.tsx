@@ -57,7 +57,7 @@ class Profile extends React.Component<ProfileProps, ProfileState> {
               let allPages: Array<any> = await ItemManager.getAllPages();
               for(let page of allPages){
                 for(let item of page.items){
-                  console.log(item.class)
+                  // console.log(item.class)
                 }
               }
             }} underlayColor='rgba(0,0,0,0.2)'>

@@ -4,11 +4,8 @@ import { PageLayout } from '../../components/page';
 import { commonStyles, StyleConstants } from '../../components/styles';
 import { Item, ItemDefinitions, SortFilter, Outfit, Filter } from '../../components/formats';
 import { ItemManager } from '../../components/itemManager';
-import { filter } from 'minimatch';
-import { NativeIcon } from '../../components/nativeIcons';
 import { MaterialIcons } from '@expo/vector-icons';
 import { Algorithms } from '../../components/algorithms';
-import { throws } from 'assert';
 import { getCompliment, MiddleColorHSV, LeftColorHSV, RightColorHSV, leftHueHSV, rightHueHSV } from '../../components/helpers';
 
 const width = Dimensions.get('screen').width;
@@ -258,7 +255,7 @@ export class Manual extends React.Component<ManualProps, ManualState> {
         </TouchableHighlight>
         <Text style={[styles.itemViewText, commonStyles.pb, commonStyles.centerText]}>{item.name}</Text>
       </View>
-    );
+    )
   }
 
   getRecommendedColors(base: string, shift: number) {
@@ -328,7 +325,7 @@ export class Manual extends React.Component<ManualProps, ManualState> {
                               <Text>add a top</Text>
                             </TouchableHighlight>
                           </Animated.View>
-                        )};
+                        )}
                     {!!this.state.outfit.items.bottom || !!(!!this.state.outfit.items.full && ItemDefinitions.getCover(this.state.outfit.items.full.type) === 3) ? (
                         <React.Fragment>
                           {!!this.state.outfit.items.bottom && this.getItemView(this.state.outfit.items.bottom, false, () => {
@@ -374,9 +371,9 @@ export class Manual extends React.Component<ManualProps, ManualState> {
                               <Text>add a bottom</Text>
                             </TouchableHighlight>
                           </Animated.View>
-                        )};
+                        )}
                   </View>
-                  )};
+                  )}
               </View>
             ) : (
                 <Animated.View

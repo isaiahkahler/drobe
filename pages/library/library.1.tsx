@@ -339,7 +339,7 @@ export class Library extends React.Component<LibraryProps, LibraryState> {
                 <View style={styles.searchContainer}>
                   <MaterialIcons name="search" size={30} color={StyleConstants.accentColor} />
                   <TextInput style={[styles.search, commonStyles.textInput]} placeholder="search" onChangeText={text => this.search(text)} value={this.state.searchValue} />
-                  {this.state.searchValue && <TouchableHighlight onPress={() => { this.search('') }}><MaterialIcons name="close" size={30} color={StyleConstants.accentColor} /></TouchableHighlight>}
+                  {this.state.searchValue ? <TouchableHighlight onPress={() => { this.search('') }}><MaterialIcons name="close" size={30} color={StyleConstants.accentColor} /></TouchableHighlight> : null}
                 </View>
                 <TouchableHighlight
                   onPress={() => this.toggleSidebar()}

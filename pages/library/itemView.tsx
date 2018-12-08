@@ -32,9 +32,9 @@ export class ItemView extends React.Component<ItemViewProps, ItemViewState> {
     return {
       title: navigation.getParam('title', 'Item'),
       headerRight: (
-        navigation.getParam('editMode', undefined) && <TouchableHighlight onPress={navigation.getParam('edit', () => { })} underlayColor='rgba(0,0,0,0)'>
+        navigation.getParam('editMode', undefined) ? <TouchableHighlight onPress={navigation.getParam('edit', () => { })} underlayColor='rgba(0,0,0,0)'>
           <MaterialIcons name="edit" size={30} style={{ marginRight: width * 0.05 }} />
-        </TouchableHighlight>
+        </TouchableHighlight> : null
       )
     };
   };
@@ -101,13 +101,13 @@ export class ItemView extends React.Component<ItemViewProps, ItemViewState> {
             value={this.state.item.laundry}
           />
           {/* <ShowValue name="date added:" type="date" value={moment(this.state.item.date).calendar()} /> */}
-          {this.state.editMode && <TouchableHighlight onPress={() => this.deleteItem()}
+          {this.state.editMode ? <TouchableHighlight onPress={() => this.deleteItem()}
             style={[commonStyles.button, { backgroundColor: "#ff0000", marginTop: 5 }]}
             underlayColor="rgba(0,0,0,0.2)">
             <Text style={[commonStyles.pb, commonStyles.centerText, { color: "#fff" }]}>
               Delete Item
             </Text>
-          </TouchableHighlight>}
+          </TouchableHighlight>: null}
         </PageLayout>
       );
     } else {
@@ -142,7 +142,7 @@ function ShowValue(props: { name: string; type: string; value: any }) {
           {props.value.map((item, index) => {
             let colorObj = Color(item);
             let fontColor = '#fff';
-            if (colorObj.isLight()) {
+            if (colorObj.luminosity() > 0.5) {
               fontColor = '#000';
             }
             return (

@@ -460,7 +460,7 @@ export class Define extends React.Component<DefineProps, DefineState> {
                               style={[
                                 commonStyles.pb,
                                 {
-                                  color: Color(this.state.options.colors[index]).isDark()
+                                  color: (Color(this.state.options.colors[index]).luminosity() <= 0.5)
                                     ? '#fff'
                                     : '#000'
                                 }

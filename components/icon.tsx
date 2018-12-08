@@ -18,7 +18,6 @@ import {
   Defs,
   Stop
 } from 'react-native-svg';
-import { access } from 'fs';
 
 const { width, height} = Dimensions.get("window");
 
@@ -63,9 +62,9 @@ export class Icon extends React.Component<IconProps, IconState>{
 
 function AddIcon(props: {accent?: boolean}) {
   if(props.accent){
-
+    //{/*height="22.092" width="30"*/}
     return (
-      <Svg height="22.092" width="30" viewBox="452.004 97.154 43.016 31.677"> {/*height="22.092" width="30"*/}
+      <Svg height="22.092" width="30" viewBox="452.004 97.154 43.016 31.677"> 
         <G>
           <Circle x="473.51173973921584" y="114.4094516023211" fill="none" r="5.6692913385826955" stroke="rgb(140,100,255)" strokeLinecap="square" strokeWidth="3"/>
           <Path d=" M 456.504 104.488 L 466.425 104.488 L 466.425 101.654 L 480.598 101.654 L 480.598 104.488 L 490.52 104.488 L 490.52 124.331 L 456.504 124.331 L 456.504 104.488 Z " fill="none" stroke="rgb(140,100,255)" strokeLinecap="square" strokeWidth="3"/>
@@ -89,9 +88,10 @@ function AddIcon(props: {accent?: boolean}) {
 
 function CreateIcon(props: {accent?: boolean}) {
   if(props.accent){
+    //{/*height="30" width="36.0243" */}
     return (
       
-      <Svg height="30" width="36.0243" viewBox="358.069 91.484 51.654 43.016"> {/*height="30" width="36.0243" */}
+      <Svg height="30" width="36.0243" viewBox="358.069 91.484 51.654 43.016"> 
         <G>
           <Path d=" M 395.246 96.029 L 395.246 95.984 L 390.59 95.984 C 389.617 97.635 386.991 98.819 383.908 98.819 C 380.825 98.819 378.199 97.635 377.225 95.984 L 372.569 95.984 L 372.569 96.006 L 362.569 106.006 L 368.582 112.019 L 372.569 108.032 L 372.569 130 L 395.246 130 L 395.246 108.056 L 399.21 112.019 L 405.223 106.006 L 395.246 96.029 Z " fill="none" fillRule="evenodd" stroke="rgb(140,100,255)" strokeLinecap="square" strokeWidth="3"/>
           <Line stroke="rgb(140,100,255)" strokeLinecap="square" strokeWidth="3" x1="383.896" x2="383.896" y1="107.715" y2="119.053"/>

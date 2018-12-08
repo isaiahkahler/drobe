@@ -66,7 +66,7 @@ export class PageLayout extends React.Component<PageProps, PageState>{
   }
 
   render() {
-    let modal = this.state.showModal &&
+    let modal = this.state.showModal ?
       <Animated.View style={[styles.modalAnimatedView, { opacity: this.state.modalFadeInAnimation }]}>
         <TouchableHighlight style={styles.modalContainer} onPress={this.closeModal} underlayColor='rgba(0,0,0,0)'>
           <Animated.View style={[styles.modal, { bottom: this.state.modalSlideUpAnimation }]}>
@@ -78,7 +78,7 @@ export class PageLayout extends React.Component<PageProps, PageState>{
             </TouchableHighlight>
           </Animated.View>
         </TouchableHighlight>
-      </Animated.View>;
+      </Animated.View>: null;
     if (this.props.scroll) {
       return (
         <React.Fragment>

@@ -368,12 +368,16 @@ export class Library extends React.Component<LibraryProps, LibraryState> {
 
     return (
       <PageLayout>
-        <ScrollView horizontal pagingEnabled ref={this._drawer}>
+        <ScrollView nestedScrollEnabled horizontal pagingEnabled ref={this._drawer}>
           <View style={styles.page}>
             <ScrollView onScroll={({ nativeEvent }) => this.hasScrolledToEnd(nativeEvent, this.loadMore)} scrollEventThrottle={400}>
               <View style={{ height: this.state.topSpacerHeight }} />
               {this.getTiles()}
             </ScrollView>
+            {/* <FlatList nestedScrollEnabled scrollEnabled data={this.state.pages} renderItem={({item,index}) => <View key={index}>{this.getTiles(item, index)}</View>
+            }>
+
+            </FlatList> */}
             <View style={styles.fixedTopContainer} onLayout={(event) => {
               var { height } = event.nativeEvent.layout;
               this.setState({ topSpacerHeight: height })
@@ -382,7 +386,7 @@ export class Library extends React.Component<LibraryProps, LibraryState> {
                 <View style={styles.searchContainer}>
                   <MaterialIcons name="search" size={30} color={StyleConstants.accentColor} />
                   <TextInput style={[styles.search, commonStyles.textInput]} placeholder="search" onChangeText={text => this.search(text)} value={this.state.searchValue} />
-                  {this.state.searchValue && <TouchableHighlight onPress={() => { this.search('') }}><MaterialIcons name="close" size={30} color={StyleConstants.accentColor} /></TouchableHighlight>}
+                  {this.state.searchValue ? <TouchableHighlight onPress={() => { this.search('') }}><MaterialIcons name="close" size={30} color={StyleConstants.accentColor} /></TouchableHighlight> : null}
                 </View>
                 <TouchableHighlight
                   onPress={() => this.toggleSidebar()}

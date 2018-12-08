@@ -43,8 +43,8 @@ class Stats extends React.Component<StatsProps, StatsState> {
   };
 
   setScrollable = (event: any) => {
-    console.log(event);
-    console.log(event.target);
+    // console.log(event);
+    // console.log(event.target);
   };
 
   initialScrollToEnd = () => {

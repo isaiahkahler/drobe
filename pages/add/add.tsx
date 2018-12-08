@@ -9,7 +9,8 @@ import {
   TouchableHighlight,
   TextInput,
   Dimensions,
-  Platform
+  Platform,
+  ActivityIndicator
 } from 'react-native';
 import { PageLayout } from '../../components/page';
 import { commonStyles, StyleConstants } from '../../components/styles';
@@ -18,7 +19,6 @@ import { Camera, Permissions, FileSystem } from 'expo';
 import { Storage } from '../../components/storage';
 import { Item, ItemDefinitions } from '../../components/formats';
 import { Define } from './define';
-import { setTimeout } from 'timers';
 import { MaterialIcons } from '@expo/vector-icons';
 
 const width = Dimensions.get('screen').width;
@@ -145,9 +145,9 @@ class Add extends React.Component<AddProps, AddState> {
                     onPress={() => this.switchFlashMode()}
                   >
                     <View>
-                      {this.state.flash === "off" && <MaterialIcons name="flash-off" size={30} color={StyleConstants.accentColor} />}
-                      {this.state.flash === "on" && <MaterialIcons name="flash-on" size={30} color={StyleConstants.accentColor} />}
-                      {this.state.flash === "torch" && <MaterialIcons name="highlight" size={30} color={StyleConstants.accentColor} />}
+                      {this.state.flash === "off" ? <MaterialIcons name="flash-off" size={30} color={StyleConstants.accentColor} /> : null}
+                      {this.state.flash === "on" ? <MaterialIcons name="flash-on" size={30} color={StyleConstants.accentColor} /> : null}
+                      {this.state.flash === "torch" ? <MaterialIcons name="highlight" size={30} color={StyleConstants.accentColor} /> : null}
                     </View>
                   </TouchableHighlight>
                 </View>
@@ -160,7 +160,7 @@ class Add extends React.Component<AddProps, AddState> {
             </View>
           ) : (
               <View style={{ flex: 1, justifyContent: 'center' }}>
-                {/* <ActivityIndicator size="large" color="#000" /> */}
+                <ActivityIndicator size="large" color="#000" />
               </View>
             )}
         </View>

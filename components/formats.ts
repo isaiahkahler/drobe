@@ -3,7 +3,6 @@ import { AsyncStorage } from 'react-native';
 import { number } from 'prop-types';
 import { FileSystem } from 'expo';
 import Color from 'color';
-import { filter } from 'minimatch';
 
 export interface Page {
   // full: boolean;

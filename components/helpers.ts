@@ -163,7 +163,7 @@ export function MiddleColorHSV(color1: any, color2: any){
   let h = color1hsv.h >= color2hsv.h ? color1hsv.h - hDist :  color2hsv.h - hDist;
   let s = color1hsv.s >= color2hsv.s ? color1hsv.s - sDist :  color2hsv.s - sDist;
   let v = color1hsv.v >= color2hsv.v ? color1hsv.v - vDist :  color2hsv.v - vDist;
-  console.log("middle", {h: h, s:s, v:v})
+  // console.log("middle", {h: h, s:s, v:v})
   return Color({h: h, s: s, v: v}).hex();
 }
 
@@ -177,7 +177,7 @@ export function LeftColorHSV(color1: any, color2: any) {
   let h = color1hsv.h >= color2hsv.h ? color1hsv.h + hDist :  color2hsv.h + hDist;
   let s = color1hsv.s >= color2hsv.s ? color1hsv.s + sDist :  color2hsv.s + sDist;
   let v = color1hsv.v >= color2hsv.v ? color1hsv.v + vDist :  color2hsv.v + vDist;
-  console.log("left", {h: h, s:s, v:v})
+  // console.log("left", {h: h, s:s, v:v})
 
   return Color({h: h, s: s, v: v}).hex();
 }
@@ -192,7 +192,7 @@ export function RightColorHSV(color1: any, color2: any) {
   let h = color1hsv.h <= color2hsv.h ? color1hsv.h - hDist :  color2hsv.h - hDist;
   let s = color1hsv.s <= color2hsv.s ? color1hsv.s - sDist :  color2hsv.s - sDist;
   let v = color1hsv.v <= color2hsv.v ? color1hsv.v - vDist :  color2hsv.v - vDist;
-  console.log("right", {h: h, s:s, v:v})
+  // console.log("right", {h: h, s:s, v:v})
 
   return Color({h: h, s: s, v: v}).hex();
 }

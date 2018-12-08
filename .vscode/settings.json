@@ -1,15 +1,5 @@
 {
-  "cSpell.words": [
-    "barcode",
-    "barcodes",
-    "collapsable",
-    "colorpicker",
-    "hexa",
-    "horiz",
-    "kahler",
-    "scrollable",
-    "swiper",
-    "tinycolor",
-    "underlaying"
-  ]
+    "files.exclude": {
+        "**/.git": false
+    }
 }

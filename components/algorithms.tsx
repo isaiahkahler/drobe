@@ -67,7 +67,7 @@ export class Algorithms {
         let colorScore = this.scoreColors(outfit);
         let personalityScore;
         let styleScore;
-        console.log(colorScore)
+        // console.log(colorScore)
         return {colors: -1, overall: -1}
 
     }
@@ -112,7 +112,7 @@ export class Algorithms {
             outfit.items.baseRegular.top.colors.forEach(color => topColors.push(color));
             let bottomColors: string[] = [];
             outfit.items.baseRegular.bottom.colors.forEach(color => bottomColors.push(color));
-            console.log('top colors', topColors, 'bottom colors', bottomColors)
+            // console.log('top colors', topColors, 'bottom colors', bottomColors)
             for(let topColor of topColors){
                 for(let bottomColor of bottomColors){
                     colorDistances.push(colorDistance(topColor, bottomColor));

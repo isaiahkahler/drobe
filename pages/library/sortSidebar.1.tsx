@@ -25,7 +25,7 @@ export class SortSidebar extends React.Component<SortSidebarProps, SortSidebarSt
 
   sort(type: "date" | "class" | "type", value: any) {
     if (type === "date") {
-      console.log(value)
+      // console.log(value)
     }
   }
 

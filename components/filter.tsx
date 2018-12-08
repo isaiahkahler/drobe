@@ -1,5 +1,4 @@
 import { /*Filter,*/ Item, Page } from './formats';
-import { filter } from 'minimatch';
 import { ItemManager } from './itemManager';
 
 
@@ -81,7 +80,7 @@ export class Sort {
     let newPages = ItemManager.itemListToPages(items);
     newPages.forEach(page => {
       page.items.forEach(item => {
-        console.log(item.class)
+        // console.log(item.class)
       })
     })
     return newPages;
