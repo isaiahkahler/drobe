@@ -90,8 +90,10 @@ export class Library extends React.Component<LibraryProps, LibraryState> {
     let allPages = await ItemManager.getAllPages();
     // allPages = Sort.arrangeItems(allPages, [{filterType: "disallowed", class: "top"}, {filterType: "disallowed", class: "accessory"}, {filterType: "allowed", type: "cardigan"}]);
     allPages = Sort.arrangeItems(allPages, [
-      {filterType: "greyed", class: "top", message: {title: "hello", body: "you cant do that"}},
-      {filterType: "greyed", class: "accessory", message: {title: "yeoo", body: "das an accessory man"}},
+      // {filterType: "priority", type: {value: "sneakers", weight: 0}},
+      // {filterType: "priority", colors: {value: ["#000"], weight: 0}},
+      {filterType: "priority", name: {value: "balck", weight: 0}},
+      // {filterType: "priority", type: {value: "sneakers", weight: 0}, colors: {value: ["#ff0000"], weight: 0}},
     ]);
     this.setPages(allPages)
     this.setState({ library: allPages });

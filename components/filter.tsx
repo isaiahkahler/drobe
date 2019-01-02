@@ -1,5 +1,8 @@
-import { /*Filter,*/ Item, Page } from './formats';
+import { /*Filter,*/ Item, Page, Filter, ItemDefinitions } from './formats';
 import { ItemManager } from './itemManager';
+import stringSimilarity from 'string-similarity';
+import { string } from 'prop-types';
+import { colorDistance, clipRange } from './helpers';
 
 
 export interface Greyed {
@@ -44,6 +47,10 @@ export interface Disallowed {
   laundry?: number;
 }
 
+
+//review: when given a priority filter, will there only
+//ever be one? or will there be more than one?
+//as of now, will not work with more than one
 export interface Priority {
   filterType: "priority";
   class?: { value: 'top' | 'bottom' | 'full' | 'shoes' | 'accessory', weight: number };
@@ -73,6 +80,8 @@ export class Sort {
     items = this._removeHidden(items, filters);;
     //find priorities
 
+    items = this.findPriorities(items, filters)
+
     items = this._greyItems(items, filters);
 
     //move grey items to end
@@ -86,8 +95,139 @@ export class Sort {
     return newPages;
   }
 
-  static findPriorities() {
+  static findPriorities(items: Item[], filters: Array<Greyed | Allowed | Disallowed | Priority>) {
+    let priorities = [];
+    
+    let oldestDate = Date.now();
+    items.forEach(item => {
+      if(item.date < oldestDate) {
+        oldestDate = item.date;
+      }
+    })
 
+    let mostUsed = 0;
+    items.forEach(item => {
+      if(item.uses > mostUsed){
+        mostUsed = item.uses;
+      }
+    })
+
+    let highestLaundry = 0;
+    items.forEach(item => {
+      if(item.laundry > highestLaundry) {
+        highestLaundry = item.laundry
+      }
+    })
+
+    for(let filter of filters){
+      if(filter.filterType === "priority"){
+        for(let item of items){
+          let itemPriority = 0;
+          let divisor = 0;
+          for(let key of Object.keys(filter)){
+            if(key !== 'filterType'){
+
+              if(key === "class"){
+                itemPriority += this._findClassPriority(item, filter[key].value);
+                divisor++;
+              } else if(key === "type"){
+                itemPriority += this._findTypePriority(item, filter[key].value);
+                divisor++;
+              } else if(key === "name"){
+                itemPriority += this._findNamePriority(item, filter[key].value);
+                divisor++;
+              } else if(key === "colors"){
+                itemPriority += this._findColorsPriority(item, filter[key].value);
+                divisor++;
+              } else if(key === "date"){
+                itemPriority += this._findDatePriority(item, filter[key].value, oldestDate);
+                divisor++;
+              } else if(key === "uses"){
+                itemPriority += this._findUsesPriority(item, filter[key].value, mostUsed);
+                divisor++;
+              } else if(key === "laundry"){
+                itemPriority += this._findLaundryPriority(item, filter[key].value, highestLaundry);
+                divisor++;
+              } else if(key === "cover"){
+                itemPriority += this._findCoverPriority(item, filter[key].value);
+                divisor++;
+              } else if(key === "temperature"){
+                itemPriority += this._findTemperaturePriority(item, filter[key].value)
+                divisor++;
+              } else if(key === "formality"){
+                itemPriority += this._findFormalityPriority(item, filter[key].value)
+                divisor++;
+              }
+
+
+            }
+          }
+          // console.log(item.name, itemPriority, divisor, itemPriority / divisor)
+          priorities.push(itemPriority / divisor);
+        }
+      }
+    }
+
+    // for(let filter of filters){
+    //   if(filter.filterType === "priority"){
+    //     for(let key of Object.keys(filter)){
+    //       if(key !== "filterType"){
+    //         for(let item of items){
+  
+    //           let itemPriority = 0;
+    //           let divisor = 0;
+              
+    //           if(key === "class"){
+    //             itemPriority += this._findClassPriority(item, filter[key].value);
+    //             divisor++;
+    //           } else if(key === "type"){
+    //             itemPriority += this._findTypePriority(item, filter[key].value);
+    //             divisor++;
+    //           } else if(key === "name"){
+    //             itemPriority += this._findNamePriority(item, filter[key].value);
+    //             divisor++;
+    //           } else if(key === "colors"){
+    //             itemPriority += this._findColorsPriority(item, filter[key].value);
+    //             divisor++;
+    //           } else if(key === "date"){
+    //             itemPriority += this._findDatePriority(item, filter[key].value, oldestDate);
+    //             divisor++;
+    //           } else if(key === "uses"){
+    //             itemPriority += this._findUsesPriority(item, filter[key].value, mostUsed);
+    //             divisor++;
+    //           } else if(key === "laundry"){
+    //             itemPriority += this._findLaundryPriority(item, filter[key].value, highestLaundry);
+    //             divisor++;
+    //           } else if(key === "cover"){
+    //             itemPriority += this._findCoverPriority(item, filter[key].value);
+    //             divisor++;
+    //           } else if(key === "temperature"){
+    //             itemPriority += this._findTemperaturePriority(item, filter[key].value)
+    //             divisor++;
+    //           } else if(key === "formality"){
+    //             itemPriority += this._findFormalityPriority(item, filter[key].value)
+    //             divisor++;
+    //           }
+              
+    //           priorities.push(itemPriority / divisor)
+  
+    //         }
+    //       }
+    //     }
+    //   }
+    // }
+    
+    
+    let sortedItems = [...items]
+    sortedItems.sort((a, b) => {
+      return priorities[items.indexOf(b)] - priorities[items.indexOf(a)]
+    })
+
+    sortedItems.forEach( item => {
+      console.log(item.name, priorities[items.indexOf(item)])
+    })
+
+    return sortedItems;
   }
 
   /*
@@ -186,7 +326,67 @@ export class Sort {
     return items;
   }
 
-  static _findClassPriority() {
+  static _findClassPriority(item: Item, classType: string) {
+    return item.class === classType ? 100 : 0;
+  }
 
+  static _findTypePriority(item: Item, type: string) {
+    return item.type === type ? 100 : 0;
+  }
+
+  static _findNamePriority(item: Item, name: string) {
+    return 100 * stringSimilarity.compareTwoStrings(item.name, name);
+  }
+
+  static _findColorsPriority(item: Item, colors: string[]) {
+    let shortestDistance = 100;
+    for(let itemColor of item.colors){
+      for(let compareColor of colors) {
+        let colorDist = colorDistance(itemColor, compareColor);
+        if(colorDist < shortestDistance) {
+          shortestDistance = colorDist
+        }
+      }
+    }
+    return 100 - shortestDistance;
+  }
+
+  static _findDatePriority(item: Item, date: "ascending" | "descending", oldestDate) {
+    if(date === "ascending"){
+      //should be old to new 
+      //items with old dates get lower scores 
+      return clipRange(item.date - oldestDate, Date.now() - oldestDate, 100);
+    } else {
+      //items with oldest dates get highest scores
+      return 100 - clipRange(item.date - oldestDate, Date.now() - oldestDate, 100);
+    }
+  }
+
+  static _findUsesPriority(item: Item, uses: "ascending" | "descending", mostUsed: number){
+    if(uses === "ascending"){
+      return clipRange(item.uses, mostUsed, 100);
+    } else {
+      return 100 - clipRange(item.uses, mostUsed, 100);
+    }
+  }
+
+  static _findLaundryPriority(item: Item, laundry: "ascending" | "descending", highestLaundry: number){
+    if(laundry === "ascending"){
+      return clipRange(item.laundry, highestLaundry, 100);
+    } else {
+      return 100 - clipRange(item.laundry, highestLaundry, 100)
+    }
+  }
+
+  static _findCoverPriority(item: Item, cover: number){
+    return 100 - clipRange(Math.abs(cover - ItemDefinitions.getCover(item.type)), 4, 100)
+  }
+
+  static _findTemperaturePriority(item: Item, temp: number){
+    return 100 - clipRange(Math.abs(temp - ItemDefinitions.getTemperature(item.type)), 4, 100)
+  }
+
+  static _findFormalityPriority(item: Item, formality:  number){
+    return 100 - clipRange(Math.abs(formality - ItemDefinitions.getFormality(item.type)), 4, 100)
   }
 }
