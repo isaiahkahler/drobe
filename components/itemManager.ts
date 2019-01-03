@@ -2,6 +2,7 @@ import { Page, Item, ItemDefinitions, Filter } from './formats';
 import { Storage } from './storage';
 import { colorDistance, clipRange } from './helpers';
 import { string } from 'prop-types';
+import stringSimilarity from 'string-similarity';
 
 export class ItemManager {
   //hey!!! review: should these be async??? they have await in them? right?
@@ -141,6 +142,18 @@ export class ItemManager {
 
   //review: efficiency? 
   static async search(term: string, data: Page[], callback: (pages) => void) {
+    // let filteredTerms : Item[] = [];
+    // data.forEach(page => {
+    //   page.items.forEach(item => {
+    //     filteredTerms.push(item)
+    //   })
+    // })
+    // filteredTerms.sort((a, b) => {
+    //   return stringSimilarity.compareTwoStrings(b.name, term) - stringSimilarity.compareTwoStrings(a.name, term)
+    // })
+    // let newPages = this.itemListToPages(filteredTerms);
+    // callback(newPages);
+
     let unfilteredTerms: Item[] = [];
     for (let page of data) {
       for (let item of page.items) {

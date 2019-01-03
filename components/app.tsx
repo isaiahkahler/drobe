@@ -8,7 +8,8 @@ import { AddStack } from '../pages/add/add';
 import { ProfileStack } from '../pages/profile';
 import { Icon } from '../components/icon';
 
-import { LibraryStack } from '../pages/library/library';
+// import { LibraryStack } from '../pages/library/library';
+import { LibraryStack } from '../pages/library/library2';
 
 // let App: any;
 // if(Platform.OS === 'ios') { } else {}

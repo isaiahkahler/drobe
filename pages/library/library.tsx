@@ -92,7 +92,7 @@ export class Library extends React.Component<LibraryProps, LibraryState> {
     allPages = Sort.arrangeItems(allPages, [
       // {filterType: "priority", type: {value: "sneakers", weight: 0}},
       // {filterType: "priority", colors: {value: ["#000"], weight: 0}},
-      {filterType: "priority", name: {value: "balck", weight: 0}},
+      {filterType: "priority", date: {value: "ascending", weight: 0}},
       // {filterType: "priority", type: {value: "sneakers", weight: 0}, colors: {value: ["#ff0000"], weight: 0}},
     ]);
     this.setPages(allPages)
