@@ -1,7 +1,6 @@
 import { Page, Item } from './formats';
 import { AsyncStorage } from 'react-native';
 import { FileSystem } from 'expo';
-import { ItemManager } from './itemManager';
 
 
 
@@ -69,6 +68,7 @@ export class Storage {
         }
     }
 
+    //review: remove - as of now, unused
     static checkItem(item: Item, onSuccess: Function, onFail: Function) {
         //if null
         if (!item.name) {
@@ -82,7 +82,7 @@ export class Storage {
 
     //review: if code is proven true & bug free, assertions can be commented out
     //page index starts at 1? good idea? no? - changed to 0
-    static async DeleteItem(page: number, itemIndex: number) {
+    static async deleteItem(page: number, itemIndex: number) {
         let numberOfPages: number = await this._retrieveData('pages');
         if (!numberOfPages) {
             throw 'no pages exist';
@@ -121,15 +121,16 @@ export class Storage {
         }
     }
 
+    //review: remove comment - was changed to fix require cycle
     static async overwriteItem(pageIndex: number, itemIndex: number, item: Item, callback: Function) {
-        let page: Page = await ItemManager.getPage(pageIndex);
+        let page: Page = await this._retrieveData('page' + pageIndex) //ItemManager.getPage(pageIndex);
         page.items[itemIndex] = item;
         this._storeData("page" + pageIndex, page).then(() => {
             callback();
         });
     }
 
-    static async MovePhotoFromCache(cacheURI: string, callback: Function) {
+    static async movePhotoFromCache(cacheURI: string, callback: Function) {
         let info = await FileSystem.getInfoAsync(this.libraryPhotosDirectory);
         let newURI =
             this.libraryPhotosDirectory + '/' + Date.now() + cacheURI.substr(cacheURI.length - 4);
@@ -163,6 +164,7 @@ export class Storage {
     }
 
 
+    //review: make this a real PROP through react navigation
   static async storeDefineProps(editMode: boolean, pageIndex: number, itemIndex: number, uri: string, callback: Function) {
     Storage._storeData('define', {
       editMode: editMode,
