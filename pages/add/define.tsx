@@ -194,7 +194,7 @@ export class Define extends React.Component<DefineProps, DefineState> {
   storeItem = () => {
     if (!this.state.editMode) {
       //async move photo from cache to filesystem storage .then store item
-      Storage.MovePhotoFromCache(this.state.uri, newURI => {
+      Storage.movePhotoFromCache(this.state.uri, newURI => {
         this.setState(
           previousState => ({
             ...previousState,

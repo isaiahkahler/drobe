@@ -67,7 +67,7 @@ export class ItemView extends React.Component<ItemViewProps, ItemViewState> {
       [
         {
           text: 'yes', onPress: async () => {
-            await Storage.DeleteItem(this.state.pageIndex, this.state.itemIndex)
+            await Storage.deleteItem(this.state.pageIndex, this.state.itemIndex)
             this.props.navigation.navigate("Library");
           }
         },

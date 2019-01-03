@@ -162,61 +162,10 @@ export class Sort {
 
             }
           }
-          // console.log(item.name, itemPriority, divisor, itemPriority / divisor)
           priorities.push(itemPriority / divisor);
         }
       }
     }
-
-    // for(let filter of filters){
-    //   if(filter.filterType === "priority"){
-    //     for(let key of Object.keys(filter)){
-    //       if(key !== "filterType"){
-    //         for(let item of items){
-  
-    //           let itemPriority = 0;
-    //           let divisor = 0;
-              
-    //           if(key === "class"){
-    //             itemPriority += this._findClassPriority(item, filter[key].value);
-    //             divisor++;
-    //           } else if(key === "type"){
-    //             itemPriority += this._findTypePriority(item, filter[key].value);
-    //             divisor++;
-    //           } else if(key === "name"){
-    //             itemPriority += this._findNamePriority(item, filter[key].value);
-    //             divisor++;
-    //           } else if(key === "colors"){
-    //             itemPriority += this._findColorsPriority(item, filter[key].value);
-    //             divisor++;
-    //           } else if(key === "date"){
-    //             itemPriority += this._findDatePriority(item, filter[key].value, oldestDate);
-    //             divisor++;
-    //           } else if(key === "uses"){
-    //             itemPriority += this._findUsesPriority(item, filter[key].value, mostUsed);
-    //             divisor++;
-    //           } else if(key === "laundry"){
-    //             itemPriority += this._findLaundryPriority(item, filter[key].value, highestLaundry);
-    //             divisor++;
-    //           } else if(key === "cover"){
-    //             itemPriority += this._findCoverPriority(item, filter[key].value);
-    //             divisor++;
-    //           } else if(key === "temperature"){
-    //             itemPriority += this._findTemperaturePriority(item, filter[key].value)
-    //             divisor++;
-    //           } else if(key === "formality"){
-    //             itemPriority += this._findFormalityPriority(item, filter[key].value)
-    //             divisor++;
-    //           }
-              
-    //           priorities.push(itemPriority / divisor)
-  
-    //         }
-    //       }
-    //     }
-    //   }
-    // }
-    
     
     let sortedItems = [...items]
     sortedItems.sort((a, b) => {
