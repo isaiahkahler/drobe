@@ -154,7 +154,7 @@ class Add extends React.Component<AddProps, AddState> {
               >
                 <View style={styles.tile}>
                   <MaterialIcons name="camera-alt" size={50} style={styles.icon} color={StyleConstants.accentColor} />
-                  <Text style={[commonStyles.pb]}>take photo</Text>
+                  <Text style={[commonStyles.pb, commonStyles.centerText]}>take photo</Text>
                 </View>
               </TouchableHighlight>
               <TouchableHighlight
@@ -164,7 +164,7 @@ class Add extends React.Component<AddProps, AddState> {
               >
                 <View style={styles.tile}>
                 <MaterialIcons name="photo-library" size={50} style={styles.icon} color={StyleConstants.accentColor} />
-                  <Text style={[commonStyles.pb]}>choose from library</Text>
+                  <Text style={[commonStyles.pb, commonStyles.centerText]}>choose from library</Text>
                 </View>
               </TouchableHighlight>
             </View>
@@ -233,6 +233,7 @@ const styles = StyleSheet.create({
     borderRadius: 25
   },
   tile: {
+    padding: 20,
     flex: 1,
     flexDirection: "column",
     justifyContent: "center",
