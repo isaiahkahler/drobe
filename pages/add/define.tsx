@@ -314,15 +314,16 @@ export class Define extends React.Component<DefineProps, DefineState> {
                 {this.state.renderImage && (
                   <Image
                     source={{ uri: this.state.uri }}
-                    style={{ width: '100%', aspectRatio: 1 }}
+                    resizeMode="contain"
+                    // style={{ width: '100%', aspectRatio: 1 }}
+                    style={{height: height * 0.4}}
                   />
                 )}
               </View>
               {/* name */}
               <View style={styles.verticalPadding}>
-                <Label>Clothing Item Name</Label>
                 <TextInput
-                  placeholder="enter name (optional)"
+                  placeholder="name (optional)"
                   style={[styles.inputLine, commonStyles.textInput]}
                   onChangeText={value => this.updateData('name', value)}
                   value={this.state.options.name}
@@ -333,7 +334,6 @@ export class Define extends React.Component<DefineProps, DefineState> {
                 {isIos ? (
                   //ios
                   <View style={styles.verticalPadding}>
-                    <Label>Clothing Item Type</Label>
                     <SegmentedControlIOS
                       values={['top', 'bottom', 'full body', 'shoes', 'accessory']}
                       selectedIndex={ItemDefinitions.classes.indexOf(this.state.options.class)}
@@ -349,7 +349,6 @@ export class Define extends React.Component<DefineProps, DefineState> {
                 ) : (
                     //android
                     <View style={styles.verticalPadding}>
-                      <Label>Clothing Item Type</Label>
                       <View style={styles.androidPicker}>
                         <Picker
                           onValueChange={value => this.updateData('class', value)}
@@ -374,9 +373,6 @@ export class Define extends React.Component<DefineProps, DefineState> {
                   !this.state.options.type && { left: this.state.showRequiredShakeAnimation.x }
                 ]}
               >
-                <Label isFilledIn={this.state.options.type} showRequired={this.state.showRequired}>
-                  Clothing Item
-                </Label>
                 <View
                   style={[
                     commonStyles.button,
@@ -393,7 +389,7 @@ export class Define extends React.Component<DefineProps, DefineState> {
                     }}
                   >
                     <Text style={commonStyles.pb}>
-                      {this.state.options.type ? this.state.options.type : 'choose item...'}
+                      {this.state.options.type ? this.state.options.type : 'choose item type...'}
                     </Text>
                   </TouchableHighlight>
                   {this.state.showTypeList && (
@@ -428,12 +424,6 @@ export class Define extends React.Component<DefineProps, DefineState> {
                   !this.state.options.colors && { left: this.state.showRequiredShakeAnimation.x }
                 ]}
               >
-                <Label
-                  isFilledIn={this.state.options.colors}
-                  showRequired={this.state.showRequired}
-                >
-                  Item Color
-                </Label>
                 {!!this.state.options.colors ? (
                   <React.Fragment>
                     {this.state.options.colors.map((item, index) => {
@@ -530,26 +520,6 @@ export class Define extends React.Component<DefineProps, DefineState> {
   }
 }
 
-function Label(props: { children: any; isFilledIn?: any; showRequired?: boolean }) {
-  //review: code works without if statement - just the first return BUT may set style={[commonStyles.pb, false]} and that may be not good?
-  if (props.hasOwnProperty('isFilledIn')) {
-    return (
-      <View style={[styles.label]}>
-        <Text
-          style={[commonStyles.pb, !props.isFilledIn && props.showRequired && { color: StyleConstants.warningColor }]}
-        >
-          {props.children}
-        </Text>
-      </View>
-    );
-  } else {
-    return (
-      <View style={[styles.label]}>
-        <Text style={commonStyles.pb}>{props.children}</Text>
-      </View>
-    );
-  }
-}
 
 const styles = StyleSheet.create({
   verticalPadding: {
@@ -558,9 +528,6 @@ const styles = StyleSheet.create({
   },
   inputLine: {
     width: '100%',
-  },
-  label: {
-    marginBottom: 5
   },
   androidPicker: {
     // borderWidth: 2,
