@@ -59,6 +59,16 @@ export class ItemManager {
     return pages;
   }
 
+  static pagesToItemList(pageList: Page[]){
+    let items: Item[] = [];
+    for(let page of pageList){
+      for(let item of page.items){
+        items.push(item);
+      }
+    }
+    return items;
+  }
+
   static async sortBy(selections: Array<{ type: "hide" | "order", name: string, value: any }>) {
     let allPages = await this.getAllPages();
     for (let selection of selections) {
