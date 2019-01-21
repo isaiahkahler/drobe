@@ -36,7 +36,7 @@ let App = createBottomTabNavigator(
       inactiveTintColor: 'gray',
       activeBackgroundColor: '#e9e9e9',
       inactiveBackgroundColor: '#fff',
-      showLabel: false
+      showLabel: true
     },
     animationEnabled: true,
     swipeEnabled: true,

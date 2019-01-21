@@ -1,210 +1,212 @@
-'use strict';
-import * as React from 'react';
+"use strict";
+import * as React from "react";
 import {
   StyleSheet,
   Text,
   View,
-  Button,
   AsyncStorage,
   TouchableHighlight,
   TextInput,
   Dimensions,
   Platform,
-  ActivityIndicator
-} from 'react-native';
-import { PageLayout } from '../../components/page';
-import { commonStyles, StyleConstants } from '../../components/styles';
-import { createStackNavigator } from 'react-navigation';
-import { Camera, Permissions, FileSystem } from 'expo';
-import { Storage } from '../../components/storage';
-import { Item, ItemDefinitions } from '../../components/formats';
-import { Define } from './define';
-import { MaterialIcons } from '@expo/vector-icons';
-import ImagePicker from 'react-native-image-picker';
+  ActivityIndicator,
+  Linking
+} from "react-native";
+import { PageLayout } from "../../components/page";
+import { commonStyles, StyleConstants } from "../../components/styles";
+import { createStackNavigator } from "react-navigation";
+import { Storage } from "../../components/storage";
+import { Item, ItemDefinitions } from "../../components/formats";
+import { Define } from "./define";
+import { MaterialIcons } from "@expo/vector-icons";
+import {
+  ImagePicker,
+  Permissions,
+  FileSystem,
+  IntentLauncherAndroid
+} from "expo";
+import { Button } from "../../components/button";
 
-const width = Dimensions.get('screen').width;
-const isIos = Platform.OS === 'ios';
-
+const width = Dimensions.get("screen").width;
+const isIos = Platform.OS === "ios";
 
 interface AddProps {
   navigation: any;
 }
 interface AddState {
-  hasCameraPermission: any;
-  showCamera: boolean;
-  flash: 'on' | 'off' | 'torch';
+  cameraPermissionStatus: Permissions.PermissionStatus;
+  libraryPermissionStatus: Permissions.PermissionStatus;
+  permissionError: boolean;
+  awaiting: boolean;
 }
 
 class Add extends React.Component<AddProps, AddState> {
   constructor(props: AddProps) {
     super(props);
     this.state = {
-      hasCameraPermission: null,
-      showCamera: true,
-      flash: 'off'
+      cameraPermissionStatus: null,
+      libraryPermissionStatus: null,
+      permissionError: false,
+      awaiting: false
     };
   }
   static navigationOptions = {
-    title: 'Add Clothes'
+    title: "Add Clothes"
   };
 
   async componentWillMount() {
-    const { status } = await Permissions.askAsync(Permissions.CAMERA);
-    this.setState(previousState => ({
-      ...previousState,
-      hasCameraPermission: status === 'granted'
-    }));
-
-    const willBlurSubscription = this.props.navigation.addListener(
-      'willBlur',
-      payload => {
-        this.setState({ showCamera: false })
+    const cameraStatus = await Permissions.getAsync(Permissions.CAMERA);
+    const libraryStatus = await Permissions.getAsync(Permissions.CAMERA_ROLL);
+    this.setState(
+      {
+        cameraPermissionStatus: cameraStatus.status,
+        libraryPermissionStatus: libraryStatus.status
       }
     );
-
-    const willFocusSubscription = this.props.navigation.addListener(
-      'willFocus',
-      payload => {
-        this.setState({ showCamera: true })
-      }
-    );
-
-
-
   }
 
-  private _camera: any;
+  takePhoto = async () => {
+    this.setState({ awaiting: true });
 
-  takePicture = async () => {
-    //TODO : set show camera true when navigating back from define
-    // this.setState({ showCamera: false });
-    if (!this._camera) {
-      return;
+    if (
+      this.state.cameraPermissionStatus === "undetermined" ||
+      (!isIos && this.state.cameraPermissionStatus === "denied")
+    ) {
+      let cameraStatus = await Permissions.askAsync(Permissions.CAMERA);
+      this.setState({ cameraPermissionStatus: cameraStatus.status });
     }
-    // let photo = await this._camera.takePictureAsync();
-    //   await Storage._storeData('addData', { uri: photo.uri, width: photo.width, height: photo.height });
-    //   this.props.navigation.navigate('Define');
-    try {
-      //review: should this be passed as a navigaiton prop instead of storing and grabbing?
-      let photo = await this._camera.takePictureAsync().then((photo) => {
-        this.setState({ flash: "off" })
-        // Storage._storeData('define', { editMode: false, uri: photo.uri, width: photo.width, height: photo.height });
-        Storage.storeDefineProps(false, -1, -1, photo.uri, () => {
+
+    if (
+      this.state.libraryPermissionStatus === "undetermined" ||
+      (!isIos && this.state.libraryPermissionStatus === "denied")
+    ) {
+      let libraryStatus = await Permissions.askAsync(Permissions.CAMERA_ROLL);
+      this.setState({ libraryPermissionStatus: libraryStatus.status });
+    }
+
+    if (this.state.cameraPermissionStatus === "denied") {
+      this.setState({ permissionError: true });
+    }
+
+    if (this.state.libraryPermissionStatus === "denied") {
+      this.setState({ permissionError: true });
+    }
+
+    if (
+      this.state.cameraPermissionStatus === "granted" &&
+      this.state.libraryPermissionStatus === "granted"
+    ) {
+      this.setState({permissionError: false});
+      let response = await ImagePicker.launchCameraAsync({
+        base64: false
+      });
+      if(response.cancelled === false){
+        Storage.storeDefineProps(false, -1, -1, response.uri, () => {
           this.props.navigation.navigate('Define');
         });
+      }
+    }
+    this.setState({ awaiting: false });
+  };
+
+  choosePhoto = async () => {
+    this.setState({ awaiting: true });
+
+    if (this.state.libraryPermissionStatus === "undetermined" && isIos) {
+      let libraryStatus = await Permissions.askAsync(Permissions.CAMERA_ROLL);
+      this.setState({ libraryPermissionStatus: libraryStatus.status });
+    }
+
+    if (this.state.libraryPermissionStatus === "denied" && isIos) {
+      this.setState({ permissionError: true });
+      return;
+    }
+
+    if (this.state.libraryPermissionStatus === "granted" || !isIos) {
+      this.setState({permissionError: false});
+      let response = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: "Images",
+        base64: false
       });
-    } catch (e) {
-      alert('oops! picture could not be taken. \n' + e);
-      this.setState({ showCamera: true });
+      if(response.cancelled === false){
+        Storage.storeDefineProps(false, -1, -1, response.uri, () => {
+          this.props.navigation.navigate('Define');
+        });
+      }
     }
+    this.setState({ awaiting: false });
   };
-
-  getFlashMode = () => {
-    if (this.state.flash === 'on') {
-      return Camera.Constants.FlashMode.on;
-    } else if (this.state.flash === 'off') {
-      return Camera.Constants.FlashMode.off;
-    } else {
-      return Camera.Constants.FlashMode.torch;
-    }
-  };
-
-  switchFlashMode = () => {
-    if (this.state.flash === 'off') {
-      this.setState({ flash: 'on' });
-    }
-    if (this.state.flash === 'on') {
-      this.setState({ flash: 'torch' });
-    }
-    if (this.state.flash === 'torch') {
-      this.setState({ flash: 'off' });
-    }
-  };
-
-  launchPicker = () => {
-
-    
-    return <Text>hi</Text>
-
-  }
-
-  componentDidMount () {
-
-    const options = {
-      title: 'Add Clothing',
-      // customButtons: [{ name: 'fb', title: 'Choose Photo from Facebook' }],
-      storageOptions: {
-        skipBackup: true,
-        path: 'images',
-      },
-    };
-
-    // ImagePicker.showImagePicker(options, (response) => {
-    //   console.log('Response = ', response);
-
-    //   if (response.didCancel) {
-    //     console.log('User cancelled image picker');
-    //   } else if (response.error) {
-    //     console.log('ImagePicker Error: ', response.error);
-    //   } else if (response.customButton) {
-    //     console.log('User tapped custom button: ', response.customButton);
-    //   } else {
-    //     const source = { uri: response.uri };
-
-    //     // You can also display the image using data:
-    //     // const source = { uri: 'data:image/jpeg;base64,' + response.data };
-    //   }
-    // });
-  }
 
   render() {
-    const { hasCameraPermission } = this.state;
-    if (hasCameraPermission === null) {
-      return <View />;
-    } else if (hasCameraPermission === false) {
-      return <Text>No access to camera</Text>;
-    } else {
-      return (
-        <View style={{ flex: 1, justifyContent: 'center', alignContent: 'center' }}>
-          {/* {this.state.showCamera && this.launchPicker()} */}
-          {this.state.showCamera ? (
-            <View style={{ flex: 1 }}>
-              <Camera
-                style={{ flex: 1 }}
-                type={Camera.Constants.Type.back}
-                flashMode={this.getFlashMode()}
-                ref={ref => {
-                  this._camera = ref;
+    return (
+      <PageLayout>
+        {this.state.awaiting ? (
+          <View style={styles.container}>
+            <ActivityIndicator size="large" />
+          </View>
+        ) : (
+          <View style={styles.container}>
+            <View style={styles.container}>
+              <TouchableHighlight
+                style={styles.tileContainer}
+                underlayColor="rgba(0,0,0,0.2)"
+                onPress={this.takePhoto}
+              >
+                <View style={styles.tile}>
+                  <MaterialIcons name="camera-alt" size={50} style={styles.icon} color={StyleConstants.accentColor} />
+                  <Text style={[commonStyles.pb]}>take photo</Text>
+                </View>
+              </TouchableHighlight>
+              <TouchableHighlight
+                style={styles.tileContainer}
+                underlayColor="rgba(0,0,0,0.2)"
+                onPress={this.choosePhoto}
+              >
+                <View style={styles.tile}>
+                <MaterialIcons name="photo-library" size={50} style={styles.icon} color={StyleConstants.accentColor} />
+                  <Text style={[commonStyles.pb]}>choose from library</Text>
+                </View>
+              </TouchableHighlight>
+            </View>
+
+            {this.state.permissionError && (
+              <View
+                style={{
+                  padding: '5%',
+                  borderWidth: 2,
+                  borderColor: StyleConstants.warningColor,
+                  borderRadius: 5
                 }}
               >
-                <View style={styles.flashButtonContainer}>
-                  <TouchableHighlight
-                    underlayColor="rgba(0,0,0,0.2)"
-                    style={styles.flashButton}
-                    onPress={() => this.switchFlashMode()}
-                  >
-                    <View>
-                      {this.state.flash === "off" ? <MaterialIcons name="flash-off" size={30} color={StyleConstants.accentColor} /> : null}
-                      {this.state.flash === "on" ? <MaterialIcons name="flash-on" size={30} color={StyleConstants.accentColor} /> : null}
-                      {this.state.flash === "torch" ? <MaterialIcons name="highlight" size={30} color={StyleConstants.accentColor} /> : null}
-                    </View>
-                  </TouchableHighlight>
-                </View>
-                <View style={styles.pictureButtonContainer}>
-                  <TouchableHighlight onPress={this.takePicture} style={styles.pictureButton} underlayColor="rgba(0,0,0,0.2)">
-                    <View />
-                  </TouchableHighlight>
-                </View>
-              </Camera>
-            </View>
-          ) : (
-              <View style={{ flex: 1, justifyContent: 'center' }}>
-                <ActivityIndicator size="large" color="#000" />
+                <Text style={commonStyles.pb}>
+                  Drobe needs to access your camera and photos to take pictures
+                  of your clothes.
+                </Text>
+                <Button
+                  title="open settings"
+                  onPress={() => {
+                    if (isIos) {
+                      Linking.canOpenURL("app-settings:")
+                        .then(supported => {
+                          console.log(`Settings url works`);
+                          Linking.openURL("app-settings:");
+                        })
+                        .catch(error => {
+                          console.log(`An error has occured: ${error}`);
+                        });
+                    } else {
+                      IntentLauncherAndroid.startActivityAsync(
+                        IntentLauncherAndroid.ACTION_APPLICATION_SETTINGS
+                      );
+                    }
+                  }}
+                />
               </View>
             )}
-        </View>
-      );
-    }
+          </View>
+        )}
+      </PageLayout>
+    );
   }
 }
 
@@ -213,51 +215,30 @@ export const AddStack = createStackNavigator(
     Add: { screen: Add },
     Define: { screen: Define }
   },
-  { initialRouteName: 'Add' }
+  { initialRouteName: "Add" }
 );
 
 const styles = StyleSheet.create({
-  preview: {
+
+  container: {
     flex: 1,
-    justifyContent: 'flex-end',
-    alignItems: 'center'
+    flexDirection: "column",
+    justifyContent: "space-evenly",
+    alignItems: "center"
   },
-  capture: {
-    flex: 0,
-    backgroundColor: '#fff',
-    borderRadius: 5,
-    padding: 15,
-    paddingHorizontal: 20,
-    alignSelf: 'center',
-    margin: 20
+  tileContainer: {
+    width: "50%",
+    aspectRatio: 1,
+    backgroundColor: "#e9e9e9",
+    borderRadius: 25
   },
-  pictureButtonContainer: {
+  tile: {
     flex: 1,
-    backgroundColor: 'transparent',
-    flexDirection: 'column-reverse',
-    alignItems: 'center'
-  },
-  pictureButton: {
-    width: 75,
-    height: 75,
-    backgroundColor: '#fff',
-    borderColor: '#000',
-    borderWidth: 5,
-    borderRadius: 100,
-    marginBottom: 20
-  },
-  flashButton: {
-    width: 50,
-    height: 50,
-    borderRadius: 25,
-    backgroundColor: '#fff',
-    marginTop: 20,
+    flexDirection: "column",
     justifyContent: "center",
     alignItems: "center"
   },
-  flashButtonContainer: {
-    flex: 1,
-    alignItems: "center",
-    justifyContent: "flex-start"
+  icon: {
+    margin: 10
   }
 });
