@@ -20,9 +20,11 @@ import { Storage } from '../../components/storage';
 import { Item, ItemDefinitions } from '../../components/formats';
 import { Define } from './define';
 import { MaterialIcons } from '@expo/vector-icons';
+import ImagePicker from 'react-native-image-picker';
 
 const width = Dimensions.get('screen').width;
 const isIos = Platform.OS === 'ios';
+
 
 interface AddProps {
   navigation: any;
@@ -119,6 +121,42 @@ class Add extends React.Component<AddProps, AddState> {
     }
   };
 
+  launchPicker = () => {
+
+    
+    return <Text>hi</Text>
+
+  }
+
+  componentDidMount () {
+
+    const options = {
+      title: 'Add Clothing',
+      // customButtons: [{ name: 'fb', title: 'Choose Photo from Facebook' }],
+      storageOptions: {
+        skipBackup: true,
+        path: 'images',
+      },
+    };
+
+    // ImagePicker.showImagePicker(options, (response) => {
+    //   console.log('Response = ', response);
+
+    //   if (response.didCancel) {
+    //     console.log('User cancelled image picker');
+    //   } else if (response.error) {
+    //     console.log('ImagePicker Error: ', response.error);
+    //   } else if (response.customButton) {
+    //     console.log('User tapped custom button: ', response.customButton);
+    //   } else {
+    //     const source = { uri: response.uri };
+
+    //     // You can also display the image using data:
+    //     // const source = { uri: 'data:image/jpeg;base64,' + response.data };
+    //   }
+    // });
+  }
+
   render() {
     const { hasCameraPermission } = this.state;
     if (hasCameraPermission === null) {
@@ -128,6 +166,7 @@ class Add extends React.Component<AddProps, AddState> {
     } else {
       return (
         <View style={{ flex: 1, justifyContent: 'center', alignContent: 'center' }}>
+          {/* {this.state.showCamera && this.launchPicker()} */}
           {this.state.showCamera ? (
             <View style={{ flex: 1 }}>
               <Camera
