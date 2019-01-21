@@ -130,10 +130,14 @@ export class Storage {
         });
     }
 
+    static getLibraryPhotosDirectory() {
+        return this.libraryPhotosDirectory;
+    }
+
     static async movePhotoFromCache(cacheURI: string, callback: Function) {
         let info = await FileSystem.getInfoAsync(this.libraryPhotosDirectory);
-        let newURI =
-            this.libraryPhotosDirectory + '/' + Date.now() + cacheURI.substr(cacheURI.length - 4);
+        let uriEnding = Date.now() + cacheURI.substr(cacheURI.length - 4);
+        let newURI = this.libraryPhotosDirectory + '/' + uriEnding;
         if (!info.exists) {
             //first time, directory does not exist
             try {
@@ -160,7 +164,7 @@ export class Storage {
             }
             // console.log('success storing, didn't make dir');
         }
-        callback(newURI);
+        callback(uriEnding);
     }
 
 
