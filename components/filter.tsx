@@ -172,9 +172,9 @@ export class Sort {
       return priorities[items.indexOf(b)] - priorities[items.indexOf(a)]
     })
 
-    sortedItems.forEach( item => {
-      console.log(item.name, priorities[items.indexOf(item)])
-    })
+    // sortedItems.forEach( item => {
+    //   console.log(item.name, priorities[items.indexOf(item)])
+    // })
 
     return sortedItems;
   }
