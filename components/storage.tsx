@@ -169,14 +169,14 @@ export class Storage {
 
 
     //review: make this a real PROP through react navigation
-  static async storeDefineProps(editMode: boolean, pageIndex: number, itemIndex: number, uri: string, callback: Function) {
-    Storage._storeData('define', {
-      editMode: editMode,
-      pageIndex: pageIndex,
-      itemIndex: itemIndex,
-      uri: uri
-    }).then(() => {
-      callback();
-    });
-  }
+//   static async storeDefineProps(editMode: boolean, pageIndex: number, itemIndex: number, uri: string, callback: Function) {
+//     Storage._storeData('define', {
+//       editMode: editMode,
+//       pageIndex: pageIndex,
+//       itemIndex: itemIndex,
+//       uri: uri
+//     }).then(() => {
+//       callback();
+//     });
+//   }
 }

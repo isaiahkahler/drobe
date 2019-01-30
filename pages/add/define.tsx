@@ -94,18 +94,18 @@ export class Define extends React.Component<DefineProps, DefineState> {
   _modal = React.createRef<PageLayout>();
 
   componentDidMount = async () => {
-    let data = await Storage._retrieveData('define');
+    let data = this.props.navigation.getParam('data');
     if (data.editMode) {
       let item: Item = await ItemManager.getItem(data.pageIndex, data.itemIndex);
       this.setState({ options: item })
     }
-    this.setState(previousState => ({
+    this.setState({
       editMode: data.editMode,
       pageIndex: data.pageIndex,
       itemIndex: data.itemIndex,
       uri: data.uri,
       renderImage: true
-    }));
+    });
   };
 
   updateData = (
@@ -202,7 +202,7 @@ export class Define extends React.Component<DefineProps, DefineState> {
           }),
           async () => {
             await Storage.storeItem(this.state.options);
-            this.props.navigation.navigate('Library');
+            this.props.navigation.navigate('Library', {reload: true});
           }
         );
       });
@@ -530,8 +530,6 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   androidPicker: {
-    // borderWidth: 2,
-    // borderColor: '#000',
     borderRadius: 7.5,
     backgroundColor: "#e9e9e9"
   },

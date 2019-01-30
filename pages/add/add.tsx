@@ -57,12 +57,10 @@ class Add extends React.Component<AddProps, AddState> {
   async componentWillMount() {
     const cameraStatus = await Permissions.getAsync(Permissions.CAMERA);
     const libraryStatus = await Permissions.getAsync(Permissions.CAMERA_ROLL);
-    this.setState(
-      {
-        cameraPermissionStatus: cameraStatus.status,
-        libraryPermissionStatus: libraryStatus.status
-      }
-    );
+    this.setState({
+      cameraPermissionStatus: cameraStatus.status,
+      libraryPermissionStatus: libraryStatus.status
+    });
   }
 
   takePhoto = async () => {
@@ -96,13 +94,18 @@ class Add extends React.Component<AddProps, AddState> {
       this.state.cameraPermissionStatus === "granted" &&
       this.state.libraryPermissionStatus === "granted"
     ) {
-      this.setState({permissionError: false});
+      this.setState({ permissionError: false });
       let response = await ImagePicker.launchCameraAsync({
         base64: false
       });
-      if(response.cancelled === false){
-        Storage.storeDefineProps(false, -1, -1, response.uri, () => {
-          this.props.navigation.navigate('Define');
+      if (response.cancelled === false) {
+        this.props.navigation.navigate("Define", {
+          data: {
+            editMode: false,
+            pageIndex: -1,
+            itemIndex: -1,
+            uri: response.uri
+          }
         });
       }
     }
@@ -123,14 +126,19 @@ class Add extends React.Component<AddProps, AddState> {
     }
 
     if (this.state.libraryPermissionStatus === "granted" || !isIos) {
-      this.setState({permissionError: false});
+      this.setState({ permissionError: false });
       let response = await ImagePicker.launchImageLibraryAsync({
         mediaTypes: "Images",
         base64: false
       });
-      if(response.cancelled === false){
-        Storage.storeDefineProps(false, -1, -1, response.uri, () => {
-          this.props.navigation.navigate('Define');
+      if (response.cancelled === false) {
+        this.props.navigation.navigate("Define", {
+          data: {
+            editMode: false,
+            pageIndex: -1,
+            itemIndex: -1,
+            uri: response.uri
+          }
         });
       }
     }
@@ -153,8 +161,15 @@ class Add extends React.Component<AddProps, AddState> {
                 onPress={this.takePhoto}
               >
                 <View style={styles.tile}>
-                  <MaterialIcons name="camera-alt" size={50} style={styles.icon} color={StyleConstants.accentColor} />
-                  <Text style={[commonStyles.pb, commonStyles.centerText]}>take photo</Text>
+                  <MaterialIcons
+                    name="camera-alt"
+                    size={50}
+                    style={styles.icon}
+                    color={StyleConstants.accentColor}
+                  />
+                  <Text style={[commonStyles.pb, commonStyles.centerText]}>
+                    take photo
+                  </Text>
                 </View>
               </TouchableHighlight>
               <TouchableHighlight
@@ -163,8 +178,15 @@ class Add extends React.Component<AddProps, AddState> {
                 onPress={this.choosePhoto}
               >
                 <View style={styles.tile}>
-                <MaterialIcons name="photo-library" size={50} style={styles.icon} color={StyleConstants.accentColor} />
-                  <Text style={[commonStyles.pb, commonStyles.centerText]}>choose from library</Text>
+                  <MaterialIcons
+                    name="photo-library"
+                    size={50}
+                    style={styles.icon}
+                    color={StyleConstants.accentColor}
+                  />
+                  <Text style={[commonStyles.pb, commonStyles.centerText]}>
+                    choose from library
+                  </Text>
                 </View>
               </TouchableHighlight>
             </View>
@@ -172,7 +194,7 @@ class Add extends React.Component<AddProps, AddState> {
             {this.state.permissionError && (
               <View
                 style={{
-                  padding: '5%',
+                  padding: "5%",
                   borderWidth: 2,
                   borderColor: StyleConstants.warningColor,
                   borderRadius: 5
@@ -219,7 +241,6 @@ export const AddStack = createStackNavigator(
 );
 
 const styles = StyleSheet.create({
-
   container: {
     flex: 1,
     flexDirection: "column",
