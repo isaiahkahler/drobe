@@ -101,6 +101,7 @@ export class Library extends React.Component<LibraryProps, LibraryState> {
     () => setTimeout(() => this.checkReload(), 1000)
   );
 
+  //review: this good?? hmmmm
   async loadLibrary() {
     let allPages = await ItemManager.getAllPages();
     allPages = Sort.arrangeItems(allPages, [
@@ -112,15 +113,12 @@ export class Library extends React.Component<LibraryProps, LibraryState> {
 
   renderItem(item: Item) {
     return (
-      <TouchableHighlight style={[styles.tile, {width: width / this.state.columns}]} onPress={() => {
-
+      <TouchableHighlight style={[styles.tile, {width: width / this.state.columns}]} onPress={async () => {
+        // let {itemIndex, pageIndex} = await ItemManager.getItemIndexesAsync(item);
         
         this.props.navigation.navigate('ItemView', {
-          title: item.name,
-          pageIndex: -1,
-          itemIndex: -1,
           item: item,
-          editMode: true
+          editable: true
         })
       }
       }>
