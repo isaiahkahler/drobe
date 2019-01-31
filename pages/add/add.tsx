@@ -63,31 +63,52 @@ class Add extends React.Component<AddProps, AddState> {
     });
   }
 
+  //review: same as comment down below, however, check all permission paths
+  //-what happens when the user denies permissions and then tries again?
   takePhoto = async () => {
     this.setState({ awaiting: true });
 
-    if (
-      this.state.cameraPermissionStatus === "undetermined" ||
-      (!isIos && this.state.cameraPermissionStatus === "denied")
-    ) {
+    // if (
+    //   this.state.cameraPermissionStatus === "undetermined" ||
+    //   (!isIos && this.state.cameraPermissionStatus === "denied")
+    // ) {
+    //   let cameraStatus = await Permissions.askAsync(Permissions.CAMERA);
+    //   this.setState({ cameraPermissionStatus: cameraStatus.status });
+    // }
+
+    // if (
+    //   this.state.libraryPermissionStatus === "undetermined" ||
+    //   (!isIos && this.state.libraryPermissionStatus === "denied")
+    // ) {
+    //   let libraryStatus = await Permissions.askAsync(Permissions.CAMERA_ROLL);
+    //   this.setState({ libraryPermissionStatus: libraryStatus.status });
+    // }
+
+    // if (this.state.cameraPermissionStatus === "denied") {
+    //   this.setState({ permissionError: true, awaiting: false });
+    // }
+
+    // if (this.state.libraryPermissionStatus === "denied") {
+    //   this.setState({ permissionError: true, awaiting: false });
+    // }
+
+    if (this.state.cameraPermissionStatus !== "granted") {
       let cameraStatus = await Permissions.askAsync(Permissions.CAMERA);
-      this.setState({ cameraPermissionStatus: cameraStatus.status });
+      this.setState({ cameraPermissionStatus: cameraStatus.status }, () => {
+        if(this.state.cameraPermissionStatus === "denied") {
+          this.setState({permissionError: true, awaiting: false});
+          return;
+        }
+      });
     }
-
-    if (
-      this.state.libraryPermissionStatus === "undetermined" ||
-      (!isIos && this.state.libraryPermissionStatus === "denied")
-    ) {
-      let libraryStatus = await Permissions.askAsync(Permissions.CAMERA_ROLL);
-      this.setState({ libraryPermissionStatus: libraryStatus.status });
-    }
-
-    if (this.state.cameraPermissionStatus === "denied") {
-      this.setState({ permissionError: true });
-    }
-
-    if (this.state.libraryPermissionStatus === "denied") {
-      this.setState({ permissionError: true });
+    if (this.state.libraryPermissionStatus !== "granted") {
+      let cameraStatus = await Permissions.askAsync(Permissions.CAMERA_ROLL);
+      this.setState({ libraryPermissionStatus: cameraStatus.status }, () => {
+        if(this.state.libraryPermissionStatus === "denied") {
+          this.setState({permissionError: true, awaiting: false});
+          return;
+        }
+      });
     }
 
     if (
@@ -112,17 +133,28 @@ class Add extends React.Component<AddProps, AddState> {
     this.setState({ awaiting: false });
   };
 
+  //review: was getting sketchy behavior on simulator with commented code. is the current code ok?
   choosePhoto = async () => {
     this.setState({ awaiting: true });
 
-    if (this.state.libraryPermissionStatus === "undetermined" && isIos) {
-      let libraryStatus = await Permissions.askAsync(Permissions.CAMERA_ROLL);
-      this.setState({ libraryPermissionStatus: libraryStatus.status });
-    }
+    // if (this.state.libraryPermissionStatus === "undetermined" && isIos) {
+    //   let libraryStatus = await Permissions.askAsync(Permissions.CAMERA_ROLL);
+    //   this.setState({ libraryPermissionStatus: libraryStatus.status });
+    // }
 
-    if (this.state.libraryPermissionStatus === "denied" && isIos) {
-      this.setState({ permissionError: true });
-      return;
+    // if (this.state.libraryPermissionStatus === "denied" && isIos) {
+    //   this.setState({ permissionError: true, awaiting: false });
+    //   return;
+    // }
+
+    if (this.state.libraryPermissionStatus !== "granted") {
+      let libraryStatus = await Permissions.askAsync(Permissions.CAMERA_ROLL);
+      this.setState({ libraryPermissionStatus: libraryStatus.status }, () => {
+        if (this.state.libraryPermissionStatus === "denied") {
+          this.setState({ permissionError: true, awaiting: false });
+          return;
+        }
+      });
     }
 
     if (this.state.libraryPermissionStatus === "granted" || !isIos) {
