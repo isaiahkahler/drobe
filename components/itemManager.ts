@@ -1,13 +1,13 @@
-import { Page, Item, ItemDefinitions, Filter } from './formats';
-import { Storage } from './storage';
-import { colorDistance, clipRange } from './helpers';
-import { string } from 'prop-types';
-import stringSimilarity from 'string-similarity';
+import { Page, Item, ItemDefinitions, Filter } from "./formats";
+import { Storage } from "./storage";
+import { colorDistance, clipRange } from "./helpers";
+import { string } from "prop-types";
+import stringSimilarity from "string-similarity";
 
 export class ItemManager {
   //hey!!! review: should these be async??? they have await in them? right?
   static async getNumberOfPages() {
-    let number: number = await Storage._retrieveData('pages');
+    let number: number = await Storage._retrieveData("pages");
     if (!number) {
       return 0;
     }
@@ -15,7 +15,7 @@ export class ItemManager {
   }
 
   static async getPage(pageNumber: number) {
-    let page: Page = await Storage._retrieveData('page' + pageNumber);
+    let page: Page = await Storage._retrieveData("page" + pageNumber);
     return page;
   }
 
@@ -33,7 +33,7 @@ export class ItemManager {
     let pages: Page[] = [];
     for (let i = 0; i < numberOfPages; i++) {
       let page = await this.getPage(i);
-      pages.push(page)
+      pages.push(page);
     }
     return pages;
   }
@@ -41,7 +41,9 @@ export class ItemManager {
   static async getAllItems() {
     let library = await this.getAllPages();
     let items: Item[] = [];
-    library.forEach(e => { e.items.forEach(i => items.push(i)) });
+    library.forEach(e => {
+      e.items.forEach(i => items.push(i));
+    });
     return items;
   }
 
@@ -51,7 +53,7 @@ export class ItemManager {
       if (pages.length === 0) {
         pages = [{ items: [item] }];
       } else if (pages[pages.length - 1].items.length < 10) {
-        pages[pages.length - 1].items.push(item)
+        pages[pages.length - 1].items.push(item);
       } else if (pages[pages.length - 1].items.length === 10) {
         pages.push({ items: [item] });
       }
@@ -59,17 +61,45 @@ export class ItemManager {
     return pages;
   }
 
-  static pagesToItemList(pageList: Page[]){
+  static pagesToItemList(pageList: Page[]) {
     let items: Item[] = [];
-    for(let page of pageList){
-      for(let item of page.items){
+    for (let page of pageList) {
+      for (let item of page.items) {
         items.push(item);
       }
     }
     return items;
   }
 
-  static async sortBy(selections: Array<{ type: "hide" | "order", name: string, value: any }>) {
+  static getItemIndexes(item: Item, pages: Page[]) {
+    let pageIndex = -1;
+    let itemIndex = -1;
+    pages.forEach((page, pageIndex_) => {
+      page.items.forEach((item_, itemIndex_) => {
+        if (item_.date === item.date) {
+          pageIndex = pageIndex_;
+          itemIndex = itemIndex_;
+        }
+      });
+    });
+    return { pageIndex, itemIndex };
+  }
+
+  //a way to get this synchronous?
+  static async getItemIndexesAsync(item: Item) {
+    let pages = await this.getAllPages();
+    return this.getItemIndexes(item, pages);
+  }
+
+  static async deleteItem(item: Item) {
+    let {pageIndex, itemIndex} = await this.getItemIndexesAsync(item);
+    Storage.deleteItemByIndex(pageIndex, itemIndex);
+  }
+
+  //review: this should no longer be used with library 2 !!!!!
+  static async sortBy(
+    selections: Array<{ type: "hide" | "order"; name: string; value: any }>
+  ) {
     let allPages = await this.getAllPages();
     for (let selection of selections) {
       if (selection.type === "hide") {
@@ -82,7 +112,9 @@ export class ItemManager {
 
         switch (selection.name) {
           case "type":
-            shownItems = shownItems.filter(item => item.type === selection.value);
+            shownItems = shownItems.filter(
+              item => item.type === selection.value
+            );
             break;
           case "formality":
             let formality = -1;
@@ -90,14 +122,14 @@ export class ItemManager {
               formality = 1;
             } else if (selection.value === "semi-casual") {
               formality = 2;
-            } else if (selection.value === 'semi-formal') {
+            } else if (selection.value === "semi-formal") {
               formality = 3;
             } else {
               formality = 4;
             }
             shownItems = shownItems.filter(item => {
-              return ItemDefinitions.getFormality(item.type) === formality
-            })
+              return ItemDefinitions.getFormality(item.type) === formality;
+            });
             break;
           case "temperature":
             let temperature = -1;
@@ -105,20 +137,19 @@ export class ItemManager {
               temperature = 1;
             } else if (selection.value === "light clothes") {
               temperature = 2;
-            } else if (selection.value === 'warm clothes') {
+            } else if (selection.value === "warm clothes") {
               temperature = 3;
             } else {
               temperature = 4;
             }
             shownItems = shownItems.filter(item => {
-              return ItemDefinitions.getTemperature(item.type) === temperature
-            })
+              return ItemDefinitions.getTemperature(item.type) === temperature;
+            });
             break;
-
         }
         allPages = this.itemListToPages(shownItems);
-
-      } else { // type === "order"
+      } else {
+        // type === "order"
 
         let sortedItems: Item[] = [];
         for (let page of allPages) {
@@ -129,16 +160,24 @@ export class ItemManager {
 
         switch (selection.name) {
           case "date":
-
             if (selection.value === "new to old") {
-              sortedItems.sort((a, b) => { return b.date - a.date });
+              sortedItems.sort((a, b) => {
+                return b.date - a.date;
+              });
             } else {
-              sortedItems.sort((a, b) => { return a.date - b.date });
+              sortedItems.sort((a, b) => {
+                return a.date - b.date;
+              });
             }
 
             break;
           case "color":
-            sortedItems.sort((a, b) => { return colorDistance(selection.value, a.colors[0]) - colorDistance(selection.value, b.colors[0]) });
+            sortedItems.sort((a, b) => {
+              return (
+                colorDistance(selection.value, a.colors[0]) -
+                colorDistance(selection.value, b.colors[0])
+              );
+            });
             break;
           default:
         }
@@ -150,7 +189,7 @@ export class ItemManager {
     return allPages;
   }
 
-  //review: efficiency? 
+  //review: efficiency?
   static async search(term: string, data: Page[], callback: (pages) => void) {
     // let filteredTerms : Item[] = [];
     // data.forEach(page => {
@@ -171,34 +210,38 @@ export class ItemManager {
       }
     }
     let filteredTerms = unfilteredTerms.filter(item => {
-      return item.name.indexOf(term.toLowerCase()) !== -1 || item.type.indexOf(term.toLowerCase()) !== -1 || item.class.indexOf(term.toLowerCase()) !== -1
-    })
+      return (
+        item.name.indexOf(term.toLowerCase()) !== -1 ||
+        item.type.indexOf(term.toLowerCase()) !== -1 ||
+        item.class.indexOf(term.toLowerCase()) !== -1
+      );
+    });
     // if(filteredTerms.length !== 0){
     //   filteredTerms = unfilteredTerms.filter(item => item.type.indexOf(term) !== -1)
-    // } 
+    // }
     let newPages = this.itemListToPages(filteredTerms);
     callback(newPages);
-
   }
 
   //review: is being used? - as of now it is not
   static isValidOutfit(items: Item[]) {
     let isTopBottomShoes =
-      (items.findIndex(e => e.class === 'top') !== -1) &&
-      (items.findIndex(e => e.class === 'bottom') !== -1) &&
-      (items.findIndex(e => e.class === 'shoes') !== -1);
+      items.findIndex(e => e.class === "top") !== -1 &&
+      items.findIndex(e => e.class === "bottom") !== -1 &&
+      items.findIndex(e => e.class === "shoes") !== -1;
     let isTopFull3Shoes =
-      (items.findIndex(e => e.class === 'top') !== -1) &&
-      (items.findIndex(e => e.class === 'full' && ItemDefinitions.getCover(e.type) === 3) !== -1) &&
-      (items.findIndex(e => e.class === 'shoes') !== -1);
+      items.findIndex(e => e.class === "top") !== -1 &&
+      items.findIndex(
+        e => e.class === "full" && ItemDefinitions.getCover(e.type) === 3
+      ) !== -1 &&
+      items.findIndex(e => e.class === "shoes") !== -1;
     let isFull21Shoes =
-      (items.findIndex(e => e.class === 'full' &&
-        (ItemDefinitions.getCover(e.type) === 2 || ItemDefinitions.getCover(e.type) === 2)
-      ) !== -1) &&
-      (items.findIndex(e => e.class === 'shoes') !== -1);
+      items.findIndex(
+        e =>
+          e.class === "full" &&
+          (ItemDefinitions.getCover(e.type) === 2 ||
+            ItemDefinitions.getCover(e.type) === 2)
+      ) !== -1 && items.findIndex(e => e.class === "shoes") !== -1;
     return isTopBottomShoes || isTopFull3Shoes || isFull21Shoes;
   }
-
-
-
 }

@@ -82,7 +82,7 @@ export class Storage {
 
     //review: if code is proven true & bug free, assertions can be commented out
     //page index starts at 1? good idea? no? - changed to 0
-    static async deleteItem(page: number, itemIndex: number) {
+    static async deleteItemByIndex(page: number, itemIndex: number) {
         let numberOfPages: number = await this._retrieveData('pages');
         if (!numberOfPages) {
             throw 'no pages exist';
@@ -120,7 +120,7 @@ export class Storage {
             await this._storeData('page' + (i - 1), currentPage);
         }
     }
-
+    
     //review: remove comment - was changed to fix require cycle
     static async overwriteItem(pageIndex: number, itemIndex: number, item: Item, callback: Function) {
         let page: Page = await this._retrieveData('page' + pageIndex) //ItemManager.getPage(pageIndex);
