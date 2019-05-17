@@ -97,9 +97,7 @@ ul li {
   align-items: center;
 } */
 
-.flex {
-  height: 100%;
-  width: 100%;
+.column {
   display: flex;
   justify-content: center;
   align-items: center;
