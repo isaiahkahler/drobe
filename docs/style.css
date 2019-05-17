@@ -25,57 +25,58 @@ h3 {
   font-size: 5vh;
 }
 
+ul li {
+  list-style-type: disc;
+}
+
 .page {
   min-height: 100vh;
-  width: 100%;
+  /* width: 100%;
   display: flex;
   justify-content: center;
   align-items: stretch;
-  flex-direction: row;
+  flex-direction: row; */
   /* padding: 5vw; */
 }
 
-.padding {
+/* .padding {
   padding: 5vw;
   width: 100%;
-}
+} */
 
-.section {
+/* .section {
   display: flex;
   flex-direction: column;
   width: 100%;
   height: 100%;
-  /* justify-content: center; */
-  /* align-items: flex-start; */
-}
+  justify-content: center; 
+  align-items: center;
+} */
 
-img {
+/* img {
     width: 100%;
-}
+} */
 
-.image {
+.fill-image {
   width: 100%;
   height: 100%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
   background-repeat: no-repeat;
   background-size: contain;
   background-position: center;
 }
 
 .m {
-  margin: 2%;
+  padding: 2%;
 }
 
-.row {
+/* .row {
   display: flex;
   flex-direction: row;
   justify-content: center;
   align-items: center;
   width: 100%;
   height: 100%;
-}
+} */
 
 @media only screen and (max-width: 600px) {
     h1 {
@@ -84,12 +85,20 @@ img {
     p, li {
         font-size: 18pt;
     }
-  .row {
+  /* .row {
     flex-direction: column;
-  }
+  } */
 }
 
-.center {
+/* .center {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+} */
+
+.flex {
+  height: 100%;
   width: 100%;
   display: flex;
   justify-content: center;
@@ -97,9 +106,9 @@ img {
 }
 
 #logo {
-  background-image: url("media/design.png");
+  background-image: url("media/min/design.png");
 }
-
+/* 
 #react {
   background-image: url("media/react.png");
 }
@@ -110,8 +119,8 @@ img {
 
 #ts {
   background-image: url("media/ts.png");
-}
-#score1 {
+} */
+/* #score1 {
   background-image: url("media/score1.png");
 }
 #score2 {
@@ -123,4 +132,4 @@ img {
 
 #design {
     background-image: url("media/pages.png");
-}
+} */
