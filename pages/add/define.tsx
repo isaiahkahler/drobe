@@ -531,7 +531,7 @@ const styles = StyleSheet.create({
   },
   androidPicker: {
     borderRadius: 7.5,
-    backgroundColor: "#e9e9e9"
+    backgroundColor: "#f3f3f5"
   },
   typeList: {
     marginHorizontal: 5

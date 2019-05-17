@@ -166,7 +166,7 @@ const styles = StyleSheet.create({
     width: width * 0.8,
     flex: 1,
     padding: 10,
-    backgroundColor: '#E9E9E9'
+    backgroundColor: '#f3f3f5'
   },
   section: {
     borderTopWidth: 2,

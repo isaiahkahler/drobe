@@ -22,7 +22,7 @@ export class Button extends React.PureComponent<ButtonProps> {
         {isIos ? (
           <View
             style={{
-              backgroundColor: "#e9e9e9",
+              backgroundColor: "#f3f3f5",
               borderRadius: 7.5,
               margin: 3
             }}

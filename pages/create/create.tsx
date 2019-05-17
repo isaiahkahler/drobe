@@ -28,17 +28,19 @@ export class Create extends React.Component<CreateProps, CreateState> {
           {/* <Text style={[commonStyles.h1]}>create outfit</Text> */}
           <TouchableHighlight style={styles.tileContainer} underlayColor="rgba(0,0,0,0.2)" onPress={() => { this.props.navigation.navigate("Automatic") }}>
             <View style={styles.tile}>
-              <Icon icon="Lightbulb" isAccent={false} multiplier={1.5} />
+              {/* <Icon icon="Lightbulb" isAccent={false} multiplier={1.5} /> */}
               {/* <MaterialIcons name="lightbulb-outline" size={80} /> */}
-              {/* <MaterialCommunityIcons name="lightbulb-on" size={80} color={StyleConstants.accentColor} /> */}
+              <MaterialCommunityIcons name="auto-fix" size={60} color={StyleConstants.accentColor} />
               <Text style={[commonStyles.pb]}>automatically</Text>
             </View>
           </TouchableHighlight>
           <TouchableHighlight style={styles.tileContainer} underlayColor="rgba(0,0,0,0.2)" onPress={() => { this.props.navigation.navigate("Manual") }}>
             <View style={styles.tile}>
-              <Icon icon="ManualHand" isAccent={false} multiplier={0.7} />
+              <Icon icon="ManualHand" isAccent={false} multiplier={0.6} />
               {/* <FontAwesome name="hand-o-up" size={80} color={StyleConstants.accentColor} /> */}
+              {/* <MaterialCommunityIcons name="hand-pointing-up" size={80} color={StyleConstants.accentColor} /> */}
               <Text style={[commonStyles.pb]}>manually</Text>
+              <Text style={{fontSize: 50}} >97</Text>
             </View>
           </TouchableHighlight>
         </View>
@@ -58,7 +60,7 @@ const styles = StyleSheet.create({
     width: '50%',
     aspectRatio: 1,
     // backgroundColor: '#fff',
-    backgroundColor: "#e9e9e9",
+    backgroundColor: "#f3f3f5",
     borderRadius: 25
     // borderWidth: 2,
     // borderColor: '#000',

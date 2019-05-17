@@ -20,7 +20,8 @@ interface PageState {
 }
 
 export class PageLayout extends React.Component<PageProps, PageState>{
-  _modal;
+  //review delete
+  // _modal;
 
   constructor(props: PageProps) {
     super(props);

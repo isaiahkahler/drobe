@@ -2,7 +2,6 @@ import * as React from 'react';
 import { StyleSheet, View, Text, Button, ScrollView, Dimensions, ActivityIndicator } from 'react-native';
 import { PageLayout } from '../../components/page';
 import { commonStyles } from '../../components/styles';
-import ProgressCircle from 'react-native-progress-circle';
 import { MaterialIcons } from '@expo/vector-icons';
 import { Algorithms } from '../../components/algorithms';
 import { getWeather } from '../../components/helpers';
@@ -111,7 +110,7 @@ export class Automatic extends React.Component<AutomaticProps, AutomaticState> {
 
 const styles = StyleSheet.create({
   body: {
-    backgroundColor: "#e9e9e9"
+    backgroundColor: "#f3f3f5"
   },
   scrollContainer: {
     flex: 1,
@@ -119,7 +118,7 @@ const styles = StyleSheet.create({
     width: width,
     height: "100%",
     paddingVertical: width * 0.05,
-    backgroundColor: "#e9e9e9"
+    backgroundColor: "#f3f3f5"
   },
   outfitContainer: {
     width: width * 0.86,
@@ -146,7 +145,7 @@ const styles = StyleSheet.create({
     width: 50,
     height: 50,
     borderRadius: 25,
-    backgroundColor: "#e9e9e9",
+    backgroundColor: "#f3f3f5",
     justifyContent: "center",
     alignItems: "center",
     // zIndex: 5

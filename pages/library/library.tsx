@@ -491,7 +491,7 @@ const styles = StyleSheet.create({
     paddingLeft: 5,
     paddingRight: 5,
     marginRight: 10,
-    backgroundColor: '#e9e9e9',
+    backgroundColor: '#f3f3f5',
     borderRadius: 7.5
   },
   search: {
@@ -516,6 +516,6 @@ const styles = StyleSheet.create({
     padding: 5,
     marginHorizontal: 5,
     marginTop: 5,
-    backgroundColor: "#e9e9e9"
+    backgroundColor: "#f3f3f5"
   },
 });

@@ -160,9 +160,8 @@ export class ItemView extends React.Component<ItemViewProps, ItemViewState> {
   }
 }
 
-//review: change type from string to Item.type. may have to define that interface in Formats
 //review: remove 'type' prop replace with 'isColor' boolean
-function ShowValue(props: { name: string; type: string; value: any }) {
+function ShowValue(props: { name: string; type: Item['type']; value: any }) {
   if (props.type !== "colors") {
     return (
       <View style={styles.valueRow}>
@@ -216,7 +215,6 @@ const styles = StyleSheet.create({
   },
   valueColumn: {
     flexDirection: "column",
-    // flexWrap: "wrap",
     width: "50%"
   },
   valueItem: {

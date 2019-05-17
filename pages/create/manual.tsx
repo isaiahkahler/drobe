@@ -464,14 +464,14 @@ export class Manual extends React.Component<ManualProps, ManualState> {
                   <Text>uhhh the weird ones</Text>
                   {this.getRecommendedColors("#BDD6ED", 90)}
                   {this.getRecommendedColors("#BDD6ED", 270)} */}
-                  <Text>Color</Text>
+                  {/* <Text>Color</Text>
                   <Text style={{backgroundColor: "#BDD6ED"}}>color 1</Text>
                   <Text style={{backgroundColor: "#BFADA3"}}>color 2</Text>
                   <Text style={{backgroundColor: MiddleColorHSV("#BDD6ED", "#BFADA3")}}>middle color</Text>
                   <Text style={{backgroundColor: LeftColorHSV("#BDD6ED", "#BFADA3")}}>left color</Text>
                   <Text style={{backgroundColor: RightColorHSV("#BDD6ED", "#BFADA3")}}>right color</Text>
                   <Text style={{backgroundColor: leftHueHSV("#BDD6ED", "#BFADA3")}}>left hue</Text>
-                  <Text style={{backgroundColor: rightHueHSV("#BDD6ED", "#BFADA3")}}>right hue</Text>
+                  <Text style={{backgroundColor: rightHueHSV("#BDD6ED", "#BFADA3")}}>right hue</Text> */}
                   
                   {/* <Text>Color</Text>
                   <Text style={{backgroundColor: "#15151D"}}>color 1</Text>

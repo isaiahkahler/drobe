@@ -42,7 +42,7 @@ export const commonStyles = StyleSheet.create({
     // borderWidth: 2,
     // borderColor: '#000',
     borderRadius: 7.5,
-    backgroundColor: "#e9e9e9",
+    backgroundColor: "#f3f3f5",
     padding: 5
   },
   buttonText: {
@@ -50,7 +50,7 @@ export const commonStyles = StyleSheet.create({
     color: "#007aff"
   },
   textInput: {
-    backgroundColor: "#e9e9e9",
+    backgroundColor: "#f3f3f5",
     padding: 5,
     borderRadius: 7.5,
     fontSize: 20
