@@ -2,25 +2,18 @@
   "expo": {
     "name": "drobe",
     "slug": "drobe",
-    "description": "A smart closet organization app.",
-    "privacy": "unlisted",
-    "sdkVersion": "31.0.0",
+    "privacy": "public",
+    "sdkVersion": "33.0.0",
     "platforms": [
       "ios",
-      "android"
+      "android",
+      "web"
     ],
-    "packagerOpts": {
-      "sourceExts": [
-        "ts",
-        "tsx"
-      ],
-      "transformer": "node_modules/react-native-typescript-transformer/index.js"
-    },
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "media/icon.png",
+    "icon": "./assets/icon.png",
     "splash": {
-      "image": "media/loading.png",
+      "image": "./assets/splash.png",
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
