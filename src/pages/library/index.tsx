@@ -1,7 +1,7 @@
 import Library from './library';
 import ItemView from './itemView';
 import { createStackNavigator } from 'react-navigation';
-import { LargeHeaderStyle, LargeHeaderTitleStyle, LargeHeaderSideContainerStyle, LargeHeaderTitleContainerStyle } from '../../common/bits';
+import { LargeHeaderStyle, LargeHeaderTitleStyle, LargeHeaderSideContainerStyle, LargeHeaderTitleContainerStyle } from '../../common/ui/basicComponents';
 
 export default createStackNavigator({
     Library: {

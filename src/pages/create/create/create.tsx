@@ -1,6 +1,5 @@
 import React from 'react';
-import { View, Text } from 'react-native';
-import { PageContainer, ScrollPageLayout, FloatingActionButton } from '../../../common/bits';
+import { PageContainer, ScrollPageLayout } from '../../../common/ui/basicComponents';
 
 export default function Create() {
     return(

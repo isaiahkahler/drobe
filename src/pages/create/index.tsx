@@ -1,7 +1,7 @@
 import Create from './create';
 import Manual from './manual';
 import { createStackNavigator } from 'react-navigation';
-import { LargeHeaderStyle, LargeHeaderTitleStyle, LargeHeaderSideContainerStyle, LargeHeaderTitleContainerStyle } from '../../common/bits';
+import { LargeHeaderStyle, LargeHeaderTitleStyle, LargeHeaderSideContainerStyle, LargeHeaderTitleContainerStyle } from '../../common/ui/basicComponents';
 
 export default createStackNavigator({
     Create: {

@@ -6,7 +6,16 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 const isIos = Platform.OS === "ios";
 
 export const width = Dimensions.get('screen').width;
+
 export const height = Dimensions.get('screen').height;
+
+export const drobeAccent = '#8C64ff';
+
+export const successColor = '#23D160';
+
+export const dangerColor = '#FF3860';
+
+export const grey = '#f3f3f5'
 
 export const P = styled.Text`
     font-size: 20;
@@ -55,6 +64,16 @@ export const Center = styled.View`
     align-items: center;
 `;
 
+export const Row = styled.View`
+    flex-direction: row;
+    justify-content: space-evenly;
+`;
+
+export const Column = styled.View`
+    flex-direction: column;
+    justify-content: space-evenly;
+`;
+
 export function Touchable(props: {children?: React.ReactNode, onPress?: () => void, style?: StyleProp<ViewStyle>}) {
     return(
         <TouchableHighlight underlayColor='rgba(0,0,0,0.2)' onPress={props.onPress} style={props.style}>
@@ -64,7 +83,7 @@ export function Touchable(props: {children?: React.ReactNode, onPress?: () => vo
 }
 
 export const FullButton = styled.TouchableHighlight`
-    background-color: #f3f3f5;
+    background-color: ${grey};
     padding: 5px;
     margin-vertical: ${0.025 * width}px;
     border-radius: 7px;
@@ -72,8 +91,15 @@ export const FullButton = styled.TouchableHighlight`
     width: 100%;
 `;
 
+export const CircleButton = styled(Touchable)`
+    padding: 5px;
+    border-radius: 100;
+    aspect-ratio: 1;
+    background-color: ${grey};
+`;
+
 export const FullInput = styled.TextInput`
-    background-color: #f3f3f5;
+    background-color: ${grey};
     padding: 5px;
     margin-bottom: ${0.025 * width}px;
     border-radius: 7px;
@@ -89,7 +115,7 @@ export const HR = styled.View`
 const TileContainer = styled.TouchableHighlight`
     width: 50%;
     aspect-ratio: 1;
-    background-color: #F3F3F5;
+    background-color: ${grey};
     /* border-radius: 25; */
     border-radius: 20;
 `;
@@ -167,8 +193,3 @@ export const LargeHeaderSideContainerStyle = {
     height: 50
 };
 
-export const drobeAccent = '#8C64ff';
-
-export const successColor = '#23D160';
-
-export const dangerColor = '#FF3860';

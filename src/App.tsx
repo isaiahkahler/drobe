@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text } from 'react-native';
 import { createBottomTabNavigator, createAppContainer } from 'react-navigation';
-import { drobeAccent } from './common/bits';
+import { drobeAccent } from './common/ui/basicComponents';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import Add from './pages/add';
 import Create from './pages/create';

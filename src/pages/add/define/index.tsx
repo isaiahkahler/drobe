@@ -1,7 +1,7 @@
 import React from 'react';
 import Define from './define';
 import { NavigationScreenProp } from 'react-navigation';
-import { DefineNavigationProps, Item } from '../../../common/types';
+import { DefineNavigationProps, Item } from '../../../common/data/types';
 
 interface DefineContainerProps {
     navigation: NavigationScreenProp<{}, DefineNavigationProps>,
