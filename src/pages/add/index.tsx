@@ -1,7 +1,7 @@
 import Add from './add';
 import Define from './define';
 import { createStackNavigator } from 'react-navigation';
-import { LargeHeaderStyle, LargeHeaderTitleStyle, LargeHeaderSideContainerStyle, LargeHeaderTitleContainerStyle } from '../../common/ui/basicComponents';
+import { LargeHeaderStyle, LargeHeaderTitleStyle, LargeHeaderSideContainerStyle, LargeHeaderTitleContainerStyle, PageContainer, PageLayout, P } from '../../common/ui/basicComponents';
 
 export default createStackNavigator({
     Add: {
@@ -20,4 +20,7 @@ export default createStackNavigator({
             title: "Define Attributes"
         }
     }
+},
+{
+   mode: 'modal' 
 });

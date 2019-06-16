@@ -1,10 +1,11 @@
 import React from 'react';
-import { PageContainer, PageLayout, Tile, PC, drobeAccent } from '../../../common/bits';
+import { PageContainer, PageLayout, Tile, PC, drobeAccent } from '../../../common/ui/basicComponents';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 
 interface AddProps {
     tryOpenCamera: () => void,
     tryOpenImagePicker: () => void,
+    navigation: any,
 }
 
 export default function Add(props: AddProps) {
@@ -15,7 +16,7 @@ export default function Add(props: AddProps) {
                 alignItems: "center"
             }}>
                 {/* <Tile onPress={props.tryOpenCamera}> */}
-                <Tile onPress={props.tryOpenCamera}>
+                <Tile onPress={() => props.navigation.navigate('Define')}>
                     <MaterialCommunityIcons
                         name="camera"
                         size={50}

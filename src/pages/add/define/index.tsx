@@ -16,6 +16,6 @@ export default function DefineContainer(props: DefineContainerProps) {
     }
 
     return (
-        <Define photoURI={tempURI}></Define>
+        <Define navigation={props.navigation} photoURI={tempURI}></Define>
     );
 }
