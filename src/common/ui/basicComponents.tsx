@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useEffect, useMemo } from 'react';
 import styled from 'styled-components/native';
-import { Dimensions, View, StyleProp, ViewStyle, TouchableHighlight, Text, Platform } from 'react-native';
+import { Dimensions, View, StyleProp, ViewStyle, TouchableHighlight, Platform, Animated } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 
 const isIos = Platform.OS === "ios";
@@ -26,6 +26,11 @@ export const PC = styled.Text`
     text-align: center;
 `;
 
+export const Header = styled.Text`
+    font-size: 20;
+    font-weight: 500;
+`;
+
 export const PageContainer = styled.View`
     height: 100%;
     width: 100%;
@@ -42,17 +47,28 @@ export const ScrollPageLayout = styled.ScrollView`
     flex: 1;
     background-color: #fff;
     width: 100%;
-    padding: 5%;
+    padding-horizontal: 5%;
 `;
+
 
 export const ModalView = styled.View`
     position: absolute;
     z-index: 1;
     flex: 1;
-    background-color: rgba(0,0,0,0.2);
+    background-color: rgba(0,0,0,0.1);
     width: 100%;
+    height: 100%;
     justify-content: center;
     align-items: center;
+`;
+
+export const ModalBody = styled.View`
+    position: absolute;
+    width: 90%;
+    min-height: 50%;
+    background-color: #fff;
+    border-radius: 10;
+    padding: 5%;
 `;
 
 export const HorizontalSpace = styled.View`
@@ -74,15 +90,15 @@ export const Column = styled.View`
     justify-content: space-evenly;
 `;
 
-export function Touchable(props: {children?: React.ReactNode, onPress?: () => void, style?: StyleProp<ViewStyle>}) {
-    return(
+export function Touchable(props: { children?: React.ReactNode, onPress?: () => void, style?: StyleProp<ViewStyle> }) {
+    return (
         <TouchableHighlight underlayColor='rgba(0,0,0,0.2)' onPress={props.onPress} style={props.style}>
             {props.children}
         </TouchableHighlight>
     );
 }
 
-export const FullButton = styled.TouchableHighlight`
+export const FullButton = styled(Touchable)`
     background-color: ${grey};
     padding: 5px;
     margin-vertical: ${0.025 * width}px;
@@ -101,9 +117,9 @@ export const CircleButton = styled(Touchable)`
 export const FullInput = styled.TextInput`
     background-color: ${grey};
     padding: 5px;
-    margin-bottom: ${0.025 * width}px;
-    border-radius: 7px;
-    font-size: 20px;
+    margin-bottom: ${0.025 * width};
+    border-radius: 7;
+    font-size: 20;
     width: 100%;
 `;
 
@@ -112,7 +128,7 @@ export const HR = styled.View`
     border-bottom-width: 2px;
 `;
 
-const TileContainer = styled.TouchableHighlight`
+const TileContainer = styled(Touchable)`
     width: 50%;
     aspect-ratio: 1;
     background-color: ${grey};
@@ -131,7 +147,7 @@ const TileChild = styled.View`
 
 export function Tile(props: { children?: React.ReactNode, onPress?: () => void }) {
     return (
-        <TileContainer onPress={props.onPress} underlayColor='rgba(0,0,0,0.2)'>
+        <TileContainer onPress={props.onPress}>
             <TileChild>
                 {props.children}
             </TileChild>
@@ -139,9 +155,9 @@ export function Tile(props: { children?: React.ReactNode, onPress?: () => void }
     );
 }
 
-const FloatingBottomButtonStyle = styled.TouchableHighlight`
+const FloatingBottomButtonStyle = styled(Touchable)`
     position: absolute;
-    bottom: ${0.05 * width}px;
+    bottom: ${0.05 * width};
     /* padding: 5px; */
     border-radius: 50px;
     align-self: center;
@@ -150,7 +166,7 @@ const FloatingBottomButtonStyle = styled.TouchableHighlight`
 export function FloatingBottomButton(props: { text: string, allowed?: boolean, icon?: boolean, onPress: () => void }) {
 
     return (
-        <FloatingBottomButtonStyle underlayColor="rgba(0,0,0,0.2)" onPress={props.onPress} style={{
+        <FloatingBottomButtonStyle onPress={props.onPress} style={{
             backgroundColor: props.allowed === undefined ? "#f3f3f5" : props.allowed ? successColor : '#f3f3f5',
             padding: props.allowed === undefined ? 10 : props.allowed && props.icon ? 5 : 10,
         }}>
@@ -167,7 +183,7 @@ export function FloatingBottomButton(props: { text: string, allowed?: boolean, i
 
 export const LargeHeaderTitleStyle = {
     position: "absolute",
-    fontWeight: "700",
+    fontWeight: "bold",
     fontSize: 35,
     left: 0,
     bottom: 10
@@ -184,12 +200,58 @@ export const LargeHeaderStyle = isIos ? {
     borderBottomColor: "#D4D4D5",
     borderBottomWidth: 1,
 } : {
-    height: 100,
-    backgroundColor: "#fff",
-};
+        height: 100,
+        backgroundColor: "#fff",
+    };
 
 export const LargeHeaderSideContainerStyle = {
     position: "absolute",
     height: 50
 };
 
+
+
+interface ModalProps {
+    children?: React.ReactNode, 
+    onClose: () => void,
+    closeButton?: boolean,
+    title?: string,
+}
+
+const AnimatedModalView = Animated.createAnimatedComponent(ModalView);
+
+export function Modal(props: ModalProps) {
+    const transparency = new Animated.Value(0);
+    useEffect(() => {
+        Animated.spring(transparency, { toValue: 1 }).start();
+    }, []);
+
+    const closeModal = useMemo(() => {
+        return () => {
+            Animated.spring(transparency, { toValue: 0 }).start(() => props.onClose());
+        }
+    }, []);
+
+    return (
+        <AnimatedModalView style={{ opacity: transparency }} onPress={() => {
+            !!props.closeButton && closeModal();
+        }}>
+            <ModalBody>
+                {!!props.title && 
+                <View>
+                    <Header style={{textAlign: 'center'}}>{props.title}</Header>
+                    <HorizontalSpace />
+                </View>
+                }
+                    {props.children}
+                {!!props.closeButton && <CircleButton onPress={() => closeModal()} style={{
+                    position: 'absolute',
+                    top: 0.05 * width,
+                    left: 0.05 * width,
+                }}>
+                    <MaterialCommunityIcons name='close' size={20} color={dangerColor} />
+                </CircleButton>}
+            </ModalBody>
+        </AnimatedModalView>
+    );
+}
