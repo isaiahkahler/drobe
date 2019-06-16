@@ -32,7 +32,7 @@ export const Classes = {
 
   bottom: ["capri's", 'dress pants', 'jeans', 'joggers', 'leggings', 'shorts', 'skirt', 'sweatpants', 'trousers', 'yoga pants'],
 
-  "full body": ['dress', 'jumpsuit', 'overalls', 'romper'],
+  full: ['dress', 'jumpsuit', 'overalls', 'romper'],
 
   shoes: ['boots', 'clogs', 'dress shoes', 'heels', 'moccasin', 'running shoes', 'sandals', 'slides', 'slip-ons', 'sneakers'],
 
