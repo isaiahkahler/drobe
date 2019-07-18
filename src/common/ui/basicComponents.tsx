@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo } from 'react';
+import React, { useEffect, useMemo, Children } from 'react';
 import styled from 'styled-components/native';
 import { Dimensions, View, StyleProp, ViewStyle, TouchableHighlight, Platform, Animated } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
@@ -29,6 +29,10 @@ export const PC = styled.Text`
 export const Header = styled.Text`
     font-size: 20;
     font-weight: 500;
+`;
+
+export const Label = styled.Text`
+    font-size: 16;
 `;
 
 export const PageContainer = styled.View`
@@ -107,12 +111,30 @@ export const FullButton = styled(Touchable)`
     width: 100%;
 `;
 
-export const CircleButton = styled(Touchable)`
+export const CircleButtonStyle = styled(Touchable)`
     padding: 5px;
     border-radius: 100;
     aspect-ratio: 1;
     background-color: ${grey};
+    justify-content: center;
+    align-items: center;
 `;
+
+interface CircleButtonProps {
+    children: React.ReactNode,
+    style?: ViewStyle,
+    selected?: boolean,
+    defaultHeight?: boolean,
+    onPress?: () => void,
+}
+
+export function CircleButton(props: CircleButtonProps) {
+    return (
+        <CircleButtonStyle style={{height: !!props.defaultHeight ? 45 : undefined, backgroundColor: !!props.selected ? drobeAccent : grey}} onPress={props.onPress}>
+            {props.children}
+        </CircleButtonStyle>
+    );
+}
 
 export const FullInput = styled.TextInput`
     background-color: ${grey};
@@ -124,8 +146,8 @@ export const FullInput = styled.TextInput`
 `;
 
 export const HR = styled.View`
-    border-bottom-color: #000;
-    border-bottom-width: 2px;
+    border-bottom-color: #ccc;
+    border-bottom-width: 1px;
 `;
 
 const TileContainer = styled(Touchable)`
@@ -161,13 +183,16 @@ const FloatingBottomButtonStyle = styled(Touchable)`
     /* padding: 5px; */
     border-radius: 50px;
     align-self: center;
+    shadow-radius: 10;
+    shadow-color: #ccc;
+    shadow-opacity: 0.5;
 `;
 
 export function FloatingBottomButton(props: { text: string, allowed?: boolean, icon?: boolean, onPress: () => void }) {
 
     return (
         <FloatingBottomButtonStyle onPress={props.onPress} style={{
-            backgroundColor: props.allowed === undefined ? "#f3f3f5" : props.allowed ? successColor : '#f3f3f5',
+            backgroundColor: props.allowed === undefined ? "#ddd" : props.allowed ? successColor : '#ddd',
             padding: props.allowed === undefined ? 10 : props.allowed && props.icon ? 5 : 10,
         }}>
             <View style={{
@@ -175,7 +200,7 @@ export function FloatingBottomButton(props: { text: string, allowed?: boolean, i
                 alignItems: "center",
             }}>
                 {props.icon && props.allowed && <MaterialCommunityIcons name="checkbox-marked-circle-outline" size={30} style={{ paddingRight: 5, paddingTop: 5 }} color='#fff' />}
-                <P style={{ color: props.allowed === undefined ? "#000" : (props.allowed ? "#fff" : "#ccc") }}>{props.text}</P>
+                <P style={{ color: props.allowed === undefined ? "#000" : (props.allowed ? "#fff" : "#bbb") }}>{props.text}</P>
             </View>
         </FloatingBottomButtonStyle>
     );
@@ -244,13 +269,13 @@ export function Modal(props: ModalProps) {
                 </View>
                 }
                     {props.children}
-                {!!props.closeButton && <CircleButton onPress={() => closeModal()} style={{
+                {!!props.closeButton && <CircleButtonStyle onPress={() => closeModal()} style={{
                     position: 'absolute',
                     top: 0.05 * width,
                     left: 0.05 * width,
                 }}>
                     <MaterialCommunityIcons name='close' size={20} color={dangerColor} />
-                </CircleButton>}
+                </CircleButtonStyle>}
             </ModalBody>
         </AnimatedModalView>
     );
