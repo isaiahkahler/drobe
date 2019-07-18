@@ -13,8 +13,8 @@ export interface Page {
     photoURI: string,
     note?: string,
     brand?: string,
-    size?: number,
-    price?: number
+    size?: "S" | "M" | "L" | "XL" | "+",
+    price?: 1 | 2 | 3 | 4
 }
 
 export type Top = 'blazer' | 'blouse' | 'cardigan' | 'coat' | 'dress shirt' | 'hoodie' | 'jacket' | 'polo' | 'shirt' | 'sweatshirt' | 't-shirt' | 'tank top' | 'vest';
@@ -38,6 +38,14 @@ export const Classes = {
 
   accessory: ['bag', 'belt', 'bow tie', 'bracelet', 'glasses', 'gloves', 'hat', 'scarf', 'shawl', 'socks', 'tie'],
 }
+
+export const Sizes = [
+  'S', 'M', 'L', 'XL', '+'
+];
+
+export const Prices = [
+  1, 2, 3, 4
+]
 
 export interface DefineNavigationProps {
     uri: string
