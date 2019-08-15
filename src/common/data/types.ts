@@ -11,6 +11,7 @@ export interface Page {
     uses: number,
     laundry: number,
     photoURI: string,
+    extraPhotos?: string[],
     note?: string,
     brand?: string,
     size?: "S" | "M" | "L" | "XL" | "+",
