@@ -17,6 +17,8 @@ export const dangerColor = '#FF3860';
 
 export const grey = '#f3f3f5'
 
+export const iconSize = 35;
+
 export const P = styled.Text`
     font-size: 20;
 `;
@@ -121,7 +123,7 @@ export const CircleButtonStyle = styled(Touchable)`
 `;
 
 interface CircleButtonProps {
-    children: React.ReactNode,
+    children?: React.ReactNode,
     style?: ViewStyle,
     selected?: boolean,
     defaultHeight?: boolean,
@@ -130,7 +132,7 @@ interface CircleButtonProps {
 
 export function CircleButton(props: CircleButtonProps) {
     return (
-        <CircleButtonStyle style={{height: !!props.defaultHeight ? 45 : undefined, backgroundColor: !!props.selected ? drobeAccent : grey}} onPress={props.onPress}>
+        <CircleButtonStyle style={[{height: !!props.defaultHeight ? 45 : undefined, backgroundColor: !!props.selected ? drobeAccent : grey}, props.style]} onPress={props.onPress}>
             {props.children}
         </CircleButtonStyle>
     );
