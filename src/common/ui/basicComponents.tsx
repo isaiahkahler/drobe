@@ -3,7 +3,7 @@ import styled from 'styled-components/native';
 import { Dimensions, View, StyleProp, ViewStyle, TouchableHighlight, Platform, Animated } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 
-const isIos = Platform.OS === "ios";
+export const isIos = Platform.OS === "ios";
 
 export const width = Dimensions.get('screen').width;
 
