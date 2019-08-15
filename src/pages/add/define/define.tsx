@@ -1,12 +1,14 @@
 import React, { useState, useMemo, createRef, useEffect } from 'react';
 import { Image, FlatList, Text, Animated, ScrollView, View, Button, TouchableWithoutFeedback } from 'react-native';
-import { PageContainer, ScrollPageLayout, Center, HorizontalSpace, FullInput, FloatingBottomButton, height, Row, CircleButton, drobeAccent, P, FullButton, PageLayout, Modal, width, grey, dangerColor, HR, Label, Header } from '../../../common/ui/basicComponents';
+import { PageContainer, ScrollPageLayout, Center, HorizontalSpace, FullInput, FloatingBottomButton, height, Row, CircleButton, drobeAccent, P, FullButton, PageLayout, Modal, width, grey, dangerColor, HR, Label, Header, iconSize } from '../../../common/ui/basicComponents';
 import styled from 'styled-components/native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { Item, Classes, Sizes, Prices } from '../../../common/data/types';
 import { Cell, Section, TableView } from "react-native-tableview-simple";
-
+import Color from 'color';
 import ColorPicker from '../../../common/ui/colorPicker';
+import { TriangleColorPicker } from '../../../common/ui/colorpicker/TriangleColorPicker';
+import { roundColor } from '../../../common/data/helpers';
 
 const ButtonText = styled.Text`
     font-size: 25;
@@ -15,28 +17,83 @@ const ButtonText = styled.Text`
 
 interface DefineProps {
     navigation: any,
-    photoURI: string,
+    item?: Item,
+    photoURI?: string,
+    onSubmit: (Item) => void,
 }
 
 export default function Define(props: DefineProps) {
 
     const scrollRef = useMemo(() => createRef<ScrollView>(), []);
 
-    const [name, setName] = useState("");
     const [itemClass, setItemClass] = useState<Item['class']>();
     const [itemType, setItemType] = useState<Item['type']>();
+    const [itemName, setItemName] = useState('');
     const [itemColors, setItemColors] = useState<Item['colors']>();
+
+    const [itemDate, setItemDate] = useState<Item['date']>(Date.now());
+    const [itemUses, setItemUses] = useState<Item['uses']>(0);
+    const [itemLaundry, setItemLaundry] = useState<Item['laundry']>(0);
+
+    const [itemPhotoURI, setItemPhotoURI] = useState<Item['photoURI']>(!!props.photoURI ? props.photoURI : undefined);
+    const [itemExtraPhotos, setItemExtraPhotos] = useState<Item['extraPhotos']>();
     const [itemNote, setItemNote] = useState<Item['note']>();
     const [itemBrand, setItemBrand] = useState<Item['brand']>();
     const [itemSize, setItemSize] = useState<Item['size']>();
     const [itemPrice, setItemPrice] = useState<Item['price']>();
+
+    if (!!props.item) {
+        if (!!props.item.class) {
+            setItemClass(props.item.class)
+        }
+        if (!!props.item.type) {
+            setItemType(props.item.type)
+        }
+        if (!!props.item.name) {
+            setItemName(props.item.name)
+        }
+        if (!!props.item.colors) {
+            setItemColors(props.item.colors)
+        }
+        if (!!props.item.date) {
+            setItemDate(props.item.date)
+        }
+        if (!!props.item.uses) {
+            setItemUses(props.item.uses)
+        }
+        if (!!props.item.laundry) {
+            setItemLaundry(props.item.laundry)
+        }
+        if (!!props.item.photoURI) {
+            setItemPhotoURI(props.item.photoURI)
+        }
+        if (!!props.item.extraPhotos) {
+            setItemExtraPhotos(props.item.extraPhotos)
+        }
+        if (!!props.item.note) {
+            setItemNote(props.item.note)
+        }
+        if (!!props.item.brand) {
+            setItemBrand(props.item.brand)
+        }
+        if (!!props.item.size) {
+            setItemSize(props.item.size)
+        }
+        if (!!props.item.price) {
+            setItemPrice(props.item.price)
+        }
+    }
+
+
+    const isValid = useMemo(() => {
+        return !!itemClass && !!itemType && !!itemColors;
+    }, [itemClass, itemType, itemColors]);
 
     const [showModal, setShowModal] = useState(false);
 
     const [showValidity, setShowValidity] = useState(false);
 
     const [classComponentY, setClassComponentY] = useState(0);
-    const [colorComponentY, setColorComponentY] = useState(0);
 
     const onPickClass = useMemo(() => (pickedClass: Item['class']) => {
         setItemType(null);
@@ -64,15 +121,28 @@ export default function Define(props: DefineProps) {
         <PageContainer>
             <ScrollPageLayout ref={scrollRef}>
 
+
+                {!!itemPhotoURI &&
+                    <>
+                        <HorizontalSpace />
+                        <Center>
+                            <Image source={{ uri: itemPhotoURI }} style={{ resizeMode: "contain", height: height * 0.30, width: "100%" }} />
+                        </Center>
+                    </>
+                }
+
                 <HorizontalSpace />
 
-                <Center>
-                    <Image source={{ uri: props.photoURI }} style={{ resizeMode: "contain", height: height * 0.30, width: "100%" }} />
-                </Center>
+                {/* <FullButton onPress={() => { }}><P>add another photo (optional)</P></FullButton> */}
+                <Row>
+                    <CircleButton defaultHeight>
+                        <MaterialCommunityIcons name='camera' size={iconSize}/>
+                    </CircleButton>
+                </Row>
 
                 <HorizontalSpace />
 
-                <FullInput value={name} placeholder='item name (optional)' onChangeText={(text) => setName(text)} />
+                <FullInput value={itemName} placeholder='item name (optional)' onChangeText={(text) => setItemName(text)} />
 
                 <HorizontalSpace onLayout={(event) => {
                     setClassComponentY(event.nativeEvent.layout.y)
@@ -83,7 +153,7 @@ export default function Define(props: DefineProps) {
                         return (
                             <CircleButton key={index} selected={itemClass === _itemClass} defaultHeight onPress={() => { onPickClass(_itemClass as any) }} >
                                 {/* temp! replace with custom icons later */}
-                                <MaterialCommunityIcons name='close' size={35} color={itemClass === _itemClass ? "#fff" : "#000"} />
+                                <MaterialCommunityIcons name='close' size={iconSize} color={itemClass === _itemClass ? "#fff" : "#000"} />
                             </CircleButton>
                         );
                     })}
@@ -108,13 +178,22 @@ export default function Define(props: DefineProps) {
                 </TableView>
 
 
-                <HorizontalSpace onLayout={(event) => {
-                    setColorComponentY(event.nativeEvent.layout.y)
-                }} />
+                <HorizontalSpace />
 
-                <FullButton onPress={() => setShowModal(true)}><P>add color...</P></FullButton>
+                <FullButton onPress={() => setShowModal(true)}><P>add {!!itemColors && 'another'} color...</P></FullButton>
 
                 <HorizontalSpace />
+
+                <Row>
+                    {!!itemColors && itemColors.map((itemColor, index) => {
+                        return (
+                            <CircleButton key={index} style={{ backgroundColor: itemColor }} defaultHeight><P></P></CircleButton>
+                        );
+                    })}
+                </Row>
+
+                <HorizontalSpace />
+
                 <HR />
 
                 <HorizontalSpace />
@@ -148,23 +227,6 @@ export default function Define(props: DefineProps) {
                         );
                     })}
                 </Row>
-                {/* <Row style={{ justifyContent: 'space-between' }}>
-                    <CircleButton defaultHeight selected={itemPrice === 1} onPress={() => onPickPrice(1)}>
-                        <P style={{ color: itemPrice === 1 ? "#fff" : "#000" }}>$</P>
-                    </CircleButton>
-                    <CircleButton defaultHeight selected={itemPrice === 2} onPress={() => onPickPrice(2)}>
-                        <P style={{ color: itemPrice === 2 ? "#fff" : "#000" }}>$$</P>
-                    </CircleButton>
-                    <CircleButton defaultHeight selected={itemPrice === 3} onPress={() => onPickPrice(3)}>
-                        <P style={{ color: itemPrice === 3 ? "#fff" : "#000" }}>$$$</P>
-                    </CircleButton>
-                    <CircleButton defaultHeight selected={itemPrice === 4} onPress={() => onPickPrice(4)}>
-                        <View>
-                        <Text style={{ color: itemPrice === 4 ? "#fff" : "#000" }}>$$</Text>
-                        <Text style={{ color: itemPrice === 4 ? "#fff" : "#000" }}>$$</Text>
-                        </View>
-                    </CircleButton>
-                </Row> */}
 
                 <HorizontalSpace />
                 <HorizontalSpace />
@@ -173,13 +235,21 @@ export default function Define(props: DefineProps) {
                 <HorizontalSpace />
 
             </ScrollPageLayout>
-            <FloatingBottomButton text='add item' allowed={name.length > 5} onPress={() => {
+            <FloatingBottomButton text='add item' allowed={isValid} onPress={() => {
                 setShowValidity(true);
             }} icon />
 
             {showModal && <Modal onClose={() => setShowModal(false)} closeButton>
-                <ColorPicker onConfirm={() => {}} />
-
+                {/* <ColorPicker onConfirm={() => {}} /> */}
+                <TriangleColorPicker onColorSelected={color => {
+                    setShowModal(false);
+                    if (!!itemColors) {
+                        setItemColors([...itemColors, color]);
+                    } else {
+                        setItemColors([color]);
+                    }
+                }}
+                    style={{ width: "100%", aspectRatio: 1 }} />
             </Modal>}
 
         </PageContainer>

@@ -1,6 +1,7 @@
 import React, {useState} from 'react';
 import { View, Image } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
+import { Row, Column, FullButton, P } from './basicComponents';
 
 
 interface ColorPickerProps {
@@ -40,7 +41,7 @@ export default function ColorPicker(props: ColorPickerProps) {
     return (
         <View
             onLayout={(event) => {
-                setSize(event.nativeEvent.layout.height);
+                setSize(event.nativeEvent.layout.width);
             }}
             onStartShouldSetResponder={(event) => {
 
@@ -63,7 +64,7 @@ export default function ColorPicker(props: ColorPickerProps) {
                 setY(event.nativeEvent.locationY);
             }}>
             {/* color circle image */}
-            <Image source={require('../../../../assets/colorwheel.png')} style={{
+            <Image source={require('../../../assets/colorwheel.png')} style={{
                 height: undefined,
                 width: undefined,
                 aspectRatio: 1,
@@ -101,11 +102,11 @@ export default function ColorPicker(props: ColorPickerProps) {
                     backgroundColor: `hsl(${Math.round(deg)}, 100%, 50%)`
                 }}
                 onStartShouldSetResponder={(event) => {
-                    console.log({
-                        boxTarget: event.target,
-                        boxNativeTarget: event.nativeEvent.target,
-                        id: event.nativeEvent.identifier
-                    })
+                    // console.log({
+                    //     boxTarget: event.target,
+                    //     boxNativeTarget: event.nativeEvent.target,
+                    //     id: event.nativeEvent.identifier
+                    // })
                     return true;
                 }}
                 onMoveShouldSetResponder={(event) => {
@@ -158,6 +159,20 @@ export default function ColorPicker(props: ColorPickerProps) {
                     onStartShouldSetResponder={() => false}
                     onMoveShouldSetResponder={() => false} />
             </View>
+            {/* <Column>
+                <Row>
+                    <View 
+                        style={{
+                            width: '50%',
+                            height: '10%',
+                            backgroundColor: `hsl(${Math.round(deg)}, ${saturation}%, ${lightness}%)`
+                        }}
+                    />
+                </Row>
+                <FullButton onPress={() => props.onConfirm(`hsl(${Math.round(deg)}, ${saturation}%, ${lightness}%)`)}>
+                    <P>select</P>
+                </FullButton>
+            </Column> */}
         </View>
     );
 }
