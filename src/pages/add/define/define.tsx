@@ -1,14 +1,13 @@
-import React, { useState, useMemo, createRef, useEffect } from 'react';
-import { Image, FlatList, Text, Animated, ScrollView, View, Button, TouchableWithoutFeedback } from 'react-native';
-import { PageContainer, ScrollPageLayout, Center, HorizontalSpace, FullInput, FloatingBottomButton, height, Row, CircleButton, drobeAccent, P, FullButton, PageLayout, Modal, width, grey, dangerColor, HR, Label, Header, iconSize } from '../../../common/ui/basicComponents';
+import React, { useState, useMemo, createRef } from 'react';
+import { Image, Text, ScrollView, ActionSheetIOS } from 'react-native';
+import { PageContainer, ScrollPageLayout, Center, HorizontalSpace, FullInput, FloatingBottomButton, height, Row, CircleButton, drobeAccent, P, FullButton, PageLayout, Modal, width, grey, dangerColor, HR, Label, Header, iconSize, isIos } from '../../../common/ui/basicComponents';
 import styled from 'styled-components/native';
-import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons';
 import { Item, Classes, Sizes, Prices } from '../../../common/data/types';
 import { Cell, Section, TableView } from "react-native-tableview-simple";
-import Color from 'color';
 import ColorPicker from '../../../common/ui/colorPicker';
 import { TriangleColorPicker } from '../../../common/ui/colorpicker/TriangleColorPicker';
-import { roundColor } from '../../../common/data/helpers';
+import { takePhoto, chooseFromLibrary } from '../../../common/data/photoHelper';
 
 const ButtonText = styled.Text`
     font-size: 25;
@@ -122,7 +121,7 @@ export default function Define(props: DefineProps) {
             <ScrollPageLayout ref={scrollRef}>
 
 
-                {!!itemPhotoURI &&
+                {!!itemPhotoURI && !itemExtraPhotos && 
                     <>
                         <HorizontalSpace />
                         <Center>
@@ -131,12 +130,75 @@ export default function Define(props: DefineProps) {
                     </>
                 }
 
+                {!!itemExtraPhotos && 
+                    <> 
+                        <HorizontalSpace />
+                        {/* <FlatList 
+                            data={[itemPhotoURI].concat(itemExtraPhotos)}
+                            horizontal
+                            renderItem={(data) => {
+                                return(
+                                    <Image source={{uri: data.item}} style={{resizeMode: 'contain', height: height * 0.3, aspectRatio: 1}} />
+                                    // <View style={{width: 100, height: 100, backgroundColor: drobeAccent}} />
+                                );
+                            }}
+                            // style={{alignItems: "center"}}
+                            contentContainerStyle={{alignItems: "center", alignContent: 'center'}}
+                            keyExtractor={(item, index) => index.toString()}
+                        /> */}
+                        <ScrollView
+                            horizontal
+                            pagingEnabled
+                        >   
+                            <Image source={{ uri: itemPhotoURI }} style={{ resizeMode: "contain", height: height * 0.30, width: "100%" }} />
+                            {itemExtraPhotos.map((item, index) => {
+                                return (
+                                    <Image source={{uri: item}} key={index} style={{resizeMode: 'contain', height: height * 0.3, aspectRatio: 1}} />
+                                );
+                            })}
+                        </ScrollView>
+                    </>
+                }
+
                 <HorizontalSpace />
 
                 {/* <FullButton onPress={() => { }}><P>add another photo (optional)</P></FullButton> */}
                 <Row>
-                    <CircleButton defaultHeight>
-                        <MaterialCommunityIcons name='camera' size={iconSize}/>
+                    <CircleButton defaultHeight onPress={() => {
+                        if (isIos) {
+                            ActionSheetIOS.showActionSheetWithOptions({
+                                options: ['take photo', 'choose from library', 'cancel'],
+                                cancelButtonIndex: 2,
+                            },
+                                (index) => {
+                                    if (index === 0) {
+                                        takePhoto((photoURI) => {
+                                            if (!!itemExtraPhotos) {
+                                                setItemExtraPhotos([...itemExtraPhotos, photoURI]);
+                                            } else {
+                                                setItemExtraPhotos([photoURI]);
+                                            }
+                                        }, () => { });
+                                    } else if (index === 1) {
+                                        chooseFromLibrary((photoURI) => {
+                                            if (!!itemExtraPhotos) {
+                                                setItemExtraPhotos([...itemExtraPhotos, photoURI]);
+                                            } else {
+                                                setItemExtraPhotos([photoURI]);
+                                            }
+                                            
+                                        }, () => { });
+                                    }
+
+                                    //temp
+                                    console.log(index);
+                                }
+                            );
+                        } else {
+
+                        }
+                    }}>
+                        <MaterialIcons name='add-a-photo' size={iconSize - 5} />
                     </CircleButton>
                 </Row>
 
