@@ -2,22 +2,7 @@ import React, { useEffect, useMemo, Children } from 'react';
 import styled from 'styled-components/native';
 import { Dimensions, View, StyleProp, ViewStyle, TouchableHighlight, Platform, Animated } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
-
-export const isIos = Platform.OS === "ios";
-
-export const width = Dimensions.get('screen').width;
-
-export const height = Dimensions.get('screen').height;
-
-export const drobeAccent = '#8C64ff';
-
-export const successColor = '#23D160';
-
-export const dangerColor = '#FF3860';
-
-export const grey = '#f3f3f5'
-
-export const iconSize = 35;
+import { isIos, width, height, drobeAccent, successColor, dangerColor, grey, iconSize, animationScale } from '../data/constants';
 
 export const P = styled.Text`
     font-size: 20;

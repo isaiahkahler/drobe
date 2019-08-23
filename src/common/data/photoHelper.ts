@@ -2,13 +2,11 @@
 import * as Permissions from 'expo-permissions';
 import * as ImagePicker from 'expo-image-picker';
 import { Linking, Alert } from 'react-native';
-import { isIos } from '../ui/basicComponents';
+import { isIos } from './constants';
 
 export async function takePhoto(onSuccess: (uri: string) => void, onFail: () => void) {
-    console.log('huh')
     const cameraPermission = await Permissions.getAsync(Permissions.CAMERA);
     let cameraPermissionStatus = cameraPermission.status;
-    console.log(cameraPermissionStatus);
   
     if (cameraPermissionStatus === Permissions.PermissionStatus.UNDETERMINED) {
       const { status } = await Permissions.askAsync(Permissions.CAMERA);

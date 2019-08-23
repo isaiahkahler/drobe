@@ -1,6 +1,6 @@
-import React, { useState, useMemo, createRef } from 'react';
-import { Image, Text, ScrollView, ActionSheetIOS } from 'react-native';
-import { PageContainer, ScrollPageLayout, Center, HorizontalSpace, FullInput, FloatingBottomButton, height, Row, CircleButton, drobeAccent, P, FullButton, PageLayout, Modal, width, grey, dangerColor, HR, Label, Header, iconSize, isIos } from '../../../common/ui/basicComponents';
+import React, { useState, useMemo, createRef, useEffect } from 'react';
+import { Image, Text, ScrollView, ActionSheetIOS, Alert, View, Animated } from 'react-native';
+import { PageContainer, ScrollPageLayout, Center, HorizontalSpace, FullInput, FloatingBottomButton, Row, CircleButton, P, FullButton, PageLayout, Modal, HR, Label, Header, Column } from '../../../common/ui/basicComponents';
 import styled from 'styled-components/native';
 import { MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons';
 import { Item, Classes, Sizes, Prices } from '../../../common/data/types';
@@ -8,6 +8,7 @@ import { Cell, Section, TableView } from "react-native-tableview-simple";
 import ColorPicker from '../../../common/ui/colorPicker';
 import { TriangleColorPicker } from '../../../common/ui/colorpicker/TriangleColorPicker';
 import { takePhoto, chooseFromLibrary } from '../../../common/data/photoHelper';
+import { isIos, height, drobeAccent, dangerColor,iconSize } from '../,./../../../common/data/constants';
 
 const ButtonText = styled.Text`
     font-size: 25;
@@ -121,7 +122,7 @@ export default function Define(props: DefineProps) {
             <ScrollPageLayout ref={scrollRef}>
 
 
-                {!!itemPhotoURI && !itemExtraPhotos && 
+                {!!itemPhotoURI && !itemExtraPhotos &&
                     <>
                         <HorizontalSpace />
                         <Center>
@@ -130,8 +131,8 @@ export default function Define(props: DefineProps) {
                     </>
                 }
 
-                {!!itemExtraPhotos && 
-                    <> 
+                {!!itemExtraPhotos &&
+                    <>
                         <HorizontalSpace />
                         {/* <FlatList 
                             data={[itemPhotoURI].concat(itemExtraPhotos)}
@@ -148,12 +149,12 @@ export default function Define(props: DefineProps) {
                         /> */}
                         <ScrollView
                             horizontal
-                            pagingEnabled
-                        >   
-                            <Image source={{ uri: itemPhotoURI }} style={{ resizeMode: "contain", height: height * 0.30, width: "100%" }} />
+                        // pagingEnabled
+                        >
+                            <Image source={{ uri: itemPhotoURI }} style={{ resizeMode: "contain", height: height * 0.30, aspectRatio: 1 }} />
                             {itemExtraPhotos.map((item, index) => {
                                 return (
-                                    <Image source={{uri: item}} key={index} style={{resizeMode: 'contain', height: height * 0.3, aspectRatio: 1}} />
+                                    <Image source={{ uri: item }} key={index} style={{ resizeMode: 'contain', height: height * 0.3, aspectRatio: 1 }} />
                                 );
                             })}
                         </ScrollView>
@@ -162,7 +163,6 @@ export default function Define(props: DefineProps) {
 
                 <HorizontalSpace />
 
-                {/* <FullButton onPress={() => { }}><P>add another photo (optional)</P></FullButton> */}
                 <Row>
                     <CircleButton defaultHeight onPress={() => {
                         if (isIos) {
@@ -186,16 +186,41 @@ export default function Define(props: DefineProps) {
                                             } else {
                                                 setItemExtraPhotos([photoURI]);
                                             }
-                                            
+
                                         }, () => { });
                                     }
-
-                                    //temp
-                                    console.log(index);
                                 }
                             );
                         } else {
+                            Alert.alert(
+                                "Choose photo from...",
+                                '',
+                                [
+                                    {
+                                        text: 'camera', onPress: () => {
+                                            takePhoto((photoURI) => {
+                                                if (!!itemExtraPhotos) {
+                                                    setItemExtraPhotos([...itemExtraPhotos, photoURI]);
+                                                } else {
+                                                    setItemExtraPhotos([photoURI]);
+                                                }
+                                            }, () => { });
+                                        }
+                                    },
+                                    {
+                                        text: 'library', onPress: () => {
+                                            chooseFromLibrary((photoURI) => {
+                                                if (!!itemExtraPhotos) {
+                                                    setItemExtraPhotos([...itemExtraPhotos, photoURI]);
+                                                } else {
+                                                    setItemExtraPhotos([photoURI]);
+                                                }
 
+                                            }, () => { });
+                                        }
+                                    }
+                                ]
+                            )
                         }
                     }}>
                         <MaterialIcons name='add-a-photo' size={iconSize - 5} />
@@ -210,32 +235,40 @@ export default function Define(props: DefineProps) {
                     setClassComponentY(event.nativeEvent.layout.y)
                 }} />
 
-                <Row style={{ justifyContent: 'space-between' }}>
-                    {Object.keys(Classes).map((_itemClass, index) => {
-                        return (
-                            <CircleButton key={index} selected={itemClass === _itemClass} defaultHeight onPress={() => { onPickClass(_itemClass as any) }} >
-                                {/* temp! replace with custom icons later */}
-                                <MaterialCommunityIcons name='close' size={iconSize} color={itemClass === _itemClass ? "#fff" : "#000"} />
-                            </CircleButton>
-                        );
-                    })}
-                </Row>
+
+
+                <RequiredField showLabel={showValidity} padding>
+
+                    <Row style={{ justifyContent: 'space-between' }}>
+                        {Object.keys(Classes).map((_itemClass, index) => {
+                            return (
+                                <CircleButton key={index} selected={itemClass === _itemClass} defaultHeight onPress={() => { onPickClass(_itemClass as any) }} >
+                                    {/* temp! replace with custom icons later */}
+                                    <MaterialCommunityIcons name='close' size={iconSize} color={itemClass === _itemClass ? "#fff" : "#000"} />
+                                </CircleButton>
+                            );
+                        })}
+                    </Row>
+                    
+                </RequiredField>
+
 
                 <HorizontalSpace />
 
+
+
+
+
                 <TableView>
                     <Section sectionPaddingBottom={0} sectionPaddingTop={0}>
-                        {!!itemClass ? (
+
+                        {!!itemClass && (
                             !!itemType ? (
                                 <Cell title={itemType} accessoryColor={drobeAccent} accessory='Checkmark' onPress={() => setItemType(null)} />
                             ) : (
-                                    // accessoryColor={drobeAccent} accessory={item === itemType ? "Checkmark" : undefined}
                                     Classes[itemClass].map((item, index) => <Cell key={index} title={item} onPress={() => { setItemType(item as any) }} />)
                                 )
-
-                        ) : (
-                                <Cell title='choose type...'></Cell>
-                            )}
+                        )}
                     </Section>
                 </TableView>
 
@@ -249,7 +282,14 @@ export default function Define(props: DefineProps) {
                 <Row>
                     {!!itemColors && itemColors.map((itemColor, index) => {
                         return (
-                            <CircleButton key={index} style={{ backgroundColor: itemColor }} defaultHeight><P></P></CircleButton>
+                            <CircleButton
+                                key={index}
+                                style={{ backgroundColor: itemColor }}
+                                defaultHeight
+                                onPress={() => {
+
+                                }}
+                            ><P></P></CircleButton>
                         );
                     })}
                 </Row>
@@ -294,7 +334,6 @@ export default function Define(props: DefineProps) {
                 <HorizontalSpace />
                 <HorizontalSpace />
                 <HorizontalSpace />
-                <HorizontalSpace />
 
             </ScrollPageLayout>
             <FloatingBottomButton text='add item' allowed={isValid} onPress={() => {
@@ -315,5 +354,68 @@ export default function Define(props: DefineProps) {
             </Modal>}
 
         </PageContainer>
+    );
+}
+
+
+interface RequiredFieldProps {
+    children?: React.ReactNode,
+    showLabel?: boolean,
+    padding?: boolean,
+}
+
+
+const AnimatedColumn = Animated.createAnimatedComponent(Column);
+
+function RequiredField(props: RequiredFieldProps) {
+
+    const width = new Animated.Value(0);
+
+    const padding = new Animated.Value(0);
+
+    const opacity = new Animated.Value(0);
+
+
+    useEffect(() => {
+        if(props.showLabel){
+            Animated.timing(width, {
+                toValue: 2,
+                duration: 1000,
+            }).start();
+            props.padding && Animated.timing(padding, {
+                toValue: 10,
+                duration: 1000,
+            }).start();
+            Animated.timing(opacity, {
+                toValue: 1,
+                duration: 1000
+            }).start();
+        }
+    }, [props.showLabel]);
+
+    return (
+        <AnimatedColumn
+            style={{
+                borderWidth: width,
+                borderRadius: 15,
+                borderColor: dangerColor,
+                padding: padding,
+            }}
+        >
+            <Row style={{
+                top: -15,
+                position: "absolute",
+                alignSelf: "center"
+            }}>
+                <Animated.View style={{
+                    backgroundColor: "#fff",
+                    padding: 5,
+                    opacity: opacity
+                }}>
+                    <Text style={{ color: dangerColor }}>Required</Text>
+                </Animated.View>
+            </Row>
+            {props.children}
+        </AnimatedColumn>
     );
 }

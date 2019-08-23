@@ -5,8 +5,6 @@ import { takePhoto, chooseFromLibrary } from '../../../common/data/photoHelper';
 import { DefineNavigationProps } from '../../../common/data/types';
 
 interface AddProps {
-    // tryOpenCamera: () => void,
-    // tryOpenImagePicker: () => void,
     navigation: any,
 }
 
@@ -17,8 +15,6 @@ export default function Add(props: AddProps) {
                 justifyContent: "space-evenly",
                 alignItems: "center"
             }}>
-                {/* <Tile onPress={props.tryOpenCamera}> */}
-                {/* <Tile onPress={() => props.navigation.navigate('Define')}> */}
                 <Tile onPress={() => {
                     takePhoto((photoURI) => {
                         const navigationProps: DefineNavigationProps = {uri: photoURI} 
@@ -31,7 +27,6 @@ export default function Add(props: AddProps) {
                         color={drobeAccent} />
                     <PC>take photo</PC>
                 </Tile>
-                {/* <Tile onPress={props.tryOpenImagePicker}> */}
                 <Tile onPress={() => {
                     chooseFromLibrary((photoURI) => {
                         const navigationProps: DefineNavigationProps = {uri: photoURI} 
