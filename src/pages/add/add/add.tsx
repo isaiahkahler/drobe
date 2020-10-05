@@ -1,8 +1,9 @@
 import React from 'react';
-import { PageContainer, PageLayout, Tile, PC, drobeAccent } from '../../../common/ui/basicComponents';
+import { PageContainer, PageLayout, Tile, PC } from '../../../common/ui/basicComponents';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { takePhoto, chooseFromLibrary } from '../../../common/data/photoHelper';
 import { DefineNavigationProps } from '../../../common/data/types';
+import { drobeAccent } from '../../../common/data/constants';
 
 interface AddProps {
     navigation: any,
@@ -17,9 +18,9 @@ export default function Add(props: AddProps) {
             }}>
                 <Tile onPress={() => {
                     takePhoto((photoURI) => {
-                        const navigationProps: DefineNavigationProps = {uri: photoURI} 
+                        const navigationProps: DefineNavigationProps = { uri: photoURI }
                         props.navigation.navigate('Define', navigationProps);
-                    }, () => {})
+                    }, () => { })
                 }}>
                     <MaterialCommunityIcons
                         name="camera"
@@ -29,9 +30,9 @@ export default function Add(props: AddProps) {
                 </Tile>
                 <Tile onPress={() => {
                     chooseFromLibrary((photoURI) => {
-                        const navigationProps: DefineNavigationProps = {uri: photoURI} 
+                        const navigationProps: DefineNavigationProps = { uri: photoURI }
                         props.navigation.navigate('Define', navigationProps);
-                    }, () => {})
+                    }, () => { })
                 }}>
                     <MaterialCommunityIcons
                         name="image-multiple"

@@ -8,7 +8,8 @@ import { Cell, Section, TableView } from "react-native-tableview-simple";
 import ColorPicker from '../../../common/ui/colorPicker';
 import { TriangleColorPicker } from '../../../common/ui/colorpicker/TriangleColorPicker';
 import { takePhoto, chooseFromLibrary } from '../../../common/data/photoHelper';
-import { isIos, height, drobeAccent, dangerColor,iconSize } from '../,./../../../common/data/constants';
+import { isIos, height, drobeAccent, dangerColor,iconSize, animationScale } from '../,./../../../common/data/constants';
+import RequiredField from '../../../common/ui/requiredField';
 
 const ButtonText = styled.Text`
     font-size: 25;
@@ -133,23 +134,8 @@ export default function Define(props: DefineProps) {
 
                 {!!itemExtraPhotos &&
                     <>
-                        <HorizontalSpace />
-                        {/* <FlatList 
-                            data={[itemPhotoURI].concat(itemExtraPhotos)}
-                            horizontal
-                            renderItem={(data) => {
-                                return(
-                                    <Image source={{uri: data.item}} style={{resizeMode: 'contain', height: height * 0.3, aspectRatio: 1}} />
-                                    // <View style={{width: 100, height: 100, backgroundColor: drobeAccent}} />
-                                );
-                            }}
-                            // style={{alignItems: "center"}}
-                            contentContainerStyle={{alignItems: "center", alignContent: 'center'}}
-                            keyExtractor={(item, index) => index.toString()}
-                        /> */}
                         <ScrollView
                             horizontal
-                        // pagingEnabled
                         >
                             <Image source={{ uri: itemPhotoURI }} style={{ resizeMode: "contain", height: height * 0.30, aspectRatio: 1 }} />
                             {itemExtraPhotos.map((item, index) => {
@@ -337,7 +323,7 @@ export default function Define(props: DefineProps) {
 
             </ScrollPageLayout>
             <FloatingBottomButton text='add item' allowed={isValid} onPress={() => {
-                setShowValidity(true);
+                setShowValidity(!showValidity);
             }} icon />
 
             {showModal && <Modal onClose={() => setShowModal(false)} closeButton>
@@ -354,68 +340,5 @@ export default function Define(props: DefineProps) {
             </Modal>}
 
         </PageContainer>
-    );
-}
-
-
-interface RequiredFieldProps {
-    children?: React.ReactNode,
-    showLabel?: boolean,
-    padding?: boolean,
-}
-
-
-const AnimatedColumn = Animated.createAnimatedComponent(Column);
-
-function RequiredField(props: RequiredFieldProps) {
-
-    const width = new Animated.Value(0);
-
-    const padding = new Animated.Value(0);
-
-    const opacity = new Animated.Value(0);
-
-
-    useEffect(() => {
-        if(props.showLabel){
-            Animated.timing(width, {
-                toValue: 2,
-                duration: 1000,
-            }).start();
-            props.padding && Animated.timing(padding, {
-                toValue: 10,
-                duration: 1000,
-            }).start();
-            Animated.timing(opacity, {
-                toValue: 1,
-                duration: 1000
-            }).start();
-        }
-    }, [props.showLabel]);
-
-    return (
-        <AnimatedColumn
-            style={{
-                borderWidth: width,
-                borderRadius: 15,
-                borderColor: dangerColor,
-                padding: padding,
-            }}
-        >
-            <Row style={{
-                top: -15,
-                position: "absolute",
-                alignSelf: "center"
-            }}>
-                <Animated.View style={{
-                    backgroundColor: "#fff",
-                    padding: 5,
-                    opacity: opacity
-                }}>
-                    <Text style={{ color: dangerColor }}>Required</Text>
-                </Animated.View>
-            </Row>
-            {props.children}
-        </AnimatedColumn>
     );
 }
