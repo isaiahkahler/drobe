@@ -1,8 +1,8 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { Animated, Image, ImageSourcePropType, LayoutAnimation, StyleSheet, Text, View } from 'react-native';
+import React, { PropsWithChildren, useCallback, useEffect, useRef, useState } from 'react';
+import { ActivityIndicator, Animated, Image, ImageSourcePropType, LayoutAnimation, Linking, StyleSheet, Text, View } from 'react-native';
 import { Camera } from 'expo-camera';
 import { pageStyles, textStyles, Touchable, touchableStyles } from '../../components/basics';
-import { accentColor, width } from '../../components/constants';
+import { accentColor, grey, linkColor, width } from '../../components/constants';
 import { useIsFocused } from '@react-navigation/native';
 import { startAnimation } from '../../components/animationHelper';
 import { If } from '../../components/uiHelpers';
@@ -10,19 +10,13 @@ import { AddScreenProps } from './index';
 import { useStoreActions } from '../../components/store';
 import { Item } from '../../components/types';
 
-function AddContainer({ route, navigation }: AddScreenProps) {
+export default function AddContainer({ route, navigation }: AddScreenProps) {
 
     const [tfReady, setTfReady] = useState(false);
 
     const isFocused = useIsFocused();
 
-    const [pageHeight, setPageHeight] = useState(0);
-
     const [cameraOffset, setCameraOffset] = useState(0);
-
-    const cameraButtonOpacity = useRef(new Animated.Value(1)).current;
-
-    const [hideCameraButton, setHideCameraButton] = useState(false);
 
     const [hasCameraPermission, setHasCameraPermission] = useState<boolean>(false);
 
@@ -30,16 +24,24 @@ function AddContainer({ route, navigation }: AddScreenProps) {
 
     const getAskCameraPermission = useStoreActions(store => store.helpers.getAskCameraPermission);
 
-    const [cameraRef, setCameraRef] = useState<Camera | null>(null);
+    // const [cameraRef, setCameraRef] = useState<Camera | null>(null);
+
+    const cameraRef = useRef<any>(null);
 
     const [photoURI, setPhotoURI] = useState<ImageSourcePropType | null>(null);
+
+    const [isLoading, setIsLoading] = useState(false);
 
     const takePhoto = async () => {
         console.log('push')
         if (cameraReady && cameraRef) {
-            const picture = await cameraRef.takePictureAsync();
-            console.log("height:", picture.height);
-            console.log("width:", picture.width);
+            console.log(cameraRef);
+            const picture = await cameraRef.current.takePictureAsync();
+                console.log("height:", picture.height);
+                console.log("width:", picture.width);
+                console.log('uri:')
+                console.log(picture.uri)
+                setPhotoURI(picture.uri as any);
         }
     };
 
@@ -52,43 +54,57 @@ function AddContainer({ route, navigation }: AddScreenProps) {
         })
     }, [getAskCameraPermission]);
 
-    const cameraView = <>
-        <If.Parent value={hasCameraPermission && isFocused}>
-            <If.True>
-                <Camera style={[styles.camera, { top: cameraOffset }]} ref={(camera) => { setCameraRef(camera) }} onCameraReady={() => setCameraReady(true)} />
-            </If.True>
-            <If.False>
-                <View style={[styles.camera, { top: cameraOffset }]}></View>
-            </If.False>
-        </If.Parent>
+    const cameraView = () =>
+        <Camera style={{ flex: 1 }} ref={cameraRef} onCameraReady={() => setCameraReady(true)} />;
+
+    const loadingView = () => <View style={[pageStyles.center, { flex: 1, backgroundColor: grey, }]}>
+        <ActivityIndicator size='large' color="#000" />
+    </View>;
+
+    const photoView = () => <>
+        {photoURI ? <Image source={photoURI} style={{ flex: 1 }} /> : <View />}
     </>;
 
-    const photoView = <>
-        {photoURI ? <Image source={photoURI} style={{flex: 1}} /> : <View />}       
-    </>;
+    const permissionDeniedView = () =>
+        <View style={{ flex: 1, padding: '10%', backgroundColor: grey }}>
+            <Text style={[textStyles.header, { color: "#000" }]}>uh oh</Text>
+            <Text style={textStyles.paragraph}>Drobe doesn't have access to your camera.</Text>
+            <Text style={[textStyles.paragraph, { color: linkColor }]} onPress={() => {
+                Linking.openURL('app-settings:');
+            }}>go to settings ↗️</Text>
+        </View>;
 
-    const permissionDeniedView = <> 
-        <View style={{flex: 1}}>
-            
-        </View>
-    </>;
+    let CameraContent = loadingView;
 
-    const _cameraContent = <></>;
+    if (photoURI) {
+        CameraContent = photoView;
+    } else if (isLoading || !isFocused) {
+        CameraContent = loadingView;
+    } else {
+        CameraContent = cameraView;
+    }
+
+    if (!hasCameraPermission) {
+        CameraContent = permissionDeniedView;
+    }
 
     const onPhotoButtonPress = () => {
-
+        if (cameraReady) {
+            takePhoto();
+        }
     };
 
-    return (<Add cameraContent={_cameraContent} handlePhotoButtonPress={onPhotoButtonPress} predictedAttributes={null} />)
+    console.log('add container')
+
+    return (<Add handlePhotoButtonPress={onPhotoButtonPress} predictedAttributes={null}><CameraContent /></Add>)
 }
 
 interface AddProps {
     handlePhotoButtonPress: () => void,
-    cameraContent: React.ReactNode,
     predictedAttributes: Item | null,
 }
 
-export default function Add(props: AddProps) {
+function Add(props: PropsWithChildren<AddProps>) {
 
     const [pageHeight, setPageHeight] = useState(0);
 
@@ -98,7 +114,7 @@ export default function Add(props: AddProps) {
 
     const [hideCameraButton, setHideCameraButton] = useState(false);
 
-
+    console.log('add')
     // calculate camera offset 
     useEffect(() => {
         console.log('page height:', pageHeight)
@@ -111,7 +127,9 @@ export default function Add(props: AddProps) {
         <View style={pageStyles.pageLayout} onLayout={(event) => setPageHeight(event.nativeEvent.layout.height)}>
             <View style={pageStyles.paddedSpace} />
 
-            <View style={[styles.camera, { top: cameraOffset }]}>{props.cameraContent}</View>
+            <View style={[styles.camera, { top: cameraOffset, backgroundColor: grey }]}>
+                {props.children}
+            </View>
 
             <If.Parent value={!hideCameraButton}>
                 <If.True>

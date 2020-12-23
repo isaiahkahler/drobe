@@ -2,7 +2,6 @@ import React, { Props, PropsWithChildren } from 'react';
 import { View, TouchableHighlight, Text, StyleSheet, TouchableHighlightProps, Animated } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { width, grey, accentColor, successColor } from './constants';
-import Conditional from './uiHelpers';
 
 export const textStyles = StyleSheet.create({
     paragraph: {

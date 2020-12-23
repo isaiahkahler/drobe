@@ -20,6 +20,8 @@ export const dangerColor = '#FF3860';
 
 export const grey = '#f3f3f5';
 
+export const linkColor = '#5787FF';
+
 // icons
 
 export const iconSize = 35;
