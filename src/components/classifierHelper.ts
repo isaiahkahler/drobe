@@ -16,7 +16,12 @@ export function useClassifier() {
     const [model, setModel] = useState<mobilenet.MobileNet | null>(null);
 
     const [classClassifier] = useState(knn.create());
+
+    const [classClassifierReady, setClassClassifierReady] = useState(false);
+
     const [typeClassifier] = useState(knn.create());
+
+    const [classType, setClassType] = useState<Item['class'] | null>(null);
 
     // wait for tensorflow 
     useEffect(() => {
@@ -49,46 +54,54 @@ export function useClassifier() {
 
     // load classifiers
     useEffect(() => {
-        if (classClassifier)
+        if (classClassifier && !classClassifierReady && tfReady)
             (async () => {
                 try {
+                    console.log('loading from api');
                     let response = await fetch('https://api.keyvalue.xyz' + classModelToken, {
                         method: 'GET',
                     });
                     let tensorObj = await response.json();
-                    Object.keys(tensorObj).forEach((key) => {
-                        tensorObj[key] = tf.tensor(tensorObj[key], [tensorObj[key].length / 1000, 1000])
-                    })
-                    classClassifier.setClassifierDataset(tensorObj);
+                    console.log('got from api', Object.keys(tensorObj).length)
 
+                    // let dataset = Object.fromEntries( tensorObj.map(([label, data, shape]: any)=>[label, tf.tensor(data, shape)]) )
+                    // const dataset = Tensorset.parse(JSON.stringify(tensorObj));
+                    // Object.keys(tensorObj).forEach((key) => {
+                    //     console.log('???')
+                    //     tensorObj[key] = tf.tensor(tensorObj[key], [tensorObj[key].length / 1000, 1000])
+                    // })
+                    // console.log('converted to tensor')
+                    // classClassifier.setClassifierDataset(dataset);
+                    // setClassClassifierReady(true);
+                    // console.log('classifier ready');
                 } catch (error) {
                     console.error('could not load classifier(s): ', error);
                 }
             })();
-    }, [classClassifier]);
+    }, [classClassifier, tfReady]);
 
-    useEffect(() => {
-        if (typeClassifier)
-            (async () => {
-                try {
-                    let response = await fetch('https://api.keyvalue.xyz' + classModelToken, {
-                        method: 'GET',
-                    });
-                    let tensorObj = await response.json();
-                    Object.keys(tensorObj).forEach((key) => {
-                        tensorObj[key] = tf.tensor(tensorObj[key], [tensorObj[key].length / 1000, 1000])
-                    })
-                    classClassifier.setClassifierDataset(tensorObj);
+    // useEffect(() => {
+    //     if (typeClassifier)
+    //         (async () => {
+    //             try {
+    //                 let response = await fetch('https://api.keyvalue.xyz' + classModelToken, {
+    //                     method: 'GET',
+    //                 });
+    //                 let tensorObj = await response.json();
+    //                 Object.keys(tensorObj).forEach((key) => {
+    //                     tensorObj[key] = tf.tensor(tensorObj[key], [tensorObj[key].length / 1000, 1000])
+    //                 })
+    //                 classClassifier.setClassifierDataset(tensorObj);
 
-                } catch (error) {
-                    console.error('could not load classifier(s): ', error);
-                }
-            })();
-    }, [classClassifier]);
+    //             } catch (error) {
+    //                 console.error('could not load classifier(s): ', error);
+    //             }
+    //         })();
+    // }, [typeClassifier]);
 
 
     // const classify = async (photo: ImageSourcePropType, category: 'class' | 'top' | 'bottom' | 'full' | 'shoes' | 'accessory') => {
-    const classify = async (photo: ImageSourcePropType) => {
+    const classifyClass = async (photo: ImageSourcePropType) : Promise<{[label: string]: number} | undefined> => {
         try {
             if (model && modelReady) {
                 // image to tensor
@@ -100,7 +113,8 @@ export function useClassifier() {
 
                 const activation = model.infer(imageTensor, true);
                 const result = await classClassifier.predictClass(activation);
-                return result;
+                console.log('result of class classifier:', JSON.stringify(result));
+                return result.confidences;
             }
         } catch (error) {
             console.error('could not classify:', error);
@@ -109,8 +123,8 @@ export function useClassifier() {
     };
 
     const actions = {
-        ready: tfReady && modelReady,
-        classify: classify,
+        ready: tfReady && modelReady && classClassifierReady,
+        classifyClass: classifyClass,
     }
 
     return actions;

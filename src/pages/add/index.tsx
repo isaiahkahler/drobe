@@ -15,6 +15,7 @@ import { useStoreActions } from '../../components/store';
 import * as tf from '@tensorflow/tfjs';``
 import * as tfrn from '@tensorflow/tfjs-react-native';
 import * as mobilenet from '@tensorflow-models/mobilenet';
+import { useClassifier } from '../../components/classifierHelper';
 
 type AddStackParamList = {
     Add: undefined,
@@ -43,12 +44,6 @@ export default function AddPageStack() {
 
 function AddContainer({ route, navigation }: AddScreenProps) {
 
-    const [tfReady, setTfReady] = useState(false);
-
-    const [modelReady, setModelReady] = useState(false);
-
-    const [model, setModel] = useState<mobilenet.MobileNet | null>(null);
-
     const isFocused = useIsFocused();
 
     const [hasCameraPermission, setHasCameraPermission] = useState<boolean>(false);
@@ -63,36 +58,7 @@ function AddContainer({ route, navigation }: AddScreenProps) {
 
     const [loading, setLoading] = useState<'photo' | 'prediction' | null>(null);
 
-    const [doClassify, setDoClassify] = useState(false);
-
-    // wait for tensorflow 
-    useEffect(() => {
-        (async () => {
-            try {
-                console.log('loading tf...');
-                await tf.ready();
-                setTfReady(true);
-                console.log('tf ready');
-            } catch (error) {
-                console.error('error loading tf', error);
-            }
-        })();
-    }, []);
-
-    // load model
-    useEffect(() => {
-        (async () => {
-            try {
-                console.log('loading model...');
-                const _model = await mobilenet.load();
-                setModel(_model);
-                setModelReady(true);
-                console.log('model ready');
-            } catch (error) {
-                console.error('could not load model', error);
-            }
-        })();
-    }, []);
+    const classifier = useClassifier();
 
     const takePhoto = async () => {
         if (cameraReady && cameraRef && cameraRef.current) {
@@ -103,34 +69,6 @@ function AddContainer({ route, navigation }: AddScreenProps) {
                 console.error('error taking photo:', error);
             }
         }
-    };
-
-    useEffect(() => {
-        console.log('do classify: ', doClassify, 'photoURI:', !!photoURI, 'model?', !!model, "model readdy?", modelReady);
-        if(doClassify && photoURI && model && modelReady) {
-            classifyImage();
-        }
-    }, [photoURI, doClassify, model, modelReady]);
-
-    const classifyImage = async () => {
-        console.log('starting classifier')
-        try {
-            if(photoURI && modelReady && model) {
-                console.log('classifying...');
-                const imageAssetPath = Image.resolveAssetSource(photoURI);
-                const response = await tfrn.fetch(imageAssetPath.uri, {}, {isBinary: true});
-                const rawImageData = await response.arrayBuffer();
-                const imageData = new Uint8Array(rawImageData);
-                const imageTensor = tfrn.decodeJpeg(imageData);
-                const predictions = await model.classify(imageTensor);
-                console.log('predictions:');
-                console.log(predictions);
-            }
-        } catch (error) {
-            console.error(error);
-        }
-        setDoClassify(false);
-        console.log('ending classifier');
     };
 
     // camera permissions
@@ -192,7 +130,13 @@ function AddContainer({ route, navigation }: AddScreenProps) {
         if (cameraReady) {
             await takePhoto();
         }
-        setDoClassify(true);
+        if(photoURI) {
+            let classType = await classifier.classifyClass(photoURI);
+            if(classType) {
+                // console.log('classType:', classType);
+            }
+        }
+
     };
 
     return (<Add handlePhotoButtonPress={onPhotoButtonPress} predictedAttributes={null}><CameraContent /></Add>)
