@@ -65,46 +65,6 @@ function AddContainer({ route, navigation }: AddScreenProps) {
 
     const [doClassify, setDoClassify] = useState(false);
 
-
-
-    const takePhoto = async () => {
-        if (cameraReady && cameraRef && cameraRef.current) {
-            try {
-                const picture = await cameraRef.current.takePictureAsync();
-                setPhotoURI({ uri: picture.uri });
-            } catch (error) {
-                console.error('error taking photo:', error);
-            }
-        }
-    };
-
-    useEffect(() => {
-        if(doClassify && photoURI && model && modelReady) {
-            classifyImage();
-        }
-    }, [photoURI, doClassify, model, modelReady]);
-
-    const classifyImage = async () => {
-        console.log('starting classifier')
-        try {
-            if(photoURI && modelReady && model) {
-                console.log('classifying...');
-                const imageAssetPath = Image.resolveAssetSource(photoURI);
-                const response = await tfrn.fetch(imageAssetPath.uri, {}, {isBinary: true});
-                const rawImageData = await response.arrayBuffer();
-                const imageData = new Uint8Array(rawImageData);
-                const imageTensor = tfrn.decodeJpeg(imageData);
-                const predictions = await model.classify(imageTensor);
-                console.log('predictions:');
-                console.log(predictions);
-            }
-        } catch (error) {
-            console.error(error);
-        }
-        setDoClassify(false);
-        console.log('ending classifier');
-    };
-
     // wait for tensorflow 
     useEffect(() => {
         (async () => {
@@ -133,6 +93,45 @@ function AddContainer({ route, navigation }: AddScreenProps) {
             }
         })();
     }, []);
+
+    const takePhoto = async () => {
+        if (cameraReady && cameraRef && cameraRef.current) {
+            try {
+                const picture = await cameraRef.current.takePictureAsync();
+                setPhotoURI({ uri: picture.uri });
+            } catch (error) {
+                console.error('error taking photo:', error);
+            }
+        }
+    };
+
+    useEffect(() => {
+        console.log('do classify: ', doClassify, 'photoURI:', !!photoURI, 'model?', !!model, "model readdy?", modelReady);
+        if(doClassify && photoURI && model && modelReady) {
+            classifyImage();
+        }
+    }, [photoURI, doClassify, model, modelReady]);
+
+    const classifyImage = async () => {
+        console.log('starting classifier')
+        try {
+            if(photoURI && modelReady && model) {
+                console.log('classifying...');
+                const imageAssetPath = Image.resolveAssetSource(photoURI);
+                const response = await tfrn.fetch(imageAssetPath.uri, {}, {isBinary: true});
+                const rawImageData = await response.arrayBuffer();
+                const imageData = new Uint8Array(rawImageData);
+                const imageTensor = tfrn.decodeJpeg(imageData);
+                const predictions = await model.classify(imageTensor);
+                console.log('predictions:');
+                console.log(predictions);
+            }
+        } catch (error) {
+            console.error(error);
+        }
+        setDoClassify(false);
+        console.log('ending classifier');
+    };
 
     // camera permissions
     useEffect(() => {
@@ -189,6 +188,7 @@ function AddContainer({ route, navigation }: AddScreenProps) {
     }
 
     const onPhotoButtonPress = async () => {
+        console.log('button press')
         if (cameraReady) {
             await takePhoto();
         }
